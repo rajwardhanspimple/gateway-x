@@ -1,0 +1,204 @@
+/* ==========================================================================
+   appearance-readability.css — contrast ramp + type scale floors
+   --------------------------------------------------------------------------
+   READ THIS BEFORE EXTENDING IT. THIS FILE IS A STOPGAP.
+
+   The proper fix is to change the utility classes at source: map every text
+   colour onto a four-tier ink ramp and every font size onto a named scale,
+   in the 14 kit files that carry them. That is 673 individual edits and it is
+   tracked as its own work.
+
+   This file buys the readability NOW, without touching those files, by
+   matching the utility class names that are already in the markup and
+   overriding what they resolve to. It is honest CSS, not a hack — but it is
+   a floor, not a design. Two consequences to know about:
+
+     1. It cannot tell a text role apart the way a human can. It infers:
+        `font-mono` + `uppercase` is a label, everything else is body copy.
+        That is right almost everywhere in this kit and wrong occasionally.
+     2. It adds specificity. Once the source edits land, DELETE THIS FILE
+        rather than layering on top of it.
+
+   Why it is needed at all: 213 text occurrences in the kit sit below the
+   4.5:1 WCAG body-text threshold in the light appearance that ships today.
+   `text-white/30` measures 2.5:1 on the paper canvas. This is not a dark-mode
+   problem, it is a current-mode problem, and it predates the dark appearance.
+
+   Loaded after appearance-dark.css. Applies to BOTH appearances: the floors
+   are expressed against `--color-white`, which each appearance defines as its
+   own ink, so one set of rules serves both.
+
+   Measurements and the role mapping: APPEARANCE-PLAN.md.
+   ========================================================================== */
+
+/* ======================================================= 1. the ink ramp */
+
+/* Tailwind compiles `text-white/45` to a fixed 45% mix, so the percentage
+   cannot be moved with a token — the utility itself has to be answered.
+
+   65% is the floor. On the light page 65% ink measures 5.2:1 and 60%
+   measures 4.4:1, which fails. The light appearance is the binding case;
+   the dark appearance has headroom at the same opacities, which is why one
+   ramp serves both.
+
+   Anything at 65% or above is already legal and is left alone. */
+
+/* --- body copy, the 70% secondary tier -----------------------------------
+   Everything that is not a mono uppercase label. */
+.ragestar-scope
+  :is(
+    [class~="text-white/30"],
+    [class~="text-white/35"],
+    [class~="text-white/40"],
+    [class~="text-white/45"],
+    [class~="text-white/50"],
+    [class~="text-white/55"],
+    [class~="text-white/60"]
+  ) {
+  color: color-mix(in oklab, var(--color-white) 70%, transparent);
+}
+
+/* --- labels, the 65% tier ------------------------------------------------
+   Short uppercase monospace captions with wide tracking. They sit at the
+   floor rather than the secondary tier because they are set in caps, which
+   reads heavier at the same opacity. Three attribute selectors, so this
+   outranks the rule above on specificity without !important. */
+.ragestar-scope
+  [class~="font-mono"][class~="uppercase"]:is(
+    [class~="text-white/30"],
+    [class~="text-white/35"],
+    [class~="text-white/40"],
+    [class~="text-white/45"],
+    [class~="text-white/50"],
+    [class~="text-white/55"],
+    [class~="text-white/60"]
+  ) {
+  color: color-mix(in oklab, var(--color-white) 65%, transparent);
+}
+
+/* --- accent text ---------------------------------------------------------
+   Three of the four accents were chosen as FILL colours and then reused as
+   type. On the light paper canvas, as text: instrument teal 4.4:1, signal
+   red 3.6:1, brass 2.2:1. Each needs a darker stop when it carries text.
+
+   Scoped to `text-` utilities only, so fills, borders, rings and icon
+   strokes keep the saturated value they were picked for. The dark
+   appearance already clears the threshold with its own lifted accents
+   (see appearance-dark.css), so these only apply to the light one. */
+:root:not([data-theme="dark"]) .ragestar-scope [class~="text-lime-300"],
+:root:not([data-theme="dark"]) .ragestar-scope [class~="text-lime-200"] {
+  color: #0a6353; /* 6.0:1 on paper */
+}
+
+:root:not([data-theme="dark"]) .ragestar-scope [class~="text-rose-200"],
+:root:not([data-theme="dark"]) .ragestar-scope [class~="text-rose-100"] {
+  color: #a82310; /* 6.0:1 on paper */
+}
+
+/* The existing darkest brass (#8f6a0d) measures 4.15:1 and still misses, so
+   this stop is new rather than borrowed from the ramp. */
+:root:not([data-theme="dark"]) .ragestar-scope [class~="text-amber-200"],
+:root:not([data-theme="dark"]) .ragestar-scope [class~="text-amber-300"] {
+  color: #7a5a0a; /* 5.3:1 on paper */
+}
+
+/* ====================================================== 2. the type scale */
+
+/* 460 arbitrary `text-[Npx]` values across 24 distinct sizes, 36 of them
+   below 12px for body copy. minimal.css had set a deliberate 14px floor
+   ("nothing smaller anywhere") and the kit broke it.
+
+   Two floors, because caps with wide tracking read larger than their nominal
+   size: 13px for body copy, 11px for mono uppercase labels. Sizes already at
+   or above their floor are left alone, so the visual hierarchy the kit built
+   above 13px is untouched. */
+
+/* --- body copy floor: 13px ---------------------------------------------- */
+.ragestar-scope
+  :is(
+    [class~="text-[8.5px]"],
+    [class~="text-[9px]"],
+    [class~="text-[9.5px]"],
+    [class~="text-[10px]"],
+    [class~="text-[10.5px]"],
+    [class~="text-[11px]"],
+    [class~="text-[11.5px]"],
+    [class~="text-[12px]"],
+    [class~="text-[12.5px]"]
+  ) {
+  font-size: 13px;
+}
+
+/* --- label floor: 11px --------------------------------------------------
+   Mono uppercase only. Kept below the body floor on purpose: these are
+   2-4 word captions in caps at 0.14em-0.24em tracking, and pushing them to
+   13px would break the rail and table-header layouts they sit in. */
+.ragestar-scope
+  [class~="font-mono"][class~="uppercase"]:is(
+    [class~="text-[8.5px]"],
+    [class~="text-[9px]"],
+    [class~="text-[9.5px]"],
+    [class~="text-[10px]"],
+    [class~="text-[10.5px]"]
+  ) {
+  font-size: 11px;
+}
+
+.ragestar-scope
+  [class~="font-mono"][class~="uppercase"]:is(
+    [class~="text-[11px]"],
+    [class~="text-[11.5px]"],
+    [class~="text-[12px]"]
+  ) {
+  font-size: 12px;
+}
+
+/* --- responsive variants ------------------------------------------------
+   `sm:text-[13px]` and friends compile to the same declaration inside a
+   media query, and a min-width query that has not matched must not be
+   overridden at the smaller viewport. Only the >= 640px band is answered,
+   which is where every such variant in the kit is defined. */
+@media (min-width: 640px) {
+  .ragestar-scope
+    :is(
+      [class~="sm:text-[10px]"],
+      [class~="sm:text-[11px]"],
+      [class~="sm:text-[12px]"],
+      [class~="sm:text-[12.5px]"]
+    ) {
+    font-size: 13px;
+  }
+}
+
+/* ================================================== 3. status is not colour */
+
+/* A state carried by hue alone is invisible to a colour-blind reader and to
+   anyone on a bad panel. The kit's live/warn/fail chips already carry a text
+   label in every instance; this adds the shape channel to the bare status
+   dots, which do not.
+
+   Ring, not fill: it survives a forced-colours mode, where background is
+   dropped but border is kept. */
+.ragestar-scope [class~="bg-lime-400"]:empty,
+.ragestar-scope [class~="bg-rose-500"]:empty,
+.ragestar-scope [class~="bg-amber-400"]:empty {
+  outline: 1px solid color-mix(in oklab, var(--color-white) 30%, transparent);
+  outline-offset: 1px;
+}
+
+/* ============================================== 4. respect the OS setting */
+
+@media (prefers-reduced-motion: reduce) {
+  .ragestar-scope * {
+    scroll-behavior: auto;
+  }
+}
+
+/* Forced-colours mode replaces the palette wholesale. Let it: every override
+   above is a colour, and none of them should fight the user's own contrast
+   choice. */
+@media (forced-colors: active) {
+  .ragestar-scope :is([class*="text-white/"], [class*="text-lime-"], [class*="text-rose-"], [class*="text-amber-"]) {
+    color: CanvasText;
+  }
+}
