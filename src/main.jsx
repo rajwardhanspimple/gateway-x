@@ -84,6 +84,12 @@ import "./ragestar/chrome.css";
    light appearance is active. See the header in the file itself and
    APPEARANCE-PLAN.md. */
 import "./styles/appearance-dark.css";
+/* Contrast and type-size floors, after the palette so it can express its
+   thresholds against whichever appearance is active. A STOPGAP: it answers
+   the utility class names in the markup instead of editing the 14 kit files
+   that carry them. Delete it when those source edits land — do not layer on
+   top of it. See the header in the file itself. */
+import "./styles/appearance-readability.css";
 /* Theme bootstrap.
    This used to be an inline <script> in index.html. Inline scripts are blocked
    by the Content-Security-Policy shipped with the production build, so the
