@@ -76,23 +76,26 @@ import "./styles/announcements.css";
    the gateway's :root tokens, so this re-declares those token names with
    RageStar values on those four roots. See the header in src/ragestar/chrome.css. */
 import "./ragestar/chrome.css";
-/* The dark appearance, after chrome.css and therefore after everything.
-   It has to be last for two reasons: it re-declares the kit's @theme token
-   names under [data-theme="dark"] .ragestar-scope, and it undoes the paper
-   values chrome.css pins onto the four out-of-scope layers with its own
-   [data-theme="dark"] rules. Tokens only, so it restyles nothing while the
-   light appearance is active. See the header in the file itself and
-   APPEARANCE-PLAN.md. */
+/* ---------------------------------------------------------------------------
+   The dark appearance. Four sheets, in dependency order — see APPEARANCE-PLAN.md.
+   --------------------------------------------------------------------------- */
+/* 1. the palette: re-declares the kit's @theme token names under
+      [data-theme="dark"] .ragestar-scope, and undoes the paper values
+      chrome.css pins onto the four out-of-scope layers. Tokens only, so it
+      restyles nothing while the light appearance is active. */
 import "./styles/appearance-dark.css";
-/* The staff admin panel in dark. A separate sheet because that panel is NOT
-   built from kit utilities — it is the gateway's own panel mounted inside
-   .ragestar-admin, skinned by admin-panel.css and admin-ragestar.css with
-   literal light hex, which the token swap above cannot reach. Must load after
-   both of those sheets. */
+/* 2. the staff admin panel. A separate sheet because that panel is NOT built
+      from kit utilities — it is the gateway's own panel mounted inside
+      .ragestar-admin, skinned by admin-panel.css and admin-ragestar.css with
+      literal light hex the token swap cannot reach. Must load after both. */
 import "./styles/appearance-dark-admin.css";
-/* The floating light/dark switch (.rs-appearance), mounted once in App.jsx.
-   After appearance-dark.css because it reads the gateway token names that file
-   re-bridges for the dark appearance. */
+/* 3. pricing, status and docs. These hardcode arbitrary Tailwind values
+      (bg-[#f4f6ee], text-[#e9ece4]) which compile to literal hex, so they too
+      sit outside the swap. Also fixes the reverse case: surfaces that DID
+      invert while their literal text colour did not. */
+import "./styles/appearance-dark-pages.css";
+/* 4. the floating light/dark switch (.rs-appearance), mounted once in App.jsx.
+      Reads the gateway token names sheet 1 re-bridges. */
 import "./styles/appearance-control.css";
 /* Contrast and type-size floors, after the palette so it can express its
    thresholds against whichever appearance is active. A STOPGAP: it answers
