@@ -1,0 +1,52 @@
+{
+  "name": "ragestar-react",
+  "private": true,
+  "version": "11.3.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "db:push": "bash scripts/apply-schema.sh",
+    "db:push:seed": "bash scripts/apply-schema.sh --seed",
+    "fn:deploy": "supabase functions deploy router --no-verify-jwt && supabase functions deploy admin-check-keys --no-verify-jwt && supabase functions deploy admin-account --no-verify-jwt && supabase functions deploy firebase-auth --no-verify-jwt && supabase functions deploy keywatch --no-verify-jwt && supabase functions deploy kie --no-verify-jwt",
+    "fn:deploy:auth": "supabase functions deploy firebase-auth --no-verify-jwt",
+    "fn:keywatch": "supabase functions deploy keywatch --no-verify-jwt",
+    "keywatch:migrate": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/upgrade-v11.3-keywatch-in-postgres.sql -f supabase/upgrade-v11.3b-selftest-pg-cron.sql",
+    "keywatch:up": "npm run fn:keywatch && npm run keywatch:migrate",
+    "keywatch:doctor": "node scripts/keywatch-doctor.mjs",
+    "fn:kie": "supabase functions deploy kie --no-verify-jwt",
+    "kie:migrate": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/upgrade-v11.5-kie-codex-responses.sql",
+    "kie:migrate:11.6": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/upgrade-v11.6-kie-original.sql",
+    "kie:up": "npm run kie:migrate:11.6 && npm run fn:deploy",
+    "kie:probe": "python3 scripts/kie-probe.py",
+    "kie:probe:dump": "python3 scripts/kie-probe.py --dump",
+    "test": "npm run test:ui && npm run test:hooks && npm run test:render && npm run test:admin-live && npm run test:keys-live && npm run test:keys-view-live && npm run test:discord-live && npm run test:contrast && npm run test:keywatch",
+    "test:ui": "node scripts/check-ui.mjs",
+    "test:hooks": "node scripts/check-hooks.mjs",
+    "test:render": "node scripts/check-render.mjs",
+    "test:admin-live": "node scripts/check-admin-live.mjs",
+    "test:keys-live": "node scripts/check-keys-live.mjs",
+    "test:keys-view-live": "node scripts/check-keys-view-live.mjs",
+    "test:discord-live": "node scripts/check-discord-live.mjs",
+    "test:contrast": "node scripts/check-contrast.mjs",
+    "test:keywatch": "node scripts/check-keywatch.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.48.0",
+    "clsx": "^2.1.1",
+    "firebase": "^11.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^9.13.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "tailwindcss": "^4.3.3",
+    "vite": "^5.4.2",
+    "wrangler": "^4.131.2"
+  }
+}
