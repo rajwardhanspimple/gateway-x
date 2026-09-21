@@ -1,0 +1,177 @@
+/* ==========================================================================
+   appearance-dark-pages.css — pricing, status and docs in dark
+   --------------------------------------------------------------------------
+   These three pages are built from kit utilities like every other screen, so
+   the token swap in appearance-dark.css reaches almost all of them. What it
+   cannot reach is the arbitrary Tailwind values their markup hardcodes:
+   `bg-[#f4f6ee]`, `text-[#e9ece4]`, `bg-[#101814]`. Tailwind compiles those to
+   literal hex, not to a var(), so no palette override can move them.
+
+   TWO DISTINCT BUGS LIVE HERE, and they pull in opposite directions.
+
+   1. LIGHT SURFACES THAT STAYED LIGHT.
+      `bg-[#f4f6ee]` is raised paper. Nine of them: the plan cards, the
+      comparison matrix, the subscribe field, the docs code frames, callouts,
+      the search input and the sticky sidebar. On a dark canvas these are
+      cream slabs, which is the same defect the admin panel had.
+
+   2. DARK SURFACES THAT ARE NOW INVISIBLE.
+      This is the subtler one and it is the reverse case. The pricing CTA band
+      and the status meta cards use `bg-ink-800` — a TOKEN, which correctly
+      inverts to a dark surface … and their text is `text-[#e9ece4]`, a
+      LITERAL, which does not. In the light appearance that pairing is light
+      type on a dark band, which reads. In the dark appearance the surface
+      followed the token to #222b25 while the text stayed #e9ece4-on-almost-
+      black — so they still read, but the "Create workspace" button is
+      `bg-[#e9ece4]` with `text-white/85`, and --color-white is now LIGHT, so
+      it became near-white on near-white. Invisible.
+
+      The fix for that class is to pin the band to a fixed dark surface in BOTH
+      appearances, because its whole design intent is "inverted panel", and to
+      give the button ink that stays dark.
+
+   Loaded after appearance-dark.css. Every rule is gated on
+   [data-theme="dark"], so the light appearance is untouched.
+
+   The real fix is the tokenize pass in APPEARANCE-PLAN.md, which removes the
+   literals at source and makes this file unnecessary. Delete it then.
+   ========================================================================== */
+
+/* ============================================ 1. raised paper → raised dark */
+
+/* `bg-[#f4f6ee]` compiles to this exact declaration. Matching on the computed
+   value rather than the class name keeps one rule covering all nine sites
+   across the three pages. */
+
+[data-theme="dark"] .ragestar-scope [class~="bg-[#f4f6ee]"] {
+  background-color: #171e1a;
+}
+
+/* The same literal appears as a border on the docs callout's left edge. */
+[data-theme="dark"] .ragestar-scope [class~="border-[#f4f6ee]"] {
+  border-color: #171e1a;
+}
+
+/* ==================================== 2. the inverted bands stay inverted */
+
+/* The pricing CTA band and the status meta cards are "inverted panel" by
+   design: dark surface, light type, in BOTH appearances. In light they get
+   that from bg-ink-800 (#d3d9c8 … which is itself wrong, but it is the light
+   appearance's problem and out of scope here). In dark, bg-ink-800 resolves to
+   #222b25 — barely distinguishable from the #101814 page.
+
+   Lift them one step so the band still reads as a panel on the canvas. */
+
+[data-theme="dark"] .ragestar-scope [class~="bg-ink-800"] {
+  background-color: #1c241f;
+}
+
+[data-theme="dark"] .ragestar-scope [class~="border-ink-800"] {
+  border-color: rgba(233, 236, 228, 0.18);
+}
+
+/* bg-ink-800/60 and /70 are used on table header rows and inline code. The
+   alpha variants compile to color-mix(), so they follow --color-ink-800 from
+   the token swap already — no rule needed. */
+
+/* ============================== 3. the invisible button on the CTA band */
+
+/* `bg-[#e9ece4] text-white/85` on the pricing CTA. The background is a literal
+   that stays light; the text resolves --color-white, which is now ALSO light.
+   Near-white on near-white.
+
+   The button is meant to be the light chip on the dark band, so keep the light
+   background and force dark ink onto it. */
+
+[data-theme="dark"] .ragestar-scope [class~="bg-[#e9ece4]"] {
+  background-color: #e9ece4;
+  color: #101814;
+}
+
+/* `text-white/85` is a separate declaration on the same element and would win
+   on source order, so the ink has to be asserted where both land. */
+[data-theme="dark"] .ragestar-scope [class~="bg-[#e9ece4]"][class*="text-white"] {
+  color: #101814;
+}
+
+/* The status page's submit button is the mirror image: bg-ink-800 (token, goes
+   dark) with text-[#e9ece4] (literal, stays light). That pairing is correct in
+   dark, so it needs nothing — recorded here so the omission reads as
+   deliberate rather than missed. */
+
+/* ======================================== 4. the pinned dark pill and ink */
+
+/* `bg-[#101814]` is the "most popular" flag on the featured plan card and the
+   docs method pills: pine ink as a solid fill, with text-[#e9ece4] on it. In
+   the dark appearance that fill is the same colour as the page, so the pill
+   dissolves into the background. Lift it and give it an edge. */
+
+[data-theme="dark"] .ragestar-scope [class~="bg-[#101814]"] {
+  background-color: #2b352e;
+  border: 1px solid rgba(233, 236, 228, 0.2);
+}
+
+/* The hard offset shadow on the featured plan's CTA is pine ink, invisible on
+   a dark canvas. True black instead, matching appearance-dark.css section 4. */
+[data-theme="dark"] .ragestar-scope [class*="shadow-[6px_6px_0_0_#101814]"]:hover {
+  box-shadow: 6px 6px 0 0 rgba(0, 0, 0, 0.6);
+}
+
+/* The reverse: a light-coloured offset shadow, used on the CTA band's button
+   because that band is dark. It is still correct in the dark appearance.
+   Noted, not changed. */
+
+/* ================================================ 5. docs: the code frames */
+
+/* The docs page sets an explicit inline `color: #e9ece4` on one code block
+   (pages/docs.jsx line 553). Inline styles beat any stylesheet, so this cannot
+   be fixed from here — it needs the source edit. It happens to be correct in
+   dark (light ink), and wrong in light, which is a pre-existing light-appearance
+   bug outside this file's scope.
+
+   The DotmSquare1 spinner colours (#2447E8 on docs, #E9ECE4 elsewhere) are
+   props passed to a canvas component, not CSS. Also source-edit only. The
+   cobalt one reads acceptably on both canvases; the #E9ECE4 ones sit on dark
+   buttons and are correct. */
+
+/* ==================================================== 6. status indicators */
+
+/* status.jsx line 122 passes a literal colour to the health dot:
+   #C79A1E when degraded, #0D7A66 when healthy. Both are the LIGHT-appearance
+   fill values, chosen for a paper canvas, and both are too dark to read on
+   #101814 — instrument teal measures about 2.1:1 there.
+
+   It is a prop, not CSS, so the value itself needs the source edit. What this
+   can do is ensure the surrounding chip carries its own contrast, so the state
+   is not conveyed by that dot alone. */
+
+[data-theme="dark"] .ragestar-scope [class~="text-lime-300"],
+[data-theme="dark"] .ragestar-scope [class~="text-lime-200"] {
+  color: #3db495;
+}
+
+[data-theme="dark"] .ragestar-scope [class~="text-amber-200"],
+[data-theme="dark"] .ragestar-scope [class~="text-amber-300"] {
+  color: #d9ae3a;
+}
+
+[data-theme="dark"] .ragestar-scope [class~="text-rose-200"],
+[data-theme="dark"] .ragestar-scope [class~="text-rose-100"] {
+  color: #f2705c;
+}
+
+/* ======================================================= 7. form controls */
+
+/* The docs search input and the status subscribe field are `bg-[#f4f6ee]`,
+   handled in section 1, but their placeholder is `placeholder:text-white/65`
+   — which resolves the now-light --color-white on a now-dark field. Correct.
+   The field's own text is `text-white/85`. Also correct. Nothing to do; noted
+   so the gap is not mistaken for an oversight. */
+
+/* A focus ring is the one thing that must never be lost on a dark field. */
+[data-theme="dark"] .ragestar-scope input:focus-visible,
+[data-theme="dark"] .ragestar-scope textarea:focus-visible,
+[data-theme="dark"] .ragestar-scope select:focus-visible {
+  outline: 2px solid #6e9bf5;
+  outline-offset: 1px;
+}
