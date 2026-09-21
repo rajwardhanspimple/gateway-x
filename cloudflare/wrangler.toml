@@ -1,0 +1,44 @@
+# ---------------------------------------------------------------------------
+#  RageStar edge proxy  —  its OWN Worker, on its OWN hostname
+#  deploy with:  npx wrangler deploy
+# ---------------------------------------------------------------------------
+#  Hostname map for ragestar.bond:
+#
+#    ragestar.bond          -> the website / frontend  (leave alone)
+#    gw.ragestar.bond      -> a DIFFERENT Worker       (leave alone)
+#    gw.ragestar.bond       -> this Worker              <-- new
+#
+#  The Worker name below is what makes this a separate Worker in Cloudflare,
+#  and the route below keeps it off the two hostnames already in use. Nothing
+#  here touches the apex domain or the other Worker.
+#
+#  A new Worker starts with NO secrets — run this against it too:
+#    npx wrangler secret put RS_EDGE_SECRET
+#
+#  Prerequisite: ragestar.bond is already an active zone in this Cloudflare
+#  account. custom_domain = true makes Cloudflare create the DNS record AND
+#  the TLS certificate for gw.ragestar.bond — do not add a CNAME by hand.
+# ---------------------------------------------------------------------------
+
+name = "ragestar-gateway"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+# Keeps the ragestar-gateway.<your-subdomain>.workers.dev URL alive so you can
+# smoke-test before DNS/TLS for gw.ragestar.bond finishes provisioning.
+workers_dev = true
+
+routes = [
+  { pattern = "gw.ragestar.bond", custom_domain = true }
+]
+
+# Secrets are NOT stored here (they would land in git). Use:
+#   npx wrangler secret put RS_EDGE_SECRET
+
+[observability]
+enabled = true
+
+# Paid-plan only — uncomment to run the Worker near Supabase instead of near
+# the caller. Leave off on the free plan or `deploy` will reject it.
+# [placement]
+# mode = "smart"

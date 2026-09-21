@@ -1,0 +1,16 @@
+# Security headers for Netlify / Cloudflare Pages (dist/_headers after build).
+# Vercel users: the same values live in vercel.json.
+# Keep the CSP in sync with vite.config.js.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://lh3.googleusercontent.com https://cdn.discordapp.com; connect-src https://gw.ragestar.bond 'self' https://*.supabase.co wss://*.supabase.co https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://*.firebaseapp.com; frame-src https://*.firebaseapp.com https://accounts.google.com https://apis.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  # same-origin-allow-popups, not same-origin: the Google sign-in popup has to
+  # be able to talk back to the window that opened it, and a strict
+  # same-origin COOP silently breaks signInWithPopup.
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cross-Origin-Resource-Policy: same-origin
+  X-XSS-Protection: 0

@@ -1,0 +1,32 @@
+{
+  // ---------------------------------------------------------------------------
+  //  RageStar FRONTEND (the static Vite/React site) as a Worker with assets.
+  //
+  //  This file exists so `npx wrangler deploy` run from the REPO ROOT knows
+  //  what to deploy. Without it, wrangler finds no config, falls back to
+  //  project sniffing, tries to read vite.config.js and dies with
+  //  "Error parsing file: /opt/buildhome/repo/vite.config.js".
+  //
+  //  IMPORTANT: `name` must match the Worker you created in the dashboard,
+  //  otherwise Workers Builds deploys/creates a differently-named Worker.
+  //
+  //  This is NOT the gateway proxy. That one lives in cloudflare/wrangler.toml
+  //  and must be deployed as its own separate Worker (root directory
+  //  `cloudflare/`, no build command).
+  // ---------------------------------------------------------------------------
+
+  "name": "ragestar-site",
+  "compatibility_date": "2026-09-01",
+
+  // No "main": there is no server-side code here. An assets-only Worker just
+  // serves ./dist straight from Cloudflare's edge, which is what a hash-routed
+  // SPA needs and it costs nothing per request.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}
