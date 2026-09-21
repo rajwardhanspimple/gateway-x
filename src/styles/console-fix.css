@@ -1,0 +1,112 @@
+/* ==========================================================================
+   console-fix.css
+
+   1) Console page layout
+      styles.css defines `.console` as an app-shell grid:
+        .console { grid-template-columns: 232px minmax(0, 1fr) }
+      but Console.jsx renders a single `.container` child, so that child was
+      placed in the 232px track — every heading, stat, table and paragraph got
+      squeezed into a narrow strip in the top-left corner. The page now uses
+      its own `.console-page` scope with a normal document flow, plus a real
+      two-column main/rail grid (`.console-layout`) which previously had no
+      styles at all.
+
+   2) Custom cursor removed
+      <Cursor /> is gone from App.jsx; these rules make sure nothing from the
+      old cursor layer can linger (native pointer restored, fx nodes hidden,
+      magnetic pull neutralised).
+   ========================================================================== */
+
+/* ------------------------------------------------------------ 1. console */
+
+.console-page {
+  display: block;
+  min-height: 100vh;
+  padding-block: clamp(20px, 3vw, 34px) clamp(48px, 6vw, 88px);
+}
+
+.console-page > .container {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+/* main + sidebar */
+.console-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+  gap: 18px;
+}
+
+.console-col,
+.console-rail {
+  min-width: 0;
+}
+
+.console-rail {
+  position: sticky;
+  top: 18px;
+}
+
+/* header row of the console (brand ↔ account) */
+.console-page .row-between {
+  width: 100%;
+}
+
+.console-page .adm-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+/* the loading state shares the same centred column */
+.gate-wait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .console-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .console-rail {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .console-page {
+    padding-block: 16px 48px;
+  }
+  .console-page .row-between {
+    align-items: flex-start;
+  }
+}
+
+/* -------------------------------------------------------- 2. no cursor fx */
+
+body.has-cursor,
+body.has-cursor * {
+  cursor: auto !important;
+}
+
+.cur-dot,
+.cur-ring,
+.cur-tag,
+.cur-trail,
+.cur-fx,
+.cur-ripple {
+  display: none !important;
+}
+
+[data-magnetic] {
+  transform: none !important;
+}

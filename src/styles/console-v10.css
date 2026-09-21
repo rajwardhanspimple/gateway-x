@@ -1,0 +1,576 @@
+/* ==========================================================================
+   console-v10.css
+   --------------------------------------------------------------------------
+   Two jobs, both console-only, loaded after flim.css so it actually wins.
+
+   1) THE TAB STRIP WAS INVISIBLE
+      main.jsx imports App.jsx before its own stylesheets, so App.jsx's
+      console-tabs.css lands *first* in the cascade and flim.css — loaded
+      last — overrode it. flim.css styles `.con-tab` for the admin panel's
+      vertical rail:
+
+        .adm-tab, .con-tab { width: 100%; justify-content: space-between }
+
+      The console renders a horizontal strip instead (`.con-tabs-track`,
+      `overflow-x: auto`, scrollbar hidden). Each of the nine tabs therefore
+      claimed 100% of the track, pushing eight of them off-screen behind a
+      hidden scrollbar: all you could see was one icon and the word
+      "OVERVIEW" floating at the right edge. Fixed here by giving the tabs
+      their intrinsic width back inside the strip, and keeping the rail rules
+      for the admin panel where they belong.
+
+   2) PLAYGROUND
+      It was one long column: key, model, prompt, button, then the response
+      appended underneath, so the answer pushed the form around and the
+      request metadata read as loose pills. It is now a request/response
+      workbench — composer on the left, live response panel on the right,
+      both hairline-ruled like the rest of the v9 "grid paper" look.
+   ========================================================================== */
+
+/* =============================================================== 1. tabs = */
+
+.con-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  margin-bottom: 20px;
+  padding-block: 10px 0;
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--rule, var(--border)) !important;
+}
+
+.con-tabs-track {
+  display: flex;
+  align-items: center;
+  gap: 2px !important;
+  padding: 0 2px 8px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  /* fade the ends so a strip that scrolls looks like one */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 12px,
+    #000 calc(100% - 12px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 12px,
+    #000 calc(100% - 12px),
+    transparent 100%
+  );
+}
+
+.con-tabs-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* the actual repair: intrinsic width, centred content, pill shape */
+.con-tabs-track .con-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: auto !important;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 13px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--ink-soft, var(--muted)) !important;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+
+.con-tabs-track .con-tab span {
+  font-size: inherit;
+}
+
+.con-tabs-track .con-tab svg {
+  flex: 0 0 auto;
+  opacity: 0.55;
+}
+
+.con-tabs-track .con-tab:hover {
+  background: var(--paper-2, var(--hover)) !important;
+  color: var(--ink, var(--text)) !important;
+}
+
+.con-tabs-track .con-tab:focus-visible {
+  outline: 2px solid var(--ink, var(--primary));
+  outline-offset: 2px;
+}
+
+/* active = the solid pill the rest of v9 uses for its primary controls */
+.con-tabs-track .con-tab.is-on,
+.con-tabs-track .con-tab[aria-selected="true"] {
+  background: var(--ink, var(--primary)) !important;
+  color: var(--paper, var(--primary-ink)) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .con-tabs-track .con-tab.is-on,
+[data-theme="dark"] .con-tabs-track .con-tab[aria-selected="true"] {
+  background: var(--citron) !important;
+  color: var(--citron-ink) !important;
+}
+
+.con-tabs-track .con-tab.is-on svg,
+.con-tabs-track .con-tab[aria-selected="true"] svg {
+  opacity: 1;
+  color: currentColor;
+}
+
+/* interactive.css draws an underline via ::after for the admin rail; inside
+   the pill strip it would sit under a filled pill, so retire it here */
+.con-tabs-track .con-tab::after {
+  display: none !important;
+}
+
+.con-tabs-track .con-tab-count {
+  padding: 1px 6px !important;
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent) !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .con-tabs-track .con-tab {
+    padding: 0 11px !important;
+  }
+  .con-tabs-track .con-tab svg {
+    display: none;
+  }
+}
+
+/* ========================================================= 2. playground = */
+
+.pg {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.pg-card {
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--rule, var(--border));
+  background: var(--raised, var(--surface));
+}
+
+.pg-head b {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint, var(--faint));
+}
+
+.pg-head-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pg-body {
+  padding: 16px;
+}
+
+.pg-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.pg-field-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pg-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint, var(--faint));
+}
+
+.pg-textarea {
+  width: 100%;
+  min-height: 132px;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+/* what the selected model actually costs and remembers */
+.pg-metas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.pg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-faint, var(--faint));
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pg-chip b {
+  font-weight: 500;
+  color: var(--ink, var(--text));
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* a .pg-head reused mid-card, as a section divider */
+.pg-head-sub {
+  border-top: 1px solid var(--rule, var(--border));
+}
+
+.pg-prompt {
+  margin-top: 14px;
+}
+
+/* preset prompts */
+.pg-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.pg-preset {
+  padding: 4px 10px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft, var(--muted));
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.pg-preset:hover {
+  border-color: var(--ink, var(--border-strong));
+  color: var(--ink, var(--text));
+}
+
+.pg-preset.is-on {
+  border-color: var(--ink, var(--primary));
+  background: var(--primary-soft);
+  color: var(--ink, var(--text));
+}
+
+.pg-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-top: 1px solid var(--rule, var(--border));
+  background: var(--raised, var(--surface));
+}
+
+.pg-actions .pg-spacer {
+  flex: 1 1 auto;
+}
+
+.pg-endpoint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint, var(--faint));
+  overflow-wrap: anywhere;
+}
+
+.pg-kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-faint, var(--faint));
+}
+
+/* ---------------------------------------------------------- response panel */
+
+.pg-result {
+  position: sticky;
+  top: 74px;
+}
+
+.pg-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft, var(--muted));
+}
+
+.pg-status.is-ok {
+  color: var(--live, var(--ok));
+  border-color: color-mix(in srgb, var(--live, var(--ok)) 45%, transparent);
+}
+
+.pg-status.is-err {
+  color: var(--stop, var(--danger));
+  border-color: color-mix(in srgb, var(--stop, var(--danger)) 45%, transparent);
+}
+
+.pg-status .pg-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+/* Metadata as a ruled grid, not a pile of pills.
+   Fixed three columns with the hairlines drawn on the cells themselves: an
+   auto-fit track plus a 1px gap looked fine at six cells and left a bare grey
+   slab next to the last one whenever the gateway returned five or fewer
+   (no failover header, no cost header, …). */
+.pg-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: var(--card, var(--surface));
+  border-bottom: 1px solid var(--rule, var(--border));
+}
+
+.pg-meta-cell {
+  padding: 9px 12px;
+  background: transparent;
+  border-right: 1px solid var(--rule, var(--border));
+  border-top: 1px solid var(--rule-soft, var(--border));
+  min-width: 0;
+}
+
+.pg-meta-cell:nth-child(3n) {
+  border-right: 0;
+}
+
+.pg-meta-cell:nth-child(-n + 3) {
+  border-top: 0;
+}
+
+.pg-meta-cell .l {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint, var(--faint));
+}
+
+.pg-meta-cell .v {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink, var(--text));
+  overflow-wrap: anywhere;
+}
+
+.pg-out {
+  margin: 0 !important;
+  padding: 14px 16px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 148px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.pg-out.is-err {
+  color: var(--stop, var(--danger));
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+.pg-idle {
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  justify-items: start;
+  min-height: 148px;
+  padding: 16px;
+  color: var(--ink-faint, var(--faint));
+  font-size: 13px;
+}
+
+.pg-idle b {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft, var(--muted));
+}
+
+.pg-wait {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  min-height: 148px;
+}
+
+.pg-wait > span {
+  height: 11px;
+}
+
+.pg-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-top: 1px solid var(--rule, var(--border));
+  background: var(--raised, var(--surface));
+}
+
+/* ------------------------------------------------------------- run history */
+
+.pg-hist {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pg-hist-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--rule-soft, var(--border));
+  background: transparent;
+  color: var(--ink-soft, var(--muted));
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pg-hist li:last-child .pg-hist-row {
+  border-bottom: 0;
+}
+
+.pg-hist-row:hover {
+  background: var(--paper-2, var(--hover));
+  color: var(--ink, var(--text));
+}
+
+.pg-hist-row .pg-led {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--live, var(--ok));
+}
+
+.pg-hist-row.is-err .pg-led {
+  background: var(--stop, var(--danger));
+}
+
+.pg-hist-row .pg-hist-model {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pg-hist-row .pg-hist-ms {
+  flex: 0 0 auto;
+  color: var(--ink-faint, var(--faint));
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 1024px) {
+  .pg {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pg-result {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .pg-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pg-actions,
+  .pg-head,
+  .pg-body {
+    padding-inline: 13px;
+  }
+  .pg-endpoint {
+    width: 100%;
+  }
+}

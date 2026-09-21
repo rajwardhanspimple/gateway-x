@@ -1,0 +1,510 @@
+/* ==========================================================================
+   console-tabs.css
+   --------------------------------------------------------------------------
+   Chrome for the tabbed console shell: top bar, tab strip, panel, and the
+   few layout primitives the tab screens share (split grid, quick actions,
+   meta list, code block). Everything else reuses the .adm-* kit.
+   ========================================================================== */
+
+/* ------------------------------------------------------------- top bar */
+.con-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.console-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ---------------------------------------------------------- tab strip */
+.con-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  margin-bottom: 22px;
+  padding-block: 8px;
+  background: linear-gradient(to bottom, var(--bg) 62%, transparent);
+}
+
+.con-tabs-track {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+}
+
+.con-tabs-track::-webkit-scrollbar {
+  display: none;
+}
+
+.con-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.con-tab svg {
+  flex: 0 0 auto;
+  opacity: 0.75;
+}
+
+.con-tab:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.con-tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.con-tab.is-on {
+  background: var(--primary-soft);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.con-tab.is-on svg {
+  color: var(--primary);
+  opacity: 1;
+}
+
+.con-tab-count {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(139, 160, 255, 0.16);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-style: normal;
+}
+
+.con-tab.is-on .con-tab-count {
+  color: var(--text);
+}
+
+/* --------------------------------------------------------------- panel */
+.con-panel {
+  animation: con-fade 0.28s ease both;
+}
+
+@keyframes con-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.con-panel .adm-head {
+  margin-bottom: 18px;
+}
+
+/* the tab screens own the full width now, so no sidebar rail */
+.con-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.con-stack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.con-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.con-card-head h3 {
+  margin-bottom: 2px;
+}
+
+.con-card-head .sub {
+  margin: 0;
+}
+
+/* ------------------------------------------------------------- sparkline */
+.con-spark {
+  color: var(--primary);
+  padding: 6px 0 2px;
+}
+
+.con-spark .spark-svg {
+  width: 100%;
+  display: block;
+}
+
+/* ---------------------------------------------------------- daily bars */
+.uptime-bars {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.uptime-bars > span {
+  flex: 1;
+  min-width: 2px;
+  border-radius: 2px;
+}
+
+/* -------------------------------------------------------- quick actions */
+.con-quick {
+  display: grid;
+  gap: 8px;
+}
+
+.con-quick button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.015);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.con-quick button:hover {
+  border-color: var(--border-strong);
+  background: var(--hover);
+}
+
+.con-quick button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.con-quick svg {
+  color: var(--primary);
+  flex: 0 0 auto;
+}
+
+.con-quick span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.con-quick b {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.con-quick small {
+  color: var(--faint);
+  font-size: var(--fs-xs);
+}
+
+/* ---------------------------------------------------------- empty state */
+.adm-empty {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  padding: 22px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.012);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+
+.adm-empty b {
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+/* ------------------------------------------------------------- controls */
+/* the console mixes <Field> labels with plain .adm-label ones (selects and
+   textareas); inside a tab panel they must read as the same control label */
+.con-panel .adm-label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 7px;
+}
+
+.con-search {
+  min-width: 260px;
+}
+
+.con-form-submit {
+  display: flex;
+  align-items: flex-end;
+}
+
+.con-endpoint {
+  overflow-wrap: anywhere;
+}
+
+.con-desc {
+  max-width: 340px;
+}
+
+.con-code {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(4, 6, 12, 0.6);
+  color: var(--muted);
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+/* -------------------------------------------------------------- profile */
+.con-profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.con-avatar {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  background: var(--grad-soft);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+}
+
+.con-profile-id {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.con-profile-id > b {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+}
+
+.con-profile-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.con-profile-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.con-meta {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.con-meta li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+}
+
+.con-meta li:last-child {
+  border-bottom: 0;
+}
+
+.con-meta span {
+  color: var(--faint);
+}
+
+.con-meta b {
+  color: var(--text);
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+/* ----------------------------------------------------------- responsive */
+@media (max-width: 900px) {
+  .con-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .con-topbar {
+    align-items: flex-start;
+  }
+  .con-tabs {
+    margin-inline: -4px;
+  }
+  .con-tab span {
+    font-size: var(--fs-xs);
+  }
+  .con-search {
+    min-width: 0;
+    width: 100%;
+  }
+  .adm-head-actions {
+    width: 100%;
+  }
+  .con-profile-actions {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .con-panel {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- credits */
+
+.credit-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px 28px;
+  margin-top: 18px;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+}
+
+.credit-hero .l {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.credit-hero .v {
+  display: block;
+  margin-top: 6px;
+  font-size: 38px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.credit-hero .v.is-zero {
+  color: var(--danger);
+}
+
+.credit-hero .s {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.credit-hero-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 16px 26px;
+}
+
+.credit-hero-meta b {
+  display: block;
+  margin-top: 5px;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.credit-steps {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.credit-in {
+  color: var(--ok);
+  font-variant-numeric: tabular-nums;
+}
+
+.credit-out {
+  color: var(--danger);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .credit-hero .v {
+    font-size: 30px;
+  }
+}
+
+
+/* ------------------------------------------------------------ spend windows */
+.win-row { margin-top: 14px; }
+.win-row:first-of-type { margin-top: 0; }
+
+.win-bar {
+  position: relative;
+  height: 6px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--line) 70%, transparent);
+  overflow: hidden;
+}
+
+.win-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  transition: width 300ms ease, background 300ms ease;
+}

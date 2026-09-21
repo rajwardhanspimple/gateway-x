@@ -1,0 +1,376 @@
+/* ==========================================================================
+   Community chat (src/pages/Community.jsx)
+   Reads the flim.css design tokens so both palettes come for free.
+   ========================================================================== */
+
+.cm-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 20px 64px;
+}
+
+.cm-head {
+  margin-bottom: 18px;
+}
+.cm-head h1 {
+  margin: 0 0 4px;
+  font-family: var(--font-display, inherit);
+}
+.cm-sub {
+  margin: 0;
+  color: var(--muted, #8a8a8a);
+}
+
+/* two-pane shell: rooms rail + the live room */
+.cm-shell {
+  display: grid;
+  grid-template-columns: 248px 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* ------------------------------------------------------------------ rooms */
+.cm-rooms {
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: var(--radius-lg, 14px);
+  background: var(--card, #141414);
+  padding: 8px;
+  height: 68vh;
+  min-height: 420px;
+  overflow-y: auto;
+}
+.cm-rooms ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cm-rooms-load {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 14px;
+  color: var(--muted, #8a8a8a);
+}
+.cm-room {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius, 10px);
+  padding: 9px 11px;
+  cursor: pointer;
+  color: var(--text, #eaeaea);
+  transition: background 0.12s var(--ease-out, ease);
+}
+.cm-room:hover {
+  background: var(--hover, rgba(255, 255, 255, 0.05));
+}
+.cm-room.is-active {
+  background: var(--primary, #c8ff4d);
+  color: var(--primary-ink, #0a0a0a);
+}
+.cm-room.is-active .cm-room-desc,
+.cm-room.is-active .cm-hash {
+  color: inherit;
+  opacity: 0.75;
+}
+.cm-room-name {
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.cm-hash {
+  color: var(--muted, #8a8a8a);
+}
+.cm-lock {
+  font-size: 0.78em;
+}
+.cm-room-desc {
+  font-size: var(--fs-xs, 12px);
+  color: var(--muted, #8a8a8a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------------------------------------- room */
+.cm-main {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: var(--radius-lg, 14px);
+  background: var(--card, #141414);
+  height: 68vh;
+  min-height: 420px;
+  overflow: hidden;
+}
+.cm-main-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border, #2a2a2a);
+}
+.cm-main-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cm-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--fs-xs, 11px);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted, #8a8a8a);
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+.cm-muted {
+  color: var(--muted, #8a8a8a);
+  font-size: var(--fs-sm, 13px);
+}
+
+/* -------------------------------------------------------------- messages */
+.cm-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cm-empty {
+  margin: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted, #8a8a8a);
+}
+.cm-msg {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+.cm-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-xs, 12px);
+  font-weight: 700;
+  background: var(--bg-2, #1d1d1d);
+  color: var(--text, #eaeaea);
+  border: 1px solid var(--border, #2a2a2a);
+  text-transform: uppercase;
+}
+.cm-msg.is-mine .cm-avatar {
+  background: var(--primary, #c8ff4d);
+  color: var(--primary-ink, #0a0a0a);
+  border-color: transparent;
+}
+.cm-body {
+  min-width: 0;
+}
+.cm-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.cm-author {
+  font-size: var(--fs-sm, 13px);
+}
+.cm-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--primary, #c8ff4d);
+  color: var(--primary-ink, #0a0a0a);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.cm-time {
+  font-size: var(--fs-xs, 11px);
+  color: var(--muted, #8a8a8a);
+}
+.cm-del {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--muted, #8a8a8a);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px;
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease;
+}
+.cm-msg:hover .cm-del {
+  opacity: 1;
+}
+.cm-del:hover {
+  color: var(--danger, #ff5c5c);
+}
+.cm-text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text, #eaeaea);
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------- composer */
+.cm-error {
+  padding: 0 12px;
+}
+.cm-composer {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  padding: 12px;
+  border-top: 1px solid var(--border, #2a2a2a);
+}
+.cm-input {
+  flex: 1;
+  resize: none;
+  font: inherit;
+  color: var(--text, #eaeaea);
+  background: var(--bg, #0e0e0e);
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: var(--radius, 10px);
+  padding: 9px 11px;
+  max-height: 160px;
+}
+.cm-input:focus {
+  outline: none;
+  border-color: var(--border-strong, #4a4a4a);
+}
+.cm-locked {
+  flex: 1;
+  color: var(--muted, #8a8a8a);
+  font-size: var(--fs-sm, 13px);
+  padding: 8px 4px;
+}
+
+/* --------------------------------------------------------------- responsive */
+@media (max-width: 760px) {
+  .cm-shell {
+    grid-template-columns: 1fr;
+  }
+  .cm-rooms {
+    height: auto;
+    min-height: 0;
+    max-height: 210px;
+  }
+  .cm-main {
+    height: 64vh;
+  }
+}
+
+/* ==========================================================================
+   v12.1 — the admin lane
+   The room list now has two groups: Direct (one private thread with the team)
+   and Rooms (the public ones). Staff replies are tinted so you can tell an
+   answer from a neighbour at a glance.
+   ========================================================================== */
+
+.cm-rooms-group {
+  display: grid;
+  gap: 4px;
+}
+
+.cm-rooms-group + .cm-rooms-group {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #e6e5e3);
+}
+
+.cm-rooms-label {
+  padding: 0 4px;
+  color: var(--faint, #9a978f);
+  font-size: var(--fs-xs, 12px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cm-room-dm .cm-room-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cm-dm-ico {
+  color: var(--primary, #4fe3ff);
+}
+
+.cm-unread {
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--primary, #4fe3ff);
+  color: var(--primary-ink, #05212b);
+  font-weight: 600;
+  font-size: var(--fs-xs, 12px);
+}
+
+.cm-dm-status {
+  padding: 1px 8px;
+  border: 1px solid var(--border, #e6e5e3);
+  border-radius: 999px;
+  font-size: var(--fs-xs, 12px);
+}
+
+.cm-dm-status.is-open {
+  color: var(--muted, #8a8a8a);
+}
+
+.cm-dm-status.is-answered {
+  border-color: color-mix(in srgb, var(--ok, #46a171) 45%, transparent);
+  color: var(--ok, #46a171);
+}
+
+.cm-dm-status.is-closed {
+  color: var(--faint, #9a978f);
+}
+
+.cm-subject {
+  color: var(--muted, #8a8a8a);
+  font-size: var(--fs-sm, 13px);
+}
+
+.cm-dm-hint {
+  padding: 10px 2px;
+}
+
+.cm-dm-empty {
+  display: grid;
+  gap: 6px;
+  place-items: center;
+  padding: 32px 16px;
+  color: var(--muted, #8a8a8a);
+  font-size: var(--fs-sm, 13px);
+  text-align: center;
+}
+
+.cm-dm-empty b {
+  color: var(--text, #f2f2f2);
+  font-size: 15px;
+}
+
+/* an answer from the team should not look like another member talking */
+.cm-msg.is-staff .cm-avatar {
+  background: var(--primary, #4fe3ff);
+  color: var(--primary-ink, #05212b);
+}
+
+.cm-msg.is-staff .cm-text {
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--primary, #4fe3ff) 35%, transparent);
+  border-radius: var(--radius, 8px);
+  background: color-mix(in srgb, var(--primary, #4fe3ff) 10%, transparent);
+}

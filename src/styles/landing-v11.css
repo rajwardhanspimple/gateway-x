@@ -1,0 +1,174 @@
+/* ==========================================================================
+   landing-v11.css — float canvas collision fix
+   --------------------------------------------------------------------------
+   The hero canvas placed seven absolutely positioned cards from percentage
+   coordinates while the compressor bar below them kept flow position with an
+   `auto` margin. Once the viewport narrowed (or the bar text grew), the
+   "your domain / api.yourdomain" card at 56%/78% crossed the bar and the
+   "metered" card, which is the overlap in the report.
+
+   Fix, in three steps:
+     1. the bar owns a reserved corridor (its own band, solid fill, on top);
+     2. the cards are re-anchored from the canvas edges into four clear zones
+        — top band, upper-outer, lower-outer, bottom band — none of which
+        reach into the corridor;
+     3. under 1100px the scatter stops being a scatter: the canvas becomes a
+        plain two-column grid, so overlap is impossible at any width.
+   ========================================================================== */
+
+.fl-canvas {
+  position: relative;
+  min-height: clamp(400px, 47vw, 560px);
+  padding-block: 8px 0;
+  overflow: hidden;
+}
+
+/* ------------------------------------------------- 0. the flow connector
+   A vertical spine runs behind the floating cards, dropping into the command
+   bar, so the scatter reads as one data flow rather than disconnected notes.
+   Each card gets a small port tick where it joins the flow. */
+.fl-canvas::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background-image: linear-gradient(
+    var(--rule) 55%,
+    transparent 0
+  );
+  background-size: 1px 9px; /* dashed */
+  background-repeat: repeat-y;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.fl-canvas .fl-float::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 1px;
+  background: var(--rule);
+  pointer-events: none;
+}
+/* cards on the left half tick out to the right, cards on the right half to
+   the left, so the connector always points back toward the spine */
+.fl-canvas .fl-float:nth-of-type(1)::after,
+.fl-canvas .fl-float:nth-of-type(2)::after,
+.fl-canvas .fl-float:nth-of-type(5)::after,
+.fl-canvas .fl-float:nth-of-type(6)::after {
+  right: -12px;
+}
+.fl-canvas .fl-float:nth-of-type(3)::after,
+.fl-canvas .fl-float:nth-of-type(4)::after,
+.fl-canvas .fl-float:nth-of-type(7)::after {
+  left: -12px;
+}
+
+
+/* ------------------------------------------------------------ 1. the cards */
+
+.fl-canvas .fl-float {
+  position: absolute;
+  z-index: 1;
+  inset: auto;
+  width: max-content;
+  max-width: min(230px, 22vw);
+}
+
+/* top band — above the corridor */
+.fl-canvas .fl-float:nth-of-type(1) {
+  top: 2%;
+  left: 0;
+}
+.fl-canvas .fl-float:nth-of-type(2) {
+  top: 12%;
+  left: 27%;
+}
+.fl-canvas .fl-float:nth-of-type(3) {
+  top: 1%;
+  right: 0;
+  left: auto;
+}
+
+/* upper-outer — flanks the corridor on the right, stays clear of its edge */
+.fl-canvas .fl-float:nth-of-type(4) {
+  top: 26%;
+  right: 0;
+  left: auto;
+}
+
+/* lower-outer — flanks the corridor on the left */
+.fl-canvas .fl-float:nth-of-type(5) {
+  bottom: 20%;
+  left: 0;
+}
+
+/* bottom band — below the corridor */
+.fl-canvas .fl-float:nth-of-type(6) {
+  bottom: 2%;
+  left: 30%;
+}
+.fl-canvas .fl-float:nth-of-type(7) {
+  bottom: 3%;
+  right: 0;
+  left: auto;
+}
+
+/* --------------------------------------------------------- 2. the corridor */
+
+.fl-canvas .fl-bar {
+  position: relative;
+  z-index: 3;
+  width: min(620px, 72%);
+  margin: clamp(150px, 19vw, 220px) auto clamp(120px, 15vw, 170px);
+  background: var(--card);
+  border: 1px solid var(--rule);
+  box-shadow: 0 0 0 10px var(--paper);
+}
+
+/* ----------------------------------------------------------- 3. small view */
+
+@media (max-width: 1100px) {
+  .fl-canvas {
+    min-height: 0;
+    overflow: visible;
+  }
+  /* flat grid: the connector spine and port ticks are meaningless here */
+  .fl-canvas::before,
+  .fl-canvas .fl-float::after {
+    content: none;
+    display: none;
+  }
+  .fl-canvas .fl-float {
+    position: static;
+    inset: auto;
+    width: auto;
+    max-width: none;
+    animation: none !important;
+  }
+  .fl-canvas .fl-bar {
+    width: 100%;
+    margin: 16px 0 0;
+    box-shadow: none;
+  }
+  .fl-canvas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-content: start;
+  }
+  .fl-canvas .fl-bar {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .fl-canvas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fl-canvas .fl-float:not(.keep-mobile):nth-of-type(n + 4) {
+    display: none;
+  }
+}

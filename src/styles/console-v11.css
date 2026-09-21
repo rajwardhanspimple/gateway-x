@@ -1,0 +1,557 @@
+/* ==========================================================================
+   console-v11.css — "big console"
+   --------------------------------------------------------------------------
+   Loaded last (after console-v10.css and motion.css) so it owns the console
+   shell geometry outright.
+
+   1) THE OVERLAP BUG (the one in the bug report screenshot)
+      `.con-split` is a two-track grid and both tracks measured correctly
+      (641px / 475px). The damage came one level down: `.con-stack` is
+      `display: grid` with no explicit track, so its single auto column was
+      sized from the max-content of its children — and `.adm-table` carries
+      `min-width: 640px`. The card grew to 762px inside a 641px track and
+      spilled 120px into the right column, which then painted on top of it:
+      "Full usage log" sat under "Your endpoint", "See all" under "Quick
+      actions".
+
+      Fix: every console grid gets a real `minmax(0, 1fr)` track and every
+      surface inside it is allowed to shrink (`min-width: 0`). Wide tables
+      scroll inside their own wrapper instead of pushing the layout around.
+      The same guard is applied to the admin panel, which has the identical
+      shape.
+
+   2) A BIGGER, MORE DETAILED CONSOLE
+      Wider shell (1440), taller top bar with a live meta rail, a proper tab
+      bar, larger stat tiles with a rule between figure and caption, framed
+      card headers with eyebrow labels, roomier tables, and quick actions
+      that read as rows with an affordance instead of flat boxes.
+   ========================================================================== */
+
+/* ======================================================= 1. containment = */
+
+.console-page > .container,
+.admin-page > .container {
+  max-width: 1440px;
+  padding-inline: clamp(16px, 2.4vw, 34px);
+}
+
+.con-panel,
+.con-split,
+.con-stack,
+.console-col,
+.console-rail {
+  min-width: 0;
+}
+
+/* the actual repair — an explicit track, so content cannot widen the column */
+.con-stack,
+.adm-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(14px, 1.4vw, 20px);
+}
+
+.con-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.42fr) minmax(0, 0.85fr);
+  align-items: start;
+  gap: clamp(14px, 1.4vw, 20px);
+}
+
+/* anything that can hold a wide table must be allowed to shrink */
+.con-panel .adm-card,
+.con-panel .adm-table-wrap,
+.con-panel .adm-empty,
+.con-panel .con-code,
+.adm-panel .adm-card,
+.adm-panel .adm-table-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.con-panel .adm-table-wrap,
+.adm-panel .adm-table-wrap {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.con-panel .adm-card {
+  margin-bottom: 0; /* flim.css adds 16px; the stack gap owns spacing now */
+  padding: clamp(16px, 1.5vw, 22px);
+  border-radius: 14px;
+}
+
+/* the right rail follows you down the long left column */
+.con-split > .con-stack:last-child {
+  position: sticky;
+  top: 92px;
+}
+
+@media (max-width: 1100px) {
+  .con-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .con-split > .con-stack:last-child {
+    position: static;
+  }
+}
+
+/* ============================================================ 2. top bar = */
+
+.console-page {
+  padding-block: 0 clamp(56px, 6vw, 96px);
+}
+
+.con-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  min-height: 78px;
+  margin-bottom: 0;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--rule, var(--border));
+}
+
+.con-topbar .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.con-topbar .brand-mark {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+.con-topbar .brand-name {
+  font-size: 15px;
+  letter-spacing: 0.24em;
+}
+
+/* the little identity block next to the mark */
+.con-brand-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  margin-left: 2px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint, var(--faint));
+}
+
+/* live facts about the account, sitting between brand and avatar */
+.con-meta-rail {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  flex: 1 1 380px;
+  min-width: 0;
+  margin-inline: clamp(8px, 2vw, 28px);
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 12px;
+  background: var(--card, var(--surface));
+  overflow: hidden;
+}
+
+.con-meta-rail > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 0;
+  padding: 9px 14px;
+  border-right: 1px solid var(--rule-soft, var(--border));
+}
+
+.con-meta-rail > div:last-child {
+  border-right: 0;
+}
+
+.con-meta-rail .l {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint, var(--faint));
+}
+
+.con-meta-rail .v {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink, var(--text));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.con-meta-rail .v.is-live {
+  color: var(--live, var(--ok));
+}
+
+.console-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 999px;
+  background: var(--card, var(--surface));
+}
+
+.console-user .hdr-avatar {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--ink, var(--text));
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.console-user .hdr-user-meta {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  max-width: 190px;
+}
+
+.console-user .hdr-user-meta b {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.console-user .hdr-user-meta small {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-faint, var(--faint));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .con-meta-rail {
+    order: 3;
+    flex-basis: 100%;
+    margin-inline: 0;
+  }
+  .con-meta-rail > div:nth-child(n + 3) {
+    display: none;
+  }
+}
+
+/* =============================================================== 3. tabs = */
+
+.con-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  margin-bottom: clamp(20px, 2.4vw, 30px);
+  padding-block: 10px 0;
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--rule, var(--border)) !important;
+}
+
+.con-tabs-track {
+  gap: 4px !important;
+  padding: 0 2px 10px !important;
+}
+
+.con-tabs-track .con-tab {
+  min-height: 44px;
+  padding: 0 16px !important;
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  gap: 9px;
+}
+
+.con-tabs-track .con-tab svg {
+  width: 16px;
+  height: 16px;
+}
+
+.con-tabs-track .con-tab-count {
+  font-size: 10px;
+  padding: 2px 7px !important;
+}
+
+/* ====================================================== 4. panel heading = */
+
+.con-panel > .adm-head {
+  align-items: flex-end;
+  gap: 20px;
+  padding-bottom: clamp(16px, 1.8vw, 22px);
+  margin-bottom: clamp(18px, 2vw, 26px);
+}
+
+.con-panel > .adm-head h1 {
+  font-size: clamp(2rem, 3.4vw, 2.9rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.con-panel > .adm-head p {
+  margin-top: 10px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  max-width: 74ch;
+  color: var(--ink-soft, var(--muted));
+}
+
+.con-panel > .adm-head .adm-head-actions {
+  padding-bottom: 4px;
+}
+
+/* ========================================================== 5. stat tiles = */
+
+.con-panel .adm-stats {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  border-radius: 14px;
+  margin-bottom: clamp(16px, 1.8vw, 22px);
+}
+
+.con-panel .adm-stat {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0;
+  padding: 18px 20px 16px;
+}
+
+.con-panel .adm-stat .l {
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+}
+
+.con-panel .adm-stat .v {
+  margin-top: 10px;
+  font-size: clamp(1.9rem, 2.6vw, 2.5rem);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.con-panel .adm-stat .s {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule-soft, var(--border));
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint, var(--faint));
+}
+
+/* a hairline of meaning down the left edge of a flagged tile */
+.con-panel .adm-stat[data-tone="warn"]::before,
+.con-panel .adm-stat[data-tone="bad"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--flag, var(--warn));
+}
+
+.con-panel .adm-stat[data-tone="bad"]::before {
+  background: var(--stop, var(--danger));
+}
+
+.con-panel .adm-stat[data-tone="warn"] .s {
+  color: var(--flag, var(--warn));
+}
+
+/* ======================================================= 6. card heading = */
+
+.con-card-head {
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--rule-soft, var(--border));
+}
+
+.con-card-head > div:first-child {
+  min-width: 0;
+}
+
+.con-card-head h3,
+.con-panel .adm-card > h3 {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint, var(--faint));
+}
+
+.con-card-head .sub,
+.con-panel .adm-card > p.sub {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft, var(--muted));
+  max-width: 62ch;
+}
+
+.con-panel .adm-card > h3 + p.sub {
+  margin-bottom: 14px;
+}
+
+/* ============================================================ 7. traffic = */
+
+.con-spark {
+  padding: 4px 0 0;
+  color: var(--primary);
+}
+
+.con-spark .spark-svg {
+  height: 120px !important;
+}
+
+.uptime-bars {
+  gap: 3px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule-soft, var(--border));
+}
+
+.uptime-bars > span {
+  border-radius: 3px;
+  min-width: 4px;
+}
+
+.con-panel .row-between.small {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ============================================================= 8. tables = */
+
+.con-panel .adm-table {
+  font-size: 13.5px;
+  min-width: 560px;
+}
+
+.con-panel .adm-table th {
+  padding: 12px 16px;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+}
+
+.con-panel .adm-table td {
+  padding: 14px 16px;
+}
+
+.con-panel .adm-table .mono {
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+}
+
+/* ===================================================== 9. quick actions = */
+
+.con-quick {
+  gap: 0;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.con-quick button {
+  position: relative;
+  min-height: 62px;
+  padding: 12px 40px 12px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--rule-soft, var(--border));
+  border-radius: 0;
+  background: transparent;
+}
+
+.con-quick button:last-child {
+  border-bottom: 0;
+}
+
+.con-quick button::after {
+  content: "\2192";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--ink-faint, var(--faint));
+}
+
+.con-quick button:hover::after {
+  color: var(--ink, var(--text));
+}
+
+.con-quick b {
+  font-size: 14px;
+}
+
+.con-quick small {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* ========================================================== 10. endpoint = */
+
+.con-code {
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink, var(--text));
+  background: var(--paper-2, var(--hover)) !important;
+  border: 1px solid var(--rule, var(--border));
+}
+
+.con-panel .adm-form-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+/* ======================================================== 11. empty state = */
+
+.con-panel .adm-empty {
+  padding: 26px;
+  border-radius: 12px;
+  gap: 8px;
+}
+
+.con-panel .adm-empty b {
+  font-size: 16px;
+}
+
+/* ========================================================= 12. mobile ==== */
+
+@media (max-width: 640px) {
+  .con-topbar {
+    min-height: 0;
+    padding-block: 12px;
+  }
+  .console-user .hdr-user-meta {
+    display: none;
+  }
+  .con-panel .adm-stat .v {
+    font-size: 1.75rem;
+  }
+  .con-panel .adm-card {
+    padding: 15px;
+  }
+}

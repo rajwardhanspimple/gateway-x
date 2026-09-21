@@ -1,0 +1,1126 @@
+/* ==========================================================================
+   interactions.css - the interactive layer (v10)
+   --------------------------------------------------------------------------
+   Loaded LAST from main.jsx, so it can rely on every token from flim.css and
+   never has to fight the !important rules in console-v10.css.
+
+   Covers: focus rings, hit areas, toasts, the command palette, tooltips,
+   switches, keyboard hints, copy controls, skeletons, empty states, the
+   scroll progress bar and the back-to-top button.
+
+   Everything reads the existing tokens (--paper, --card, --ink, --rule,
+   --citron, --live, --stop) so light and dark themes come for free, and every
+   animation is switched off under prefers-reduced-motion.
+   ========================================================================== */
+
+:root {
+  --rs-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rs-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --rs-fast: 120ms;
+  --rs-med: 220ms;
+  --rs-shadow: 0 1px 2px rgba(11, 11, 10, 0.06), 0 8px 24px rgba(11, 11, 10, 0.1);
+  --rs-shadow-lg: 0 2px 4px rgba(11, 11, 10, 0.08), 0 24px 56px rgba(11, 11, 10, 0.18);
+  --rs-scroll: 0;
+}
+
+[data-theme="dark"] {
+  --rs-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px rgba(0, 0, 0, 0.45);
+  --rs-shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.5), 0 28px 64px rgba(0, 0, 0, 0.6);
+}
+
+/* ==================================================== 1. focus + targets */
+
+/* One visible, consistent focus ring for keyboard users everywhere. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+[data-theme="dark"] :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline-color: var(--citron);
+}
+
+/* Mouse users should not see the ring, but focus must never be invisible. */
+:where(a, button, input, select, textarea):focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Anything clickable should say so. */
+:where(button, [role="button"], [role="switch"], [role="option"], summary):not(:disabled) {
+  cursor: pointer;
+}
+
+:where(button, [role="button"]):disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+[aria-busy="true"] {
+  cursor: progress;
+}
+
+/* Give small controls a real touch target on phones without moving them. */
+@media (pointer: coarse) {
+  .rs-iconbtn,
+  .theme-toggle,
+  .nav-burger,
+  .con-tab,
+  .rs-copy {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+.rs-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ========================================================= 2. scroll bar */
+
+/* Reading progress, driven by the --rs-scroll variable useScrollProgress sets. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 60;
+  height: 2px;
+  width: 100%;
+  transform: scaleX(var(--rs-scroll, 0));
+  transform-origin: 0 50%;
+  background: var(--ink);
+  opacity: 0.55;
+  pointer-events: none;
+  transition: transform 80ms linear;
+}
+
+[data-theme="dark"] body::after {
+  background: var(--citron);
+  opacity: 0.8;
+}
+
+body.is-auth-route::after {
+  display: none;
+}
+
+/* ============================================================= 3. toasts */
+
+.rs-toaster {
+  position: fixed;
+  z-index: 120;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(380px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.rs-toast {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: start;
+  gap: 10px;
+  padding: 11px 12px;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink-faint);
+  border-radius: var(--radius);
+  box-shadow: var(--rs-shadow);
+  color: var(--ink);
+  font-size: 13.5px;
+  line-height: 1.45;
+  pointer-events: auto;
+  animation: rs-toast-in var(--rs-med) var(--rs-ease) both;
+}
+
+.rs-toast[data-leaving] {
+  animation: rs-toast-out 180ms var(--rs-ease-soft) both;
+}
+
+@keyframes rs-toast-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rs-toast-out {
+  to {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0) scale(0.99);
+  }
+}
+
+.rs-toast-ok {
+  border-left-color: var(--live);
+}
+.rs-toast-error {
+  border-left-color: var(--stop);
+}
+.rs-toast-info {
+  border-left-color: var(--flag);
+}
+.rs-toast-loading {
+  border-left-color: var(--ink-faint);
+}
+
+.rs-toast-icon {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  color: var(--ink-soft);
+}
+
+.rs-toast-ok .rs-toast-icon {
+  color: var(--live);
+}
+.rs-toast-error .rs-toast-icon {
+  color: var(--stop);
+}
+.rs-toast-info .rs-toast-icon {
+  color: var(--flag);
+}
+
+.rs-toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rs-toast-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.rs-toast-msg {
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.rs-toast-action {
+  align-self: center;
+  padding: 5px 9px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background var(--rs-fast) var(--rs-ease-soft);
+}
+
+.rs-toast-action:hover {
+  background: var(--paper-2);
+}
+
+.rs-toast-close {
+  align-self: start;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--ink-faint);
+  transition: color var(--rs-fast) linear, background var(--rs-fast) linear;
+}
+
+.rs-toast-close:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.rs-toast-bar {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.25;
+  transform-origin: 0 50%;
+  animation-name: rs-toast-bar;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.rs-toast-bar[data-paused] {
+  animation-play-state: paused;
+}
+
+@keyframes rs-toast-bar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@media (max-width: 560px) {
+  .rs-toaster {
+    right: 8px;
+    left: 8px;
+    bottom: 8px;
+    width: auto;
+  }
+}
+
+/* ====================================================== 4. modal + palette */
+
+.rs-modal-scrim,
+.rs-cmd-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(16px, 10vh, 120px) 16px 16px;
+  background: rgba(11, 11, 10, 0.42);
+  backdrop-filter: blur(3px);
+  animation: rs-fade var(--rs-fast) linear both;
+}
+
+[data-theme="dark"] .rs-modal-scrim,
+[data-theme="dark"] .rs-cmd-scrim {
+  background: rgba(8, 4, 16, 0.62);
+}
+
+@keyframes rs-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.rs-cmd,
+.rs-modal {
+  width: min(560px, 100%);
+  max-height: min(70vh, 560px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--rs-shadow-lg);
+  animation: rs-pop var(--rs-med) var(--rs-ease) both;
+}
+
+@keyframes rs-pop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rs-cmd-input-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 13px;
+  border-bottom: 1px solid var(--rule-soft);
+  color: var(--ink-faint);
+}
+
+.rs-cmd-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+}
+
+.rs-cmd-input::placeholder {
+  color: var(--ink-faint);
+}
+
+.rs-cmd-input:focus {
+  outline: none;
+}
+
+.rs-cmd-list {
+  flex: 1;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+  overscroll-behavior: contain;
+}
+
+.rs-cmd-item-wrap {
+  list-style: none;
+}
+
+.rs-cmd-group {
+  display: block;
+  padding: 10px 8px 4px;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.rs-cmd-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 14px;
+  transition: background var(--rs-fast) linear;
+}
+
+.rs-cmd-item[data-active] {
+  background: var(--paper-2);
+}
+
+[data-theme="dark"] .rs-cmd-item[data-active] {
+  background: var(--hover);
+}
+
+.rs-cmd-item[data-active] .rs-cmd-hint {
+  color: var(--ink-soft);
+}
+
+.rs-cmd-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rs-cmd-hint {
+  flex: none;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.rs-cmd-none {
+  padding: 22px 12px;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  text-align: center;
+}
+
+.rs-cmd-foot {
+  display: flex;
+  gap: 16px;
+  padding: 9px 12px;
+  border-top: 1px solid var(--rule-soft);
+  background: var(--paper);
+  color: var(--ink-faint);
+  font-size: 11.5px;
+}
+
+.rs-cmd-foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* the persistent "search or jump to" affordance in the header */
+.rs-cmd-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 8px 0 10px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 13px;
+  transition: border-color var(--rs-fast) linear, color var(--rs-fast) linear,
+    background var(--rs-fast) linear;
+}
+
+.rs-cmd-trigger:hover {
+  background: var(--card);
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+
+.rs-cmd-keys {
+  display: inline-flex;
+  gap: 3px;
+}
+
+@media (max-width: 860px) {
+  .rs-cmd-text,
+  .rs-cmd-keys {
+    display: none;
+  }
+  .rs-cmd-trigger {
+    width: 34px;
+    padding: 0;
+    justify-content: center;
+  }
+}
+
+/* --------------------------------------------------- shortcut cheat sheet */
+
+.rs-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.rs-modal-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.rs-modal-x {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--ink-faint);
+}
+
+.rs-modal-x:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.rs-keys-list {
+  margin: 0;
+  padding: 6px 14px 10px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.rs-keys-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 13.5px;
+}
+
+.rs-keys-list li:last-child {
+  border-bottom: 0;
+}
+
+.rs-keys-label {
+  color: var(--ink);
+}
+
+.rs-keys-combo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rs-keys-combo em {
+  color: var(--ink-faint);
+  font-size: 11.5px;
+  font-style: normal;
+}
+
+.rs-keys-foot {
+  margin: 0;
+  padding: 10px 14px;
+  border-top: 1px solid var(--rule-soft);
+  background: var(--paper);
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+/* ================================================== 5. keys and tooltips */
+
+.rs-kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.rs-tip-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.rs-tip-trigger {
+  display: inline-flex;
+}
+
+.rs-tip {
+  position: absolute;
+  z-index: 130;
+  left: 50%;
+  padding: 5px 8px;
+  background: var(--ink);
+  border-radius: 6px;
+  color: var(--paper);
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 2px);
+  transition: opacity var(--rs-fast) linear, transform var(--rs-fast) var(--rs-ease);
+}
+
+.rs-tip[data-side="top"] {
+  bottom: calc(100% + 7px);
+}
+
+.rs-tip[data-side="bottom"] {
+  top: calc(100% + 7px);
+}
+
+.rs-tip[data-open] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+[data-theme="dark"] .rs-tip {
+  background: var(--citron);
+  color: var(--citron-ink);
+}
+
+/* ======================================================= 6. icon buttons */
+
+.rs-iconbtn {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--ink-soft);
+  transition: background var(--rs-fast) linear, color var(--rs-fast) linear,
+    border-color var(--rs-fast) linear, transform var(--rs-fast) var(--rs-ease);
+}
+
+.rs-iconbtn:hover:not(:disabled) {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.rs-iconbtn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.rs-iconbtn:disabled {
+  opacity: 0.45;
+}
+
+.rs-iconbtn-ghost {
+  border-color: transparent;
+}
+
+.rs-iconbtn-solid {
+  background: var(--ink);
+  color: var(--primary-ink);
+}
+
+.rs-iconbtn-solid:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--primary-ink);
+  filter: brightness(1.12);
+}
+
+.rs-iconbtn-danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+  color: var(--stop);
+}
+
+.rs-iconbtn-sm {
+  width: 26px;
+  height: 26px;
+}
+
+.rs-iconbtn-md {
+  width: 32px;
+  height: 32px;
+}
+
+.rs-iconbtn-lg {
+  width: 38px;
+  height: 38px;
+}
+
+/* ============================================================== 7. copy */
+
+.rs-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 550;
+  transition: background var(--rs-fast) linear, border-color var(--rs-fast) linear,
+    color var(--rs-fast) linear;
+}
+
+.rs-copy:hover {
+  background: var(--paper-2);
+  border-color: var(--border-strong);
+}
+
+.rs-copy[data-compact] {
+  width: 30px;
+  padding: 0;
+  justify-content: center;
+}
+
+.rs-copy[data-copied] {
+  border-color: var(--live);
+  color: var(--live);
+}
+
+.rs-copy-icon {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+}
+
+.rs-copy[data-copied] .rs-copy-icon {
+  animation: rs-tick 260ms var(--rs-ease) both;
+}
+
+@keyframes rs-tick {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.rs-copyfield {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 5px 5px 10px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+
+.rs-copyfield-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rs-copyfield-value[data-mono] {
+  font-family: var(--font-mono);
+}
+
+.rs-copyfield-toggle {
+  flex: none;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 11.5px;
+}
+
+.rs-copyfield-toggle:hover {
+  color: var(--ink);
+  border-color: var(--border-strong);
+}
+
+/* ============================================================ 8. switch */
+
+.rs-switch {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.rs-switch[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.rs-switch-track {
+  position: relative;
+  flex: none;
+  width: 38px;
+  height: 22px;
+  margin-top: 1px;
+  padding: 0;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  transition: background var(--rs-med) var(--rs-ease-soft),
+    border-color var(--rs-med) var(--rs-ease-soft);
+}
+
+.rs-switch-track[aria-checked="true"] {
+  background: var(--live);
+  border-color: var(--live);
+}
+
+.rs-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--card);
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(11, 11, 10, 0.25);
+  transition: transform var(--rs-med) var(--rs-ease);
+}
+
+.rs-switch-track[aria-checked="true"] .rs-switch-thumb {
+  transform: translateX(16px);
+}
+
+.rs-switch-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.rs-switch-label {
+  font-size: 13.5px;
+  font-weight: 550;
+}
+
+.rs-switch-hint {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+/* =========================================================== 9. confirm */
+
+.rs-confirm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background var(--rs-fast) linear, border-color var(--rs-fast) linear,
+    color var(--rs-fast) linear;
+}
+
+.rs-confirm:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+.rs-confirm-danger:hover:not(:disabled) {
+  color: var(--stop);
+  border-color: var(--stop);
+}
+
+.rs-confirm-danger[data-armed] {
+  background: var(--stop);
+  border-color: var(--stop);
+  color: #fff;
+  animation: rs-nudge 320ms var(--rs-ease) both;
+}
+
+.rs-confirm-danger[data-armed]:hover {
+  color: #fff;
+}
+
+@keyframes rs-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  30% {
+    transform: translateX(-2px);
+  }
+  60% {
+    transform: translateX(2px);
+  }
+}
+
+/* ======================================================== 10. skeletons */
+
+.rs-skel {
+  display: block;
+  min-height: 10px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--paper-2) 0%,
+    var(--rule-soft) 40%,
+    var(--paper-2) 80%
+  );
+  background-size: 240% 100%;
+  animation: rs-shimmer 1.25s linear infinite;
+}
+
+@keyframes rs-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+.rs-skel-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.rs-skel-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.rs-skel-row .rs-skel {
+  height: 12px;
+}
+
+/* ====================================================== 11. empty states */
+
+.rs-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 34px 20px;
+  text-align: center;
+}
+
+.rs-empty[data-compact] {
+  padding: 18px 14px;
+}
+
+.rs-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  color: var(--ink-faint);
+}
+
+.rs-empty-title {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.rs-empty-body {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.rs-empty-action {
+  margin-top: 4px;
+}
+
+/* ====================================================== 12. back to top */
+
+.rs-scrolltop {
+  position: fixed;
+  /* sit on the right edge of the centred content column (max 1180px + gutter),
+     so on wide monitors it stays in the focal band instead of hugging the
+     viewport's extreme edge */
+  right: max(16px, calc((100vw - 1180px) / 2 - 4px));
+  bottom: 16px;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  box-shadow: var(--rs-shadow);
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(8px) scale(0.9);
+  pointer-events: none;
+  transition: opacity var(--rs-med) var(--rs-ease-soft),
+    transform var(--rs-med) var(--rs-ease);
+}
+
+.rs-scrolltop[data-shown] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.rs-scrolltop:hover {
+  background: var(--paper-2);
+}
+
+/* keep clear of the toast stack on small screens */
+@media (max-width: 560px) {
+  .rs-scrolltop {
+    right: 10px;
+    bottom: 76px;
+  }
+}
+
+/* ================================================= 13. feel of the shell */
+
+/* Cards and rows lift very slightly on hover: enough to read as interactive,
+   not enough to feel like a toy. */
+@media (hover: hover) and (pointer: fine) {
+  .card[data-interactive],
+  .rs-lift {
+    transition: transform var(--rs-med) var(--rs-ease),
+      box-shadow var(--rs-med) var(--rs-ease-soft),
+      border-color var(--rs-fast) linear;
+  }
+
+  .card[data-interactive]:hover,
+  .rs-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--rs-shadow);
+    border-color: var(--border-strong);
+  }
+}
+
+/* Any button press should acknowledge the click. */
+.btn:active:not(:disabled),
+.sui-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Tables: make the hovered row obvious while scanning. */
+tbody tr {
+  transition: background var(--rs-fast) linear;
+}
+
+tbody tr:hover {
+  background: var(--rule-soft);
+}
+
+.skip-link:focus-visible {
+  outline-offset: 4px;
+}
+
+/* ================================================= 14. reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .rs-skel {
+    animation: none !important;
+    background: var(--paper-2);
+  }
+
+  .rs-scrolltop[data-shown],
+  .rs-tip[data-open] {
+    transform: none;
+  }
+
+  .btn:active:not(:disabled),
+  .sui-btn:active:not(:disabled),
+  .rs-iconbtn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Honour forced-colors mode instead of fighting it. */
+@media (forced-colors: active) {
+  .rs-toast,
+  .rs-cmd,
+  .rs-modal,
+  .rs-kbd,
+  .rs-copy,
+  .rs-confirm {
+    border: 1px solid CanvasText;
+  }
+
+  .rs-switch-track[aria-checked="true"] {
+    background: Highlight;
+  }
+}

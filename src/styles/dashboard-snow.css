@@ -1,0 +1,1024 @@
+/* ==========================================================================
+   dashboard-snow.css — v12.2 "SNOW"
+   --------------------------------------------------------------------------
+   A reskin of the unified dashboard (#/dashboard, .wk-page) in the light
+   admin-console look: white canvas, no grid paper, a quiet 212px rail with
+   pill nav items and a left indicator bar, a plain-language breadcrumb bar
+   with a soft search field, pastel stat tiles with big numbers, soft-grey
+   panels with 16px corners, hairline tables and dot status labels.
+
+   HOW IT WORKS
+   Everything is scoped to .wk-page, so the classic console (#/console), the
+   admin panel and the marketing pages keep the grid-paper look untouched.
+   The scope block re-maps the legacy design tokens (--card, --line, --panel,
+   --text, --muted …) as well as the new --sn-* ones, which is what lets the
+   console tabs, the community portal, inputs and buttons rendered inside the
+   canvas follow this palette without being restyled one by one.
+
+   Loaded last in main.jsx so it owns the dashboard outright.
+   ========================================================================== */
+
+/* ------------------------------------------------------------- 1. palette */
+
+.wk-page {
+  /* snow tokens */
+  --sn-canvas: #ffffff;
+  --sn-surface: #f7f9fb;
+  --sn-surface-2: #eff2f6;
+  --sn-line: rgba(28, 28, 28, 0.1);
+  --sn-line-soft: rgba(28, 28, 28, 0.06);
+  --sn-ink: #1c1c1c;
+  /* --sn-ink-3 at .42 measured 2.6:1 on the white canvas, so breadcrumbs,
+     captions and table meta were barely there. Both secondary tiers moved up
+     (.74 / .60): every tier now clears AA and the hierarchy still reads. */
+  --sn-ink-2: rgba(28, 28, 28, 0.74);
+  --sn-ink-3: rgba(28, 28, 28, 0.65);
+  --sn-blue: #e3f5ff;
+  --sn-lilac: #e5ecf6;
+  --sn-tile-ink: #1c1c1c;
+  --sn-accent: #2783de;
+  /* was #46a171 — 3.2:1 on white, under AA for anything but display type */
+  --sn-ok: #39835c;
+  --sn-warn: #d5803b;
+  --sn-stop: #e56458;
+
+  /* legacy token bridge — nested components read these */
+  --paper: var(--sn-canvas);
+  --paper-2: var(--sn-surface);
+  --card: var(--sn-canvas);
+  --surface: var(--sn-canvas);
+  --surface-solid: var(--sn-canvas);
+  --raised: var(--sn-surface);
+  --bg: var(--sn-canvas);
+  --bg-2: var(--sn-surface);
+  --hover: var(--sn-surface);
+  --panel: var(--sn-surface);
+  --rule: var(--sn-line);
+  --rule-soft: var(--sn-line-soft);
+  --border: var(--sn-line);
+  --border-strong: var(--sn-line);
+  --line: var(--sn-line);
+  --grid: transparent;
+  --text: var(--sn-ink);
+  --ink: var(--sn-ink);
+  --muted: var(--sn-ink-2);
+  --ink-soft: var(--sn-ink-2);
+  --faint: var(--sn-ink-3);
+  --ink-faint: var(--sn-ink-3);
+  --primary: var(--sn-ink);
+  --primary-soft: var(--sn-surface);
+  --primary-ink: var(--sn-canvas);
+  --violet: var(--sn-accent);
+  --violet-soft: var(--sn-blue);
+  --accent: var(--sn-accent);
+  --ok: var(--sn-ok);
+  --warn: var(--sn-warn);
+  --danger: var(--sn-stop);
+  --radius: 8px;
+  --radius-lg: 16px;
+
+  --wk-rail: 212px;
+  --wk-rail-collapsed: 68px;
+  --wk-top: 68px;
+  --wk-pad: clamp(16px, 2vw, 28px);
+
+  background: var(--sn-canvas);
+  background-image: none;
+  color: var(--sn-ink);
+  font-size: 14px;
+}
+
+[data-theme="dark"] .wk-page {
+  --sn-canvas: #1c1c1c;
+  --sn-surface: #252525;
+  --sn-surface-2: #2e2e2e;
+  --sn-line: rgba(255, 255, 255, 0.14);
+  --sn-line-soft: rgba(255, 255, 255, 0.08);
+  --sn-ink: #ffffff;
+  --sn-ink-2: rgba(255, 255, 255, 0.7);
+  --sn-ink-3: rgba(255, 255, 255, 0.45);
+  --sn-blue: rgba(94, 159, 232, 0.18);
+  --sn-lilac: rgba(255, 255, 255, 0.06);
+  --sn-tile-ink: #ffffff;
+  --sn-accent: #5e9fe8;
+  --sn-ok: #72bc8f;
+  --sn-warn: #de9255;
+  --sn-stop: #e97366;
+}
+
+/* the page owns the whole viewport, so the body grid must not show through */
+.wk-page::before,
+.wk-page::after {
+  content: none;
+}
+
+/* ---------------------------------------------------------------- 2. rail */
+
+.wk-page .wk-rail {
+  background: var(--sn-canvas);
+  border-right: 1px solid var(--sn-line-soft);
+}
+
+.wk-page .wk-rail-top {
+  min-height: var(--wk-top);
+  padding: 14px 16px;
+  border-bottom: 0;
+}
+
+.wk-page .wk-brand-name {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.wk-page .wk-brand-name .dim {
+  color: var(--sn-ink);
+}
+
+/* the mono "rail" badge belongs to the old look */
+.wk-page .wk-brand-tag {
+  display: none;
+}
+
+.wk-page .wk-rail-toggle,
+.wk-page .wk-icon-btn {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sn-ink-2);
+}
+
+.wk-page .wk-rail-toggle:hover,
+.wk-page .wk-icon-btn:hover {
+  background: var(--sn-surface);
+  color: var(--sn-ink);
+}
+
+.wk-page .wk-rail-scroll {
+  padding: 4px 12px 20px;
+}
+
+.wk-page .wk-group + .wk-group {
+  margin-top: 18px;
+}
+
+/* plain sentence-case section labels instead of mono all-caps */
+.wk-page .wk-group-label {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--sn-ink-3);
+  padding: 0 8px 8px;
+}
+
+.wk-page .wk-nav {
+  gap: 2px;
+}
+
+.wk-page .wk-nav-item {
+  position: relative;
+  gap: 8px;
+  padding: 7px 10px 7px 14px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--sn-ink);
+}
+
+.wk-page .wk-nav-item:hover {
+  background: var(--sn-surface);
+}
+
+.wk-page .wk-nav-item.is-on {
+  background: var(--sn-surface);
+  color: var(--sn-ink);
+  font-weight: 500;
+}
+
+.wk-page .wk-nav-item.is-on::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  border-radius: 99px;
+  background: var(--sn-ink);
+}
+
+.wk-page .wk-nav-ico {
+  width: 18px;
+  opacity: 0.55;
+}
+
+.wk-page .wk-nav-item.is-on .wk-nav-ico {
+  opacity: 1;
+}
+
+.wk-page .wk-nav-count {
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0;
+  padding: 0;
+  border: 0;
+  color: var(--sn-ink-3);
+}
+
+.wk-page .wk-nav-item.is-on .wk-nav-count {
+  color: var(--sn-ink-2);
+}
+
+.wk-page .wk-rail-foot {
+  border-top: 1px solid var(--sn-line-soft);
+  padding: 12px;
+  gap: 10px;
+}
+
+.wk-page .wk-avatar {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: var(--sn-blue);
+  color: var(--sn-tile-ink);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.wk-page .wk-user-meta b {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.wk-page .wk-user-meta small {
+  color: var(--sn-ink-3);
+}
+
+.wk-page .wk-mini {
+  font-family: inherit;
+  font-size: 12.5px;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--sn-surface);
+  color: var(--sn-ink-2);
+}
+
+.wk-page .wk-mini:hover {
+  background: var(--sn-surface-2);
+  color: var(--sn-ink);
+}
+
+/* ------------------------------------------------------------- 3. top bar */
+
+.wk-page .wk-top {
+  min-height: var(--wk-top);
+  padding: 12px var(--wk-pad);
+  gap: 12px;
+  background: var(--sn-canvas);
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--sn-line-soft);
+}
+
+.wk-page .wk-crumb {
+  font-family: inherit;
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--sn-ink-3);
+  gap: 6px;
+}
+
+.wk-page .wk-crumb b {
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--sn-ink);
+}
+
+.wk-page .wk-crumb-sep {
+  opacity: 1;
+  color: var(--sn-ink-3);
+}
+
+.wk-page .wk-top-actions {
+  gap: 6px;
+}
+
+/* the command-palette trigger becomes the console search field */
+.wk-page .wk-top .rs-cmd-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: clamp(160px, 22vw, 232px);
+  height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--sn-surface);
+  color: var(--sn-ink-3);
+  box-shadow: none;
+}
+
+.wk-page .wk-top .rs-cmd-trigger:hover {
+  background: var(--sn-surface-2);
+}
+
+.wk-page .wk-top .rs-cmd-trigger-text {
+  font-family: inherit;
+  font-size: 13.5px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--sn-ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wk-page .wk-top .rs-cmd-trigger-keys {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 2px;
+  color: var(--sn-ink-3);
+}
+
+.wk-page .wk-top .rs-cmd-trigger-keys kbd,
+.wk-page .wk-top .rs-cmd-trigger-keys .rs-kbd {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 12px;
+  color: inherit;
+  padding: 0;
+  min-width: 0;
+}
+
+/* ------------------------------------------------- 4. the stat tile strip */
+
+.wk-page .wk-pulse {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: var(--wk-pad) var(--wk-pad) 0;
+  background: transparent;
+  border-bottom: 0;
+}
+
+.wk-page .wk-pulse-item {
+  display: grid;
+  align-content: space-between;
+  gap: 10px;
+  min-height: 88px;
+  padding: 18px 20px;
+  margin: 0;
+  border: 0;
+  border-radius: 16px;
+  background: var(--sn-surface);
+  color: var(--sn-tile-ink);
+}
+
+.wk-page .wk-pulse-item:nth-child(4n + 1),
+.wk-page .wk-pulse-item:nth-child(4n + 3) {
+  background: var(--sn-blue);
+}
+
+.wk-page .wk-pulse-item:nth-child(4n + 2),
+.wk-page .wk-pulse-item:nth-child(4n) {
+  background: var(--sn-lilac);
+}
+
+.wk-page .wk-pulse-l {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: capitalize;
+  letter-spacing: 0;
+  color: var(--sn-tile-ink);
+  opacity: 0.85;
+}
+
+.wk-page .wk-pulse-v {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--sn-tile-ink);
+  max-width: 100%;
+}
+
+.wk-page .wk-pulse-v.is-live {
+  color: var(--sn-ok);
+}
+
+[data-theme="dark"] .wk-page .wk-pulse-v.is-live {
+  color: var(--sn-ok);
+}
+
+/* --------------------------------------------------------- 5. the canvas */
+
+.wk-page .wk-canvas {
+  padding: var(--wk-pad) var(--wk-pad) 56px;
+  background: var(--sn-canvas);
+}
+
+/* ------------------------------------------------------ 6. panel headings */
+
+.wk-page .wk-panel-head,
+.wk-page .adm-head {
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 0;
+  margin-bottom: 18px;
+  border-bottom: 0;
+}
+
+.wk-page .wk-eyebrow {
+  font-family: inherit;
+  font-size: 12.5px;
+  text-transform: capitalize;
+  letter-spacing: 0;
+  color: var(--sn-ink-3);
+}
+
+.wk-page .wk-panel-head h1,
+.wk-page .adm-head h1 {
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 2px 0 4px;
+}
+
+.wk-page .wk-panel-head p,
+.wk-page .adm-head p {
+  font-size: 13.5px;
+  color: var(--sn-ink-2);
+  max-width: 78ch;
+}
+
+.wk-page .wk-chip {
+  font-family: inherit;
+  font-size: 12.5px;
+  text-transform: capitalize;
+  letter-spacing: 0;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--sn-surface);
+  color: var(--sn-ink-2);
+}
+
+.wk-page .wk-chip.is-live {
+  background: rgba(70, 161, 113, 0.14);
+  color: var(--sn-ok);
+}
+
+/* ------------------------------------------------------- 7. figure tiles */
+
+.wk-page .adm-stats,
+.wk-page .wk-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.wk-page .adm-stat,
+.wk-page .wk-kpi {
+  padding: 18px 20px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--sn-surface);
+  color: var(--sn-tile-ink);
+}
+
+.wk-page .adm-stat:nth-child(odd),
+.wk-page .wk-kpi:nth-child(odd) {
+  background: var(--sn-blue);
+}
+
+.wk-page .adm-stat:nth-child(even),
+.wk-page .wk-kpi:nth-child(even) {
+  background: var(--sn-lilac);
+}
+
+.wk-page .adm-stat .l,
+.wk-page .wk-kpi .l {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--sn-tile-ink);
+  opacity: 0.85;
+}
+
+.wk-page .adm-stat .v,
+.wk-page .wk-kpi .v {
+  margin-top: 10px;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--sn-tile-ink);
+}
+
+.wk-page .adm-stat .s {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--sn-tile-ink);
+  opacity: 0.6;
+}
+
+.wk-page .adm-stat[data-tone="warn"] .s {
+  color: var(--sn-warn);
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------ 8. panels */
+
+.wk-page .adm-card,
+.wk-page .con-panel .adm-card {
+  padding: 20px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--sn-surface);
+  box-shadow: none;
+}
+
+.wk-page .adm-card > h3,
+.wk-page .con-card-head h3 {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.wk-page .adm-card > p.sub,
+.wk-page .con-card-head .sub {
+  font-size: 12.5px;
+  color: var(--sn-ink-2);
+}
+
+.wk-page .con-split {
+  gap: 16px;
+}
+
+.wk-page .con-stack {
+  gap: 16px;
+}
+
+/* charts pick up the accent instead of the old ink line */
+.wk-page .con-spark {
+  color: var(--sn-accent);
+}
+
+.wk-page .uptime-bars > span {
+  border-radius: 3px;
+}
+
+/* ------------------------------------------------------------- 9. tables */
+
+.wk-page .adm-table-wrap {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.wk-page .adm-table {
+  font-size: 13.5px;
+}
+
+.wk-page .adm-table th {
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--sn-ink-3);
+  background: transparent;
+  border-bottom: 1px solid var(--sn-line-soft);
+}
+
+.wk-page .adm-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--sn-line-soft);
+  color: var(--sn-ink);
+}
+
+.wk-page .adm-table tbody tr:hover {
+  background: var(--sn-canvas);
+}
+
+.wk-page .adm-card .adm-table tbody tr:hover {
+  background: rgba(28, 28, 28, 0.03);
+}
+
+[data-theme="dark"] .wk-page .adm-card .adm-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.wk-page .adm-table td.faint,
+.wk-page .adm-table .xs {
+  color: var(--sn-ink-3);
+}
+
+/* status becomes a dot + label, no pill chrome */
+.wk-page .st {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: capitalize;
+}
+
+.wk-page .st-working,
+.wk-page .st-active {
+  color: var(--sn-ok);
+}
+
+.wk-page .st-failing,
+.wk-page .st-suspended,
+.wk-page .st-revoked {
+  color: var(--sn-stop);
+}
+
+.wk-page .st-rate_limited,
+.wk-page .st-expired {
+  color: var(--sn-warn);
+}
+
+.wk-page .st-unknown,
+.wk-page .st-disabled {
+  color: var(--sn-ink-3);
+}
+
+/* -------------------------------------------- 10. controls inside the page */
+
+.wk-page .btn,
+.wk-page .sui-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  border-radius: 8px;
+  min-height: 32px;
+  padding: 6px 12px;
+}
+
+.wk-page .btn:hover,
+.wk-page .sui-btn:hover {
+  transform: none;
+}
+
+.wk-page .btn-primary,
+.wk-page .sui-btn-primary,
+[data-theme="dark"] .wk-page .btn-primary,
+[data-theme="dark"] .wk-page .sui-btn-primary {
+  background: var(--sn-ink);
+  border-color: var(--sn-ink);
+  color: var(--sn-canvas);
+}
+
+.wk-page .btn-ghost,
+.wk-page .btn-outline,
+.wk-page .sui-btn-ghost,
+.wk-page .sui-btn-secondary {
+  background: var(--sn-surface);
+  border-color: transparent;
+  color: var(--sn-ink);
+}
+
+.wk-page .adm-card .btn-ghost,
+.wk-page .adm-card .sui-btn-ghost {
+  background: var(--sn-canvas);
+  border-color: var(--sn-line-soft);
+}
+
+.wk-page .btn-ghost:hover,
+.wk-page .btn-outline:hover,
+.wk-page .sui-btn-ghost:hover {
+  background: var(--sn-surface-2);
+}
+
+.wk-page .adm-input,
+.wk-page .adm-select,
+.wk-page .adm-textarea {
+  border: 1px solid var(--sn-line-soft);
+  border-radius: 8px;
+  background: var(--sn-canvas);
+  color: var(--sn-ink);
+}
+
+.wk-page .adm-input:focus-visible,
+.wk-page .adm-select:focus-visible,
+.wk-page .adm-textarea:focus-visible,
+.wk-page .wk-nav-item:focus-visible,
+.wk-page .wk-mini:focus-visible,
+.wk-page .wk-icon-btn:focus-visible,
+.wk-page .con-quick button:focus-visible {
+  outline: 2px solid var(--sn-accent);
+  outline-offset: 2px;
+}
+
+/* quick actions and jump cards */
+.wk-page .con-quick button,
+.wk-page .wk-jump a {
+  border: 0;
+  border-radius: 12px;
+  background: var(--sn-canvas);
+  color: var(--sn-ink);
+}
+
+.wk-page .con-quick button:hover,
+.wk-page .wk-jump a:hover {
+  background: var(--sn-surface-2);
+}
+
+.wk-page .wk-jump a {
+  background: var(--sn-surface);
+  padding: 14px 16px;
+}
+
+.wk-page .con-quick small,
+.wk-page .wk-jump span {
+  color: var(--sn-ink-3);
+}
+
+/* code + endpoint blocks */
+.wk-page .con-code,
+.wk-page pre.con-code {
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: var(--sn-canvas) !important;
+  color: var(--sn-ink) !important;
+  font-size: 12.5px !important;
+}
+
+/* empty states: soft fill instead of a dashed box */
+.wk-page .adm-empty,
+.wk-page .empty-state {
+  border: 0;
+  border-radius: 16px;
+  background: var(--sn-surface);
+  padding: 22px;
+}
+
+.wk-page .adm-card .adm-empty {
+  background: var(--sn-canvas);
+}
+
+/* community portal rooms + thread, same corner language */
+.wk-page .cm-rooms,
+.wk-page .cm-main,
+.wk-page .cm-composer {
+  border-radius: 16px;
+  border-color: var(--sn-line-soft);
+  background: var(--sn-surface);
+}
+
+/* ------------------------------------------------------- 11. fine details */
+
+.wk-page .wk-rail-scroll::-webkit-scrollbar,
+.wk-page .adm-table-wrap::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.wk-page .wk-rail-scroll::-webkit-scrollbar-thumb,
+.wk-page .adm-table-wrap::-webkit-scrollbar-thumb {
+  background: var(--sn-line);
+  border-radius: 99px;
+}
+
+.wk-page .mono,
+.wk-page .adm-table .mono {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+}
+
+/* ------------------------------------------------------- 12. responsive */
+
+@media (min-width: 720px) {
+  .wk-page .wk-pulse {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1240px) {
+  .wk-page .wk-pulse {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .wk-page .wk-pulse-item {
+    min-height: 96px;
+  }
+}
+
+@media (max-width: 900px) {
+  .wk-page {
+    --wk-rail: var(--wk-rail-collapsed);
+  }
+}
+
+@media (max-width: 560px) {
+  .wk-page .wk-pulse {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .wk-page .wk-pulse-item {
+    min-height: 0;
+  }
+  .wk-page .wk-top .rs-cmd-trigger {
+    width: 40px;
+  }
+  .wk-page .wk-top .rs-cmd-trigger-text,
+  .wk-page .wk-top .rs-cmd-trigger-keys {
+    display: none;
+  }
+}
+
+/* ------------------------------------- 13. unwinding the older sheets
+   flim.css paints .adm-stats as one hairline strip and console-v11.css gives
+   the tiles mono micro-labels, a rule above the caption and an accent bar on
+   flagged tiles. Snow wants separate pastel cards, so those are undone here,
+   at the end of the cascade, where no !important is needed. */
+
+.wk-page .adm-stats,
+.wk-page .con-panel .adm-stats,
+.wk-page .wk-kpis {
+  gap: 16px;
+  margin-bottom: 20px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.wk-page .adm-stat,
+.wk-page .con-panel .adm-stat,
+.wk-page .wk-kpi {
+  gap: 0;
+  padding: 18px 20px;
+  border-radius: 16px;
+}
+
+.wk-page .con-panel .adm-stat .l,
+.wk-page .wk-kpi .l {
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.wk-page .con-panel .adm-stat .v,
+.wk-page .wk-kpi .v {
+  margin-top: 10px;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.wk-page .con-panel .adm-stat .s {
+  margin-top: 6px;
+  padding-top: 0;
+  border-top: 0;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+.wk-page .adm-stat[data-tone]::before,
+.wk-page .con-panel .adm-stat[data-tone="warn"]::before,
+.wk-page .con-panel .adm-stat[data-tone="bad"]::before {
+  content: none;
+}
+
+/* card titles read as sentence case, not mono all-caps */
+.wk-page .adm-card > h3,
+.wk-page .con-card-head h3,
+.wk-page .con-panel .adm-card > h3 {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--sn-ink);
+}
+
+.wk-page .con-card-head .sub,
+.wk-page .con-panel .adm-card > p.sub {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--sn-ink-2);
+}
+
+.wk-page .con-panel .adm-card > h3 + p.sub {
+  margin-bottom: 10px;
+}
+
+/* no hairline above the daily bars */
+.wk-page .uptime-bars {
+  margin-top: 14px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* status is a dot and a word, with no pill around it */
+.wk-page .st,
+.wk-page .adm-table .st,
+.wk-page .con-panel .adm-table .st,
+.wk-page .st-working,
+.wk-page .st-failing,
+.wk-page .st-rate_limited,
+.wk-page .st-expired,
+.wk-page .st-unknown,
+.wk-page .st-disabled,
+.wk-page .st-active,
+.wk-page .st-suspended,
+.wk-page .st-revoked {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: capitalize;
+}
+
+/* keep the monospace face on IDs, drop the all-caps */
+.wk-page .mono,
+.wk-page .adm-table .mono,
+.wk-page .con-panel .adm-table .mono,
+.wk-page .con-code {
+  text-transform: none;
+}
+
+/* the top-bar glyphs need a face that actually has them */
+.wk-page .wk-icon-btn,
+.wk-page .wk-rail-toggle {
+  font-family: var(--font-body), "Noto Sans Symbols2", "Noto Sans Symbols",
+    "Segoe UI Symbol", sans-serif;
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* the tile row already carries the breathing room above the heading */
+.wk-page .wk-canvas {
+  padding-top: 22px;
+}
+
+/* minimal.css sets the status tints with !important, so the dot-and-label
+   treatment has to answer in kind. Scoped to the dashboard only. */
+
+.wk-page .st-working,
+.wk-page .st-ok,
+.wk-page .st-active,
+.wk-page .st-rate_limited,
+.wk-page .st-preview,
+.wk-page .st-expired,
+.wk-page .st-failing,
+.wk-page .st-disabled,
+.wk-page .st-revoked,
+.wk-page .st-suspended,
+.wk-page .st-unknown,
+.wk-page .is-ok,
+.wk-page .is-warn,
+.wk-page .is-bad {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.wk-page .st-working,
+.wk-page .st-ok,
+.wk-page .st-active {
+  color: var(--sn-ok) !important;
+}
+
+.wk-page .st-rate_limited,
+.wk-page .st-preview,
+.wk-page .st-expired {
+  color: var(--sn-warn) !important;
+}
+
+.wk-page .st-failing,
+.wk-page .st-revoked,
+.wk-page .st-suspended {
+  color: var(--sn-stop) !important;
+}
+
+.wk-page .st-unknown,
+.wk-page .st-disabled {
+  color: var(--sn-ink-3) !important;
+}

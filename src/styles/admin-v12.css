@@ -1,0 +1,427 @@
+/* ==========================================================================
+   admin-v12.css — the admin panel on the dashboard shell
+   --------------------------------------------------------------------------
+   The panel used to be its own layout: a 232px nav, a flat container, its own
+   header. The member dashboard had already moved to the v12 rail, so the two
+   halves of the product looked like two products. Admin.jsx now renders the
+   same shell, and this sheet only carries what is genuinely admin-only:
+
+     1. the admin accent, so you always know which side you are on
+     2. the section-search box, which now lives in the shell's top bar
+     3. the Messages inbox — the admin end of the member lane
+
+   Loaded after dashboard-v12.css, so the shell's own geometry wins and this
+   never has to fight it.
+   ========================================================================== */
+
+/* ------------------------------------------------------------- 1. accent */
+
+.wk-page.is-admin {
+  --wk-accent: var(--citron, #c8f169);
+}
+
+.wk-page.is-admin .wk-brand-tag {
+  color: var(--citron, #c8f169);
+  border-color: color-mix(in srgb, var(--citron, #c8f169) 40%, transparent);
+}
+
+.wk-page.is-admin .wk-nav-item.is-on {
+  box-shadow: inset 2px 0 0 var(--citron, #c8f169);
+}
+
+.wk-pulse-v.is-live {
+  color: var(--citron, #c8f169);
+}
+
+/* --------------------------------------------- 2. section search, in top */
+
+.ad-jump {
+  position: relative;
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+/* the box brought its own card with it; in the top bar it is just a field */
+.ad-jump .ap-topbar {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.ad-jump .ap-search {
+  max-width: 340px;
+}
+
+/* the old panel chrome is dead weight inside the shell */
+.wk-panel .adm-rail,
+.wk-panel .adm-topbar {
+  display: none;
+}
+
+.ad-sub {
+  margin: 2px 0 0;
+  color: var(--muted, #7d7a75);
+  font-size: var(--fs-sm, 14px);
+}
+
+/* ------------------------------------------------------ 3. Messages inbox */
+
+.ad-inbox {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.ad-inbox-list,
+.ad-inbox-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border, #e6e5e3);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--card, #fff);
+}
+
+.ad-inbox-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ad-inbox-count {
+  color: var(--muted, #7d7a75);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-xs, 12px);
+}
+
+.ad-inbox-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ad-pill {
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid var(--border, #e6e5e3);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted, #7d7a75);
+  font: inherit;
+  font-size: var(--fs-xs, 12px);
+  cursor: pointer;
+}
+
+.ad-pill.is-on {
+  border-color: color-mix(in srgb, var(--citron, #c8f169) 55%, transparent);
+  background: color-mix(in srgb, var(--citron, #c8f169) 14%, transparent);
+  color: var(--text, #2c2c2b);
+}
+
+.ad-inbox-search {
+  width: 100%;
+}
+
+.ad-threads {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 62vh;
+  overflow-y: auto;
+}
+
+.ad-thread {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius, 8px);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ad-thread:hover {
+  background: var(--bg-2, #f0efed);
+}
+
+.ad-thread.is-active {
+  border-color: color-mix(in srgb, var(--citron, #c8f169) 55%, transparent);
+  background: color-mix(in srgb, var(--citron, #c8f169) 10%, transparent);
+}
+
+.ad-thread-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ad-thread-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ad-thread-time,
+.ad-thread-preview {
+  color: var(--muted, #7d7a75);
+  font-size: var(--fs-xs, 12px);
+}
+
+.ad-thread-time {
+  flex: none;
+}
+
+.ad-thread-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ad-thread-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--faint, #9a978f);
+  font-size: var(--fs-xs, 12px);
+}
+
+.ad-status {
+  padding: 1px 7px;
+  border: 1px solid var(--border, #e6e5e3);
+  border-radius: 999px;
+  font-size: var(--fs-xs, 12px);
+}
+
+.ad-status.is-open {
+  border-color: color-mix(in srgb, var(--danger, #e56458) 40%, transparent);
+  color: var(--danger, #e56458);
+}
+
+.ad-status.is-answered {
+  border-color: color-mix(in srgb, var(--ok, #46a171) 40%, transparent);
+  color: var(--ok, #46a171);
+}
+
+.ad-status.is-closed {
+  color: var(--muted, #7d7a75);
+}
+
+.ad-unread {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--citron, #c8f169);
+  color: #1b1b19;
+  font-weight: 600;
+  font-size: var(--fs-xs, 12px);
+}
+
+/* ------------------------------------------------------------ the thread */
+
+.ad-inbox-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border, #e6e5e3);
+}
+
+.ad-inbox-who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ad-inbox-who > span {
+  display: grid;
+  min-width: 0;
+}
+
+.ad-avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--bg-2, #f0efed);
+  font-size: var(--fs-xs, 12px);
+  font-weight: 600;
+}
+
+.ad-inbox-sub {
+  color: var(--muted, #7d7a75);
+  font-size: var(--fs-xs, 12px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ad-inbox-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ad-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+
+.ad-msg {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.ad-msg.is-staff {
+  justify-content: flex-end;
+}
+
+.ad-bubble {
+  max-width: min(560px, 82%);
+  padding: 8px 12px;
+  border: 1px solid var(--border, #e6e5e3);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--bg-2, #f0efed);
+}
+
+.ad-msg.is-staff .ad-bubble {
+  border-color: color-mix(in srgb, var(--citron, #c8f169) 45%, transparent);
+  background: color-mix(in srgb, var(--citron, #c8f169) 12%, transparent);
+}
+
+.ad-msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+  color: var(--muted, #7d7a75);
+  font-size: var(--fs-xs, 12px);
+}
+
+.ad-msg-text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ad-del {
+  margin-left: auto;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--faint, #9a978f);
+  font: inherit;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.ad-msg:hover .ad-del,
+.ad-del:focus-visible {
+  opacity: 1;
+}
+
+.ad-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border, #e6e5e3);
+}
+
+.ad-reply {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  padding: 8px 10px;
+  border: 1px solid var(--border, #e6e5e3);
+  border-radius: var(--radius, 8px);
+  background: var(--paper, #fff);
+  color: inherit;
+  font: inherit;
+}
+
+.ad-inbox-empty {
+  display: grid;
+  gap: 4px;
+  place-items: center;
+  padding: 28px 14px;
+  color: var(--muted, #7d7a75);
+  font-size: var(--fs-sm, 14px);
+  text-align: center;
+}
+
+.ad-inbox-hint {
+  color: var(--faint, #9a978f);
+  font-size: var(--fs-xs, 12px);
+}
+
+@media (max-width: 1000px) {
+  .ad-inbox {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ad-threads {
+    max-height: 38vh;
+  }
+}
+
+/* ==========================================================================
+   UI/UX pass — admin inbox controls
+   --------------------------------------------------------------------------
+   The rail, top bar and nav already inherit the dashboard's 44px targets,
+   focus rings and transitions (same .wk-* shell). This only covers the
+   admin-only inbox widgets (.ad-*): give their state changes the same fast
+   colour transition and make keyboard focus visible, matching the checklist.
+   ========================================================================== */
+
+.ad-pill,
+.ad-thread,
+.ad-del {
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.ad-pill:focus-visible,
+.ad-thread:focus-visible,
+.ad-del:focus-visible,
+.ad-reply:focus-visible {
+  outline: 2px solid var(--primary, currentColor);
+  outline-offset: 2px;
+  border-radius: var(--radius, 8px);
+}
+
+/* the hover-only delete affordance must also appear on keyboard focus within
+   the row, not just on the button itself */
+.ad-msg:focus-within .ad-del {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-pill,
+  .ad-thread,
+  .ad-del {
+    transition: none;
+  }
+}

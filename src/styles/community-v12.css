@@ -1,0 +1,1228 @@
+/* ==========================================================================
+   community-v12.css - the community portal, snow theme
+   --------------------------------------------------------------------------
+   Everything is scoped under .wk-community.cmx so none of this can leak into
+   the rest of the dashboard. The --cmx-* tokens are bridged off the existing
+   RageStar kit palette — see the .wk-community.cmx block below.
+
+   The last block holds the three globals that live outside the portal:
+   the rail's unread dot, and the "gateway paused" strip.
+   ========================================================================== */
+
+/* RageStar kit palette, not the old standalone "snow" surface.
+   The panel used to bring its own theme (white canvas, #2783de blue, 14px
+   radii) bridged off --sn-* variables that nothing in the dashboard sets, so
+   it always fell back to those literals and read as a foreign surface next to
+   the kit's paper and pine ink. These are the kit's own values, taken from
+   ragestar/theme.css, so the community is the same material as every other
+   view. Because every .cmx-* rule reads from these variables, this block
+   re-skins the whole panel. */
+.wk-community.cmx {
+  --cmx-canvas: #e9ece4; /* --color-ink-950, the page paper */
+  --cmx-surface: #f1f3eb; /* the kit's panel paper */
+  --cmx-surface-2: #e2e6da; /* --color-ink-900, raised / hover */
+  --cmx-line: rgba(16, 24, 20, 0.14); /* ink hairline */
+  --cmx-ink: #101814; /* --color-white, the pine ink */
+  --cmx-ink-2: rgba(16, 24, 20, 0.68);
+  --cmx-ink-3: rgba(16, 24, 20, 0.45);
+  --cmx-accent: #2447e8; /* --color-brand-ember, cobalt */
+  --cmx-ok: #0d7a66; /* --color-brand-lime, instrument teal */
+  --cmx-warn: #c79a1e; /* --color-brand-gold, brass */
+  --cmx-stop: #e23d28; /* --color-brand-coral, signal red */
+  --cmx-radius: 16px;
+  --cmx-radius-sm: 10px;
+  --cmx-side: 300px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  color: var(--cmx-ink);
+}
+
+/* ---- typing dots ----------------------------------------------------------
+   Three dots that lift in sequence. Shown while a room fetches its messages
+   and while your own message is in flight. There is no presence table to read,
+   so this is deliberately an activity indicator: it never claims that a named
+   person is typing. */
+.cmx-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 13px;
+  border: 1px solid var(--cmx-line);
+  border-radius: var(--cmx-radius);
+  background: var(--cmx-surface);
+}
+
+.cmx-typing.is-mini {
+  padding: 7px 9px;
+  gap: 3px;
+  border-radius: var(--cmx-radius-sm);
+}
+
+.cmx-typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cmx-ink-3);
+  animation: cmx-typing 1.15s ease-in-out infinite;
+}
+
+.cmx-typing.is-mini i {
+  width: 5px;
+  height: 5px;
+}
+
+.cmx-typing i:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.cmx-typing i:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+@keyframes cmx-typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmx-typing i {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* The sidebar's "N more rooms" line under the main four. */
+.cmx-side-more {
+  margin: 6px 2px 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--cmx-ink-3);
+}
+
+/* ---- header -------------------------------------------------------------- */
+
+.cmx-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cmx-head-main {
+  min-width: 220px;
+  flex: 1 1 260px;
+}
+
+.cmx-eyebrow {
+  display: block;
+  /* The kit sets its micro-labels in the mono face at this size and tracking. */
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cmx-ink-3);
+}
+
+.cmx-title {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.cmx-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cmx-ink-2);
+  max-width: 60ch;
+}
+
+/* ---- today's quota ------------------------------------------------------- */
+
+.cmx-quota {
+  flex: 0 0 auto;
+  min-width: 244px;
+  padding: 12px 14px 13px;
+  border: 1px solid var(--cmx-line);
+  border-radius: var(--cmx-radius);
+  background: var(--cmx-surface);
+}
+
+.cmx-quota[data-state="locked"] {
+  border-color: rgba(229, 100, 88, 0.38);
+  background: rgba(229, 100, 88, 0.06);
+}
+
+.cmx-quota[data-state="open"] {
+  border-color: rgba(70, 161, 113, 0.38);
+  background: rgba(70, 161, 113, 0.06);
+}
+
+.cmx-quota-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cmx-ink-3);
+}
+
+.cmx-quota-state {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--cmx-ink-2);
+}
+
+.cmx-quota[data-state="open"] .cmx-quota-state {
+  color: var(--cmx-ok);
+}
+
+.cmx-quota[data-state="locked"] .cmx-quota-state {
+  color: var(--cmx-stop);
+}
+
+.cmx-meter {
+  margin-top: 9px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cmx-surface-2);
+  overflow: hidden;
+}
+
+.cmx-meter-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--cmx-accent);
+  transition: width 0.35s ease;
+}
+
+.cmx-quota[data-state="open"] .cmx-meter-fill {
+  background: var(--cmx-ok);
+}
+
+.cmx-quota-legs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 10px;
+}
+
+.cmx-leg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--cmx-ink-2);
+}
+
+.cmx-leg.is-done {
+  color: var(--cmx-ink);
+}
+
+.cmx-leg-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  border: 1px solid var(--cmx-line);
+  background: var(--cmx-canvas);
+  font-size: 9px;
+  line-height: 1;
+  color: transparent;
+}
+
+.cmx-leg.is-done .cmx-leg-mark {
+  border-color: transparent;
+  background: var(--cmx-ok);
+  color: #fff;
+}
+
+/* ---- gate notice --------------------------------------------------------- */
+
+.cmx-gate {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 1px solid rgba(229, 100, 88, 0.36);
+  border-left-width: 3px;
+  border-radius: var(--cmx-radius-sm);
+  background: rgba(229, 100, 88, 0.06);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cmx-gate.is-open {
+  border-color: rgba(70, 161, 113, 0.36);
+  background: rgba(70, 161, 113, 0.06);
+}
+
+.cmx-gate-ico {
+  flex: 0 0 auto;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.cmx-gate-txt {
+  color: var(--cmx-ink-2);
+}
+
+.cmx-gate-txt b {
+  color: var(--cmx-ink);
+  font-weight: 640;
+}
+
+/* ---- two-pane shell ------------------------------------------------------ */
+
+.cmx-shell {
+  display: grid;
+  grid-template-columns: var(--cmx-side) minmax(0, 1fr);
+  gap: 14px;
+  min-height: 0;
+  /* A contained box, not a page-tall one. It scales with the viewport between
+     a usable floor and a ceiling, so on a tall screen it stays a panel you can
+     see the whole of rather than a column running off the bottom. */
+  height: clamp(500px, calc(100vh - 20rem), 680px);
+}
+
+/* ---- sidebar ------------------------------------------------------------- */
+
+.cmx-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--cmx-line);
+  border-radius: var(--cmx-radius);
+  background: var(--cmx-surface);
+  overflow: hidden;
+}
+
+.cmx-side-top {
+  padding: 10px;
+  border-bottom: 1px solid var(--cmx-line);
+  background: var(--cmx-canvas);
+}
+
+.cmx-search {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 9px;
+  background: var(--cmx-surface);
+  color: var(--cmx-ink);
+  font: inherit;
+  font-size: 13px;
+}
+
+.cmx-search:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--cmx-accent) 40%, transparent);
+  outline-offset: 1px;
+  border-color: var(--cmx-accent);
+}
+
+.cmx-side-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cmx-sect {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cmx-sect-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 6px 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cmx-ink-3);
+}
+
+.cmx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cmx-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--cmx-radius-sm);
+  background: transparent;
+  color: var(--cmx-ink-2);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease,
+    border-color 0.14s ease;
+}
+
+.cmx-item:hover {
+  background: var(--cmx-surface-2);
+  color: var(--cmx-ink);
+}
+
+.cmx-item.is-active {
+  background: var(--cmx-canvas);
+  border-color: var(--cmx-line);
+  color: var(--cmx-ink);
+  box-shadow: 0 1px 2px rgba(16, 24, 20, 0.06);
+}
+
+.cmx-item.is-unread .cmx-item-name {
+  font-weight: 650;
+  color: var(--cmx-ink);
+}
+
+.cmx-item-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cmx-item-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmx-item-last {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--cmx-ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmx-ava {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--cmx-surface-2);
+  color: var(--cmx-ink-2);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.cmx-ava.is-room {
+  border-radius: 8px;
+  color: var(--cmx-ink-3);
+}
+
+.cmx-ava.is-staff {
+  background: color-mix(in srgb, var(--cmx-accent) 16%, var(--cmx-canvas));
+  color: var(--cmx-accent);
+}
+
+.cmx-badge {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--cmx-stop);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmx-badge.is-quiet {
+  background: var(--cmx-surface-2);
+  color: var(--cmx-ink-3);
+}
+
+.cmx-online {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--cmx-ok);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cmx-ok) 22%, transparent);
+}
+
+.cmx-online.is-off {
+  background: var(--cmx-ink-3);
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+.cmx-hash,
+.cmx-lock {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.cmx-lock {
+  color: var(--cmx-ink-3);
+}
+
+.cmx-side-empty {
+  padding: 8px 10px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--cmx-ink-3);
+}
+
+/* ---- conversation -------------------------------------------------------- */
+
+.cmx-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--cmx-line);
+  border-radius: var(--cmx-radius);
+  background: var(--cmx-canvas);
+  overflow: hidden;
+}
+
+.cmx-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cmx-line);
+  background: var(--cmx-surface);
+}
+
+.cmx-back {
+  display: none;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 8px;
+  background: var(--cmx-canvas);
+  color: var(--cmx-ink-2);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cmx-bar-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cmx-bar-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 640;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmx-bar-meta {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--cmx-ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmx-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cmx-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 999px;
+  background: var(--cmx-canvas);
+  font-size: 11px;
+  font-weight: 620;
+  color: var(--cmx-ink-2);
+  white-space: nowrap;
+}
+
+.cmx-pill.is-live {
+  border-color: rgba(70, 161, 113, 0.4);
+  color: var(--cmx-ok);
+}
+
+.cmx-pill.is-lock {
+  border-color: rgba(213, 128, 59, 0.4);
+  color: var(--cmx-warn);
+}
+
+.cmx-ico-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 8px;
+  background: var(--cmx-canvas);
+  color: var(--cmx-ink-2);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease;
+}
+
+.cmx-ico-btn:hover {
+  background: var(--cmx-surface-2);
+  color: var(--cmx-ink);
+}
+
+/* ---- stream -------------------------------------------------------------- */
+
+.cmx-stream {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  scroll-behavior: smooth;
+}
+
+.cmx-day {
+  align-self: center;
+  margin: 12px 0 8px;
+  padding: 2px 10px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 999px;
+  background: var(--cmx-surface);
+  font-size: 11px;
+  font-weight: 620;
+  color: var(--cmx-ink-3);
+}
+
+.cmx-newline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cmx-stop);
+}
+
+.cmx-newline::before,
+.cmx-newline::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: color-mix(in srgb, var(--cmx-stop) 35%, transparent);
+}
+
+.cmx-msg {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  padding: 3px 0;
+  max-width: 100%;
+}
+
+.cmx-msg.is-run {
+  padding-top: 0;
+}
+
+.cmx-msg.is-mine {
+  flex-direction: row-reverse;
+}
+
+.cmx-bubble {
+  position: relative;
+  /* Wider on the full-width shell — 640px was sized for the old 760px box. */
+  max-width: min(84%, 860px);
+  padding: 9px 12px 10px;
+  border: 1px solid var(--cmx-line);
+  border-radius: var(--cmx-radius);
+  background: var(--cmx-surface);
+}
+
+.cmx-msg.is-mine .cmx-bubble {
+  border-color: color-mix(in srgb, var(--cmx-accent) 26%, var(--cmx-line));
+  background: color-mix(in srgb, var(--cmx-accent) 9%, var(--cmx-canvas));
+}
+
+.cmx-msg.is-staff .cmx-bubble {
+  border-color: color-mix(in srgb, var(--cmx-warn) 30%, var(--cmx-line));
+  background: color-mix(in srgb, var(--cmx-warn) 8%, var(--cmx-canvas));
+}
+
+.cmx-msg.is-run .cmx-bubble {
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+}
+
+.cmx-msg-top {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 3px;
+}
+
+.cmx-msg-author {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--cmx-ink);
+}
+
+.cmx-tag {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--cmx-surface-2);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cmx-ink-3);
+}
+
+.cmx-tag.is-admin {
+  background: color-mix(in srgb, var(--cmx-warn) 16%, var(--cmx-canvas));
+  color: var(--cmx-warn);
+}
+
+.cmx-tag.is-you {
+  background: color-mix(in srgb, var(--cmx-accent) 14%, var(--cmx-canvas));
+  color: var(--cmx-accent);
+}
+
+.cmx-time {
+  font-size: 11px;
+  color: var(--cmx-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.cmx-edited {
+  font-size: 10.5px;
+  font-style: italic;
+  color: var(--cmx-ink-3);
+}
+
+.cmx-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cmx-quote {
+  display: block;
+  margin: 0 0 6px;
+  padding: 5px 9px;
+  border-left: 2px solid color-mix(in srgb, var(--cmx-accent) 55%, transparent);
+  border-radius: 6px;
+  background: var(--cmx-surface-2);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--cmx-ink-2);
+}
+
+.cmx-quote b {
+  color: var(--cmx-ink);
+  font-weight: 640;
+}
+
+.cmx-reacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.cmx-react {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 999px;
+  background: var(--cmx-canvas);
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--cmx-ink-2);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmx-react:hover {
+  background: var(--cmx-surface-2);
+}
+
+.cmx-react.is-mine {
+  border-color: color-mix(in srgb, var(--cmx-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--cmx-accent) 12%, var(--cmx-canvas));
+  color: var(--cmx-accent);
+}
+
+.cmx-tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  align-self: flex-end;
+  padding-bottom: 3px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.cmx-msg:hover .cmx-tools,
+.cmx-msg:focus-within .cmx-tools {
+  opacity: 1;
+}
+
+.cmx-tool {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--cmx-ink-3);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cmx-tool:hover {
+  border-color: var(--cmx-line);
+  background: var(--cmx-surface);
+  color: var(--cmx-ink);
+}
+
+.cmx-tool.is-stop:hover {
+  border-color: color-mix(in srgb, var(--cmx-stop) 40%, transparent);
+  color: var(--cmx-stop);
+}
+
+.cmx-editrow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cmx-edit-input {
+  width: 100%;
+  min-height: 54px;
+  padding: 7px 9px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 9px;
+  background: var(--cmx-canvas);
+  color: var(--cmx-ink);
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.cmx-edit-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.cmx-mini {
+  padding: 3px 10px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 8px;
+  background: var(--cmx-canvas);
+  color: var(--cmx-ink-2);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 620;
+  cursor: pointer;
+}
+
+.cmx-mini:hover {
+  background: var(--cmx-surface-2);
+  color: var(--cmx-ink);
+}
+
+.cmx-mini.is-primary {
+  border-color: transparent;
+  background: var(--cmx-accent);
+  color: #fff;
+}
+
+.cmx-empty {
+  margin: auto;
+  padding: 28px 18px;
+  max-width: 44ch;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--cmx-ink-3);
+}
+
+.cmx-load {
+  margin: auto;
+  font-size: 12.5px;
+  color: var(--cmx-ink-3);
+}
+
+/* ---- reply bar + composer ------------------------------------------------ */
+
+.cmx-replybar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px;
+  border-top: 1px solid var(--cmx-line);
+  background: var(--cmx-surface-2);
+  font-size: 12px;
+}
+
+.cmx-replybar-txt {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cmx-ink-2);
+}
+
+.cmx-replybar-txt b {
+  color: var(--cmx-ink);
+  font-weight: 640;
+}
+
+.cmx-replybar-x {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 7px;
+  background: var(--cmx-canvas);
+  color: var(--cmx-ink-2);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cmx-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--cmx-line);
+  background: var(--cmx-surface);
+}
+
+.cmx-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 42px;
+  /* A little more room to write in the taller layout. */
+  max-height: 220px;
+  padding: 10px 12px;
+  border: 1px solid var(--cmx-line);
+  border-radius: 12px;
+  background: var(--cmx-canvas);
+  color: var(--cmx-ink);
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.5;
+  resize: none;
+}
+
+.cmx-input:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--cmx-accent) 40%, transparent);
+  outline-offset: 1px;
+  border-color: var(--cmx-accent);
+}
+
+.cmx-input:disabled {
+  background: var(--cmx-surface-2);
+  color: var(--cmx-ink-3);
+}
+
+.cmx-composer-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.cmx-emoji-row {
+  display: flex;
+  gap: 3px;
+}
+
+.cmx-emoji {
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cmx-emoji:hover {
+  border-color: var(--cmx-line);
+  background: var(--cmx-canvas);
+}
+
+.cmx-send {
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--cmx-accent);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 640;
+  cursor: pointer;
+  transition:
+    filter 0.14s ease,
+    opacity 0.14s ease;
+}
+
+.cmx-send:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.cmx-send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cmx-hint {
+  padding: 0 12px 10px;
+  font-size: 11.5px;
+  color: var(--cmx-ink-3);
+}
+
+.cmx-locked {
+  padding: 12px;
+  border-top: 1px solid var(--cmx-line);
+  background: var(--cmx-surface);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--cmx-ink-2);
+  text-align: center;
+}
+
+.cmx-error {
+  margin: 0 12px 10px;
+  padding: 8px 11px;
+  border: 1px solid rgba(229, 100, 88, 0.4);
+  border-radius: 9px;
+  background: rgba(229, 100, 88, 0.07);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--cmx-ink);
+}
+
+/* ---- narrow: one pane at a time ------------------------------------------ */
+
+@media (max-width: 1040px) {
+  .wk-community.cmx {
+    --cmx-side: 232px;
+  }
+
+  .cmx-quota {
+    min-width: 210px;
+  }
+}
+
+@media (max-width: 860px) {
+  .cmx-shell {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 520px;
+  }
+
+  .cmx-shell[data-pane="list"] .cmx-main,
+  .cmx-shell[data-pane="chat"] .cmx-side {
+    display: none;
+  }
+
+  .cmx-shell[data-pane="chat"] .cmx-back {
+    display: grid;
+  }
+
+  .cmx-side,
+  .cmx-main {
+    height: clamp(460px, calc(100vh - 300px), 720px);
+  }
+
+  .cmx-bubble {
+    max-width: 88%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-community.cmx *,
+  .wk-community.cmx *::before,
+  .wk-community.cmx *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+
+  .cmx-stream {
+    scroll-behavior: auto;
+  }
+}
+
+/* ==========================================================================
+   Globals - these three live outside the portal
+   ========================================================================== */
+
+/* the rail's unread dot: red, with the count inside */
+.wk-nav-dot {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: auto;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--sn-stop, #e56458);
+  color: #fff;
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sn-stop, #e56458) 20%, transparent);
+  animation: cmx-dot-in 0.22s ease-out;
+}
+
+.wk-shell[data-collapsed="true"] .wk-nav-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  font-size: 9.5px;
+}
+
+@keyframes cmx-dot-in {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* the "gateway paused" strip, shown on every tab except the portal */
+.wk-gatebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 13px;
+  border: 1px solid rgba(229, 100, 88, 0.38);
+  border-left-width: 3px;
+  border-radius: 12px;
+  background: rgba(229, 100, 88, 0.06);
+}
+
+.wk-gatebar-txt {
+  flex: 1 1 320px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sn-ink-2, rgba(28, 28, 28, 0.62));
+}
+
+.wk-gatebar-txt b {
+  color: var(--sn-ink, #1c1c1c);
+  font-weight: 640;
+}
+
+.wk-gatebar-cta {
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 13px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: var(--sn-ink, #1c1c1c);
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 640;
+  cursor: pointer;
+}
+
+.wk-gatebar-cta:hover {
+  filter: brightness(1.15);
+}

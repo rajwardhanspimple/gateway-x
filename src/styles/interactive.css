@@ -1,0 +1,658 @@
+/* ==========================================================================
+   interactive.css — the response layer
+   --------------------------------------------------------------------------
+   minimal.css flattened everything and then clamped motion globally
+   (`animation-duration: .01ms !important`, `transition-duration: 120ms`).
+   The result was calm but dull: nothing answered a hover, a press or a
+   scroll. This file puts the *feedback* back and leaves the decoration out.
+
+   House rules, followed line by line below:
+     · solid colours only — there is not one gradient in this file
+     · motion is short (120–280ms), small (≤ 3px) and only ever on input
+     · every hover state has a focus-visible twin, so keyboards see the same
+     · prefers-reduced-motion switches the movement off, not the meaning
+
+   Loaded last, so the clamps above are re-opened one selector at a time.
+   ========================================================================== */
+
+:root {
+	--dur-1: 120ms;
+	--dur-2: 180ms;
+	--dur-3: 260ms;
+	--ease-1: cubic-bezier(0.2, 0.7, 0.3, 1);
+	--ring: 0 0 0 3px var(--primary-soft);
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+/* ============================================================ 1. controls = */
+
+.btn,
+.sui-btn,
+.copy-btn,
+.dt-pager button,
+.theme-toggle,
+.nav-burger,
+.sui-oauth,
+.sui-reveal {
+	transition:
+		background-color var(--dur-2) var(--ease-1),
+		border-color var(--dur-2) var(--ease-1),
+		color var(--dur-2) var(--ease-1),
+		box-shadow var(--dur-2) var(--ease-1),
+		transform var(--dur-1) var(--ease-1) !important;
+}
+
+.btn:hover,
+.sui-btn:hover,
+.copy-btn:hover,
+.sui-oauth:hover {
+	transform: translateY(-1px);
+}
+.btn:active,
+.sui-btn:active,
+.copy-btn:active,
+.sui-oauth:active {
+	transform: translateY(0) scale(0.985);
+}
+.btn:disabled,
+.sui-btn:disabled,
+.btn[aria-busy="true"],
+.sui-btn[aria-busy="true"] {
+	transform: none !important;
+}
+
+/* theme-aware hover: mixing with --text brightens on dark, darkens on light */
+.btn-primary:hover,
+.sui-btn-primary:hover,
+.sui-btn--primary:hover {
+	background: color-mix(in srgb, var(--primary) 86%, var(--text)) !important;
+	border-color: color-mix(in srgb, var(--primary) 86%, var(--text)) !important;
+}
+.btn-ghost:hover,
+.sui-btn-ghost:hover,
+.sui-btn--ghost:hover {
+	border-color: var(--border-strong) !important;
+}
+.sui-btn-danger:hover,
+.sui-btn--danger:hover,
+.btn-danger:hover {
+	background: var(--danger-soft) !important;
+}
+
+:focus-visible {
+	box-shadow: var(--ring);
+}
+
+/* copy buttons confirm in place */
+.btn.is-copied,
+.copy-btn.is-copied {
+	color: var(--ok) !important;
+	border-color: var(--ok) !important;
+	animation: ia-pop 220ms var(--ease-1) 1 !important;
+}
+@keyframes ia-pop {
+	0% { transform: scale(0.94); }
+	60% { transform: scale(1.03); }
+	100% { transform: scale(1); }
+}
+
+/* ============================================================== 2. links == */
+
+a.rr-quiet-link,
+.nav-links a,
+.site-footer a,
+.foot-links a {
+	position: relative;
+	text-decoration: none !important;
+	transition: color var(--dur-2) var(--ease-1) !important;
+}
+a.rr-quiet-link::after,
+.nav-links a::after,
+.site-footer a::after,
+.foot-links a::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -2px;
+	height: 1px;
+	background: currentColor;
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform var(--dur-2) var(--ease-1) !important;
+}
+a.rr-quiet-link:hover::after,
+a.rr-quiet-link:focus-visible::after,
+.nav-links a:hover::after,
+.nav-links a:focus-visible::after,
+.nav-links a[aria-current="page"]::after,
+.site-footer a:hover::after,
+.foot-links a:hover::after {
+	transform: scaleX(1);
+}
+.nav-links a[aria-current="page"]::after {
+	background: var(--primary);
+}
+
+/* the arrow in "Read the docs →" leans toward the cursor */
+a.rr-quiet-link svg {
+	transition: transform var(--dur-2) var(--ease-1) !important;
+}
+a.rr-quiet-link:hover svg,
+a.rr-quiet-link:focus-visible svg {
+	transform: translateX(3px);
+}
+
+/* ======================================================= 3. cards & steps = */
+
+.rr-step,
+.rr-panel,
+.mn-card,
+.adm-card,
+.con-card,
+.card,
+.tile {
+	transition:
+		border-color var(--dur-2) var(--ease-1),
+		background-color var(--dur-2) var(--ease-1),
+		transform var(--dur-2) var(--ease-1) !important;
+}
+.rr-step:hover,
+.rr-panel:hover {
+	transform: translateY(-2px);
+	border-color: var(--border-strong) !important;
+}
+.mn-card:focus-within,
+.adm-card:focus-within,
+.con-card:focus-within {
+	border-color: var(--border-strong) !important;
+}
+
+.rr-step-plate {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--raised);
+	color: var(--muted);
+	transition:
+		background-color var(--dur-2) var(--ease-1),
+		border-color var(--dur-2) var(--ease-1),
+		color var(--dur-2) var(--ease-1) !important;
+}
+/* The icon strings in components/brand.jsx carry only a viewBox, so an
+   unsized <svg> collapses to 0x0 inside the flex plate. Size it explicitly. */
+.rr-step-plate > span,
+.rr-step-plate svg {
+	display: block;
+	flex: none;
+	width: 18px;
+	height: 18px;
+}
+.rr-step:hover .rr-step-plate {
+	background: var(--primary-soft);
+	border-color: var(--primary);
+	color: var(--primary);
+}
+.rr-step-num {
+	font-variant-numeric: tabular-nums;
+	transition: color var(--dur-2) var(--ease-1) !important;
+}
+.rr-step:hover .rr-step-num {
+	color: var(--text);
+}
+
+/* stats: quiet top accent on hover, numbers that do not jitter while counting */
+.rr-stat,
+.mn-stat {
+	position: relative;
+	transition: background-color var(--dur-2) var(--ease-1) !important;
+}
+.rr-stat::before,
+.mn-stat::before {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: 2px;
+	background: var(--primary);
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform var(--dur-3) var(--ease-1) !important;
+}
+.rr-stat:hover,
+.mn-stat:hover {
+	background: var(--hover);
+}
+.rr-stat:hover::before,
+.mn-stat:hover::before {
+	transform: scaleX(1);
+}
+.rr-stat .v,
+.mn-stat .v {
+	font-variant-numeric: tabular-nums;
+}
+
+/* ================================================== 4. tables & data rows = */
+
+.adm-table tbody tr,
+.dt tbody tr,
+.fsx-row,
+.tr-file,
+.tr-folder {
+	transition:
+		background-color var(--dur-1) var(--ease-1),
+		box-shadow var(--dur-1) var(--ease-1),
+		color var(--dur-1) var(--ease-1) !important;
+}
+/* These tables are border-collapse, and a collapsed <tr> never paints its own
+   box-shadow. The accent has to sit on the first cell instead. */
+.adm-table tbody tr:hover > td:first-child,
+.dt tbody tr:hover > td:first-child,
+.tbl tbody tr:hover > td:first-child {
+	box-shadow: inset 2px 0 0 0 var(--primary);
+}
+.dt tbody tr.is-on > td:first-child {
+	box-shadow: inset 2px 0 0 0 var(--primary);
+}
+.fsx-row.is-on,
+.tr-file.is-on {
+	box-shadow: inset 2px 0 0 0 var(--primary);
+}
+
+/* ================================================================ 5. tabs = */
+
+.con-tab,
+.adm-tab {
+	position: relative;
+	transition:
+		color var(--dur-2) var(--ease-1),
+		background-color var(--dur-2) var(--ease-1) !important;
+}
+.con-tab::after,
+.adm-tab::after {
+	content: "";
+	position: absolute;
+	left: 8px;
+	right: 8px;
+	bottom: -1px;
+	height: 2px;
+	background: var(--primary);
+	transform: scaleX(0);
+	transform-origin: center;
+	transition: transform var(--dur-2) var(--ease-1) !important;
+}
+.con-tab:hover::after,
+.adm-tab:hover::after {
+	transform: scaleX(0.6);
+	background: var(--border-strong);
+}
+.con-tab.is-on,
+.adm-tab.is-on,
+.con-tab[aria-selected="true"],
+.adm-tab[aria-selected="true"] {
+	border-bottom-color: transparent !important;
+}
+.con-tab.is-on::after,
+.adm-tab.is-on::after,
+.con-tab[aria-selected="true"]::after,
+.adm-tab[aria-selected="true"]::after {
+	transform: scaleX(1);
+	background: var(--primary);
+}
+
+.sui-seg button {
+	transition:
+		background-color var(--dur-2) var(--ease-1),
+		color var(--dur-2) var(--ease-1) !important;
+}
+
+/* ============================================================== 6. inputs = */
+
+input:not(.ragestar-scope *),
+select:not(.ragestar-scope *),
+textarea:not(.ragestar-scope *),
+.sui-input,
+.adm-input,
+.adm-select,
+.con-search,
+.dt-search {
+	transition:
+		border-color var(--dur-2) var(--ease-1),
+		background-color var(--dur-2) var(--ease-1),
+		box-shadow var(--dur-2) var(--ease-1) !important;
+}
+input:not(.ragestar-scope *):hover,
+select:not(.ragestar-scope *):hover,
+textarea:not(.ragestar-scope *):hover {
+	border-color: var(--border-strong) !important;
+}
+input:not(.ragestar-scope *):focus,
+select:not(.ragestar-scope *):focus,
+textarea:not(.ragestar-scope *):focus,
+.sui-input:focus {
+	box-shadow: var(--ring) !important;
+}
+
+/* =================================================== 7. live state signals = */
+
+@keyframes ia-pulse {
+	0%, 100% { opacity: 1; transform: scale(1); }
+	50% { opacity: 0.4; transform: scale(0.78); }
+}
+.dot-live,
+.kw-dot.is-live,
+.st-working::before {
+	animation: ia-pulse 1.9s var(--ease-1) infinite !important;
+}
+.st-working::before {
+	content: "";
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+	flex: 0 0 6px;
+}
+
+.st,
+.dt-chip,
+.mn-chip {
+	transition: border-color var(--dur-2) var(--ease-1), color var(--dur-2) var(--ease-1) !important;
+}
+
+/* ============================================== 8. scroll reveals (opt-in) = */
+/* `rv-armed` is added by src/lib/interactive.js at observe time, so content
+   is only ever hidden once something is guaranteed to show it again. */
+
+/* These use `translate`, not `transform`, on purpose. A revealed card still
+   has to lift on hover, and `[data-rv].is-in` would otherwise out-rank
+   `.rr-step:hover` and pin transform to none. The two properties compose. */
+[data-rv].rv-armed {
+	opacity: 0;
+	translate: 0 10px;
+	transition:
+		opacity var(--dur-3) var(--ease-1),
+		translate var(--dur-3) var(--ease-1) !important;
+}
+[data-rv].rv-armed.is-in {
+	opacity: 1;
+	translate: none;
+	transition-delay: calc(var(--rv-i, 0) * 55ms) !important;
+}
+
+/* ====================================== 9. request path (landing, clickable) */
+
+.rp {
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--surface);
+	overflow: hidden;
+}
+.rp-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--border);
+	background: var(--raised);
+}
+.rp-top .eyebrow {
+	margin: 0;
+}
+.rp-hint {
+	color: var(--faint);
+	font-size: var(--fs-sm);
+}
+.rp-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.rp-list li + li {
+	border-top: 1px solid var(--border);
+}
+.rp-step {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 52px;
+	padding: 10px 12px;
+	background: transparent;
+	border: 0;
+	border-left: 2px solid transparent;
+	color: var(--text);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition:
+		background-color var(--dur-1) var(--ease-1),
+		border-color var(--dur-1) var(--ease-1),
+		padding-left var(--dur-2) var(--ease-1) !important;
+}
+.rp-step:hover {
+	background: var(--hover);
+}
+.rp-step.is-on {
+	background: var(--primary-soft);
+	border-left-color: var(--primary);
+	padding-left: 16px;
+}
+.rp-num {
+	flex: 0 0 22px;
+	height: 22px;
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: var(--fs-sm);
+	color: var(--muted);
+	font-variant-numeric: tabular-nums;
+	transition: border-color var(--dur-2) var(--ease-1), color var(--dur-2) var(--ease-1) !important;
+}
+.rp-step.is-on .rp-num {
+	border-color: var(--primary);
+	color: var(--primary);
+}
+.rp-body {
+	display: block;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.rp-body b {
+	display: block;
+	font-size: var(--fs-sm);
+}
+.rp-body em {
+	display: block;
+	font-style: normal;
+	color: var(--muted);
+	font-size: var(--fs-sm);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.rp-tag {
+	flex: 0 0 auto;
+	font-size: var(--fs-sm);
+	color: var(--faint);
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	padding: 0 6px;
+}
+.rp-detail {
+	padding: 12px;
+	border-top: 1px solid var(--border);
+	background: var(--bg);
+}
+.rp-detail code {
+	display: block;
+	word-break: break-all;
+}
+.rp-note {
+	display: block;
+	margin-top: 6px;
+	color: var(--muted);
+	font-size: var(--fs-sm);
+}
+
+/* ================================================ 10. KeyWatch (auto-test) = */
+
+.kw {
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--surface);
+	padding: 12px;
+	margin-bottom: 16px;
+	transition: border-color var(--dur-2) var(--ease-1) !important;
+}
+.kw.is-on {
+	border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+}
+.kw-top {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+.kw-dot {
+	flex: 0 0 8px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--faint);
+}
+.kw-dot.is-live {
+	background: var(--ok);
+}
+.kw.is-running .kw-dot.is-live {
+	background: var(--primary);
+}
+.kw-title {
+	flex: 1 1 240px;
+	min-width: 0;
+}
+.kw-title b {
+	display: block;
+	font-size: var(--fs-base);
+}
+.kw-sub {
+	display: block;
+	color: var(--muted);
+	font-size: var(--fs-sm);
+	font-variant-numeric: tabular-nums;
+}
+.kw-controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.kw-select {
+	min-height: 32px !important;
+	padding: 3px 8px !important;
+	font-size: var(--fs-sm) !important;
+}
+.kw-bar {
+	height: 3px;
+	border-radius: 999px;
+	background: var(--raised);
+	border: 1px solid var(--border);
+	overflow: hidden;
+	margin-top: 10px;
+}
+.kw-bar > i {
+	display: block;
+	height: 100%;
+	width: 0;
+	background: var(--primary);
+	transition: width 1s linear !important;
+}
+.kw.is-running .kw-bar > i {
+	background: var(--ok);
+	transition: width var(--dur-2) var(--ease-1) !important;
+}
+.kw-out {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-top: 10px;
+}
+.kw-meta {
+	color: var(--faint);
+	font-size: var(--fs-sm);
+	font-variant-numeric: tabular-nums;
+}
+.kw-fails {
+	list-style: none;
+	margin: 4px 0 0;
+	padding: 0;
+	width: 100%;
+	display: grid;
+	gap: 4px;
+}
+.kw-fails li {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	padding: 6px 8px;
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	background: var(--raised);
+	font-size: var(--fs-sm);
+}
+.kw-msg {
+	color: var(--muted);
+	font-family: var(--font-mono);
+	font-size: var(--fs-sm);
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.kw-err {
+	margin: 10px 0 0;
+	color: var(--danger);
+	font-size: var(--fs-sm);
+}
+
+/* ==================================================== 11. reduced motion == */
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+	.btn:hover,
+	.sui-btn:hover,
+	.copy-btn:hover,
+	.sui-oauth:hover,
+	.btn:active,
+	.sui-btn:active,
+	.rr-step:hover,
+	.rr-panel:hover,
+	a.rr-quiet-link:hover svg {
+		transform: none !important;
+	}
+	[data-rv].rv-armed {
+		opacity: 1 !important;
+		translate: none !important;
+		transition: none !important;
+	}
+	.dot-live,
+	.kw-dot.is-live,
+	.st-working::before,
+	.btn.is-copied {
+		animation: none !important;
+	}
+	.rp-step.is-on {
+		padding-left: 12px;
+	}
+}

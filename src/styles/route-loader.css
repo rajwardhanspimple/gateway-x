@@ -1,0 +1,413 @@
+/* ==========================================================================
+   route-loader.css — full-screen route hand-off
+   --------------------------------------------------------------------------
+   Every hash change now shows one screen-covering plate with the mark in the
+   middle. When the next screen is mounted and painted, the plate dissolves
+   and the mark travels up into the place the real logo occupies on that
+   screen (the site header, or the console top bar) — a FLIP move, so the
+   hand-off lands on the pixel instead of near it.
+
+   The transform target is measured at runtime and handed over as
+   --rl-x / --rl-y / --rl-s by RouteLoader.jsx.
+   ========================================================================== */
+
+.rl {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: grid;
+  place-items: center;
+  background: var(--paper, var(--bg));
+  opacity: 1;
+  transition: opacity 260ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* the paper grid, so the plate reads as part of the product */
+.rl::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--rule-soft, var(--border)) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--rule-soft, var(--border)) 1px, transparent 1px);
+  background-size: 34px 34px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.rl-inner {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+}
+
+/* ---------------------------------------------------------------- the mark */
+
+.rl-mark {
+  position: relative;
+  width: clamp(72px, 9vw, 104px);
+  height: clamp(72px, 9vw, 104px);
+  display: grid;
+  place-items: center;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.rl-mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rl-mark::after {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 18px;
+  opacity: 0.9;
+  transition: opacity 200ms linear;
+}
+
+/* ------------------------------------------------------------- the caption */
+
+.rl-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink-faint, var(--faint));
+  transition: opacity 160ms linear;
+}
+
+.rl-track {
+  width: clamp(140px, 18vw, 210px);
+  height: 2px;
+  background: var(--rule, var(--border));
+  overflow: hidden;
+  transition: opacity 160ms linear;
+}
+
+.rl-track i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary, var(--citron));
+  transform: translateX(-100%);
+  animation: rl-sweep 780ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes rl-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+/* ------------------------------------------------------- arrive / hand off */
+
+.rl.is-enter {
+  animation: rl-in 200ms ease-out both;
+}
+
+@keyframes rl-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.rl.is-dock {
+  opacity: 0;
+  transition: opacity 420ms cubic-bezier(0.4, 0, 0.2, 1) 120ms;
+  pointer-events: none;
+}
+
+.rl.is-dock .rl-label,
+.rl.is-dock .rl-track {
+  opacity: 0;
+}
+
+.rl.is-dock .rl-mark::after {
+  opacity: 0;
+}
+
+/* the travel itself: up and into the header mark */
+.rl.is-dock .rl-mark {
+  transform: translate(var(--rl-x, 0px), var(--rl-y, -40vh)) scale(var(--rl-s, 0.32));
+  transition: transform 560ms cubic-bezier(0.62, 0.04, 0.3, 1);
+}
+
+/* the receiving mark holds still until the traveller lands on it */
+.rl-target-wait .brand-mark,
+.rl-target-wait .rl-anchor {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rl,
+  .rl.is-enter,
+  .rl.is-dock {
+    animation: none !important;
+    transition: opacity 120ms linear !important;
+  }
+  .rl.is-dock .rl-mark {
+    transition: none !important;
+    transform: none !important;
+  }
+  .rl-track i {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   v12 — the stage
+   --------------------------------------------------------------------------
+   The plate used to be a mark, a caption and a bar sweeping back and forth
+   forever. A sweep that repeats says "something is happening" but never
+   "how much is left", so every wait felt the same length.
+
+   Now the mark sits inside a stage: a ring that fills with real progress,
+   three dots in orbit, a glow that breathes, and a beam that crosses the
+   plate. The percentage comes from state in RouteLoader.jsx and only reaches
+   100 when the next screen has actually painted — then everything except the
+   mark fades and the mark flies into the new screen's logo slot.
+   ========================================================================== */
+
+.rl-stage {
+  --rl-stage: clamp(152px, 20vw, 200px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--rl-stage);
+  height: var(--rl-stage);
+  margin: 0 auto 14px;
+}
+
+.rl-stage .rl-mark {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+}
+
+/* the ring replaces the old box around the mark */
+.rl-stage .rl-mark::after {
+  border-color: transparent;
+}
+
+.rl-glow {
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary, #4fe3ff) 38%, transparent),
+    transparent 70%
+  );
+  filter: blur(14px);
+  animation: rl-breathe 2600ms ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------- the ring */
+
+.rl-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); /* 0% starts at twelve o'clock */
+  pointer-events: none;
+}
+
+.rl-ring-bg {
+  fill: none;
+  stroke: var(--rule, var(--border));
+  stroke-width: 3;
+}
+
+.rl-ring-arc {
+  fill: none;
+  stroke: var(--primary, #4fe3ff);
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--primary, #4fe3ff) 55%, transparent));
+  transition: stroke-dashoffset 260ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ------------------------------------------------------------ the orbit */
+
+.rl-orbit {
+  position: absolute;
+  inset: 0;
+  animation: rl-spin 4400ms linear infinite;
+  pointer-events: none;
+}
+
+.rl-orbit-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--primary, #4fe3ff);
+  transform: rotate(0deg) translateY(calc(var(--rl-stage) / -2));
+}
+
+.rl-orbit-dot.d2 {
+  background: #8f7bff;
+  transform: rotate(120deg) translateY(calc(var(--rl-stage) / -2));
+}
+
+.rl-orbit-dot.d3 {
+  background: var(--citron, #c8f169);
+  transform: rotate(240deg) translateY(calc(var(--rl-stage) / -2));
+}
+
+/* ------------------------------------------------------------- the beam */
+
+.rl-beam {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.rl-beam::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -30%;
+  width: 36%;
+  height: 180%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--primary, #4fe3ff) 12%, transparent),
+    transparent
+  );
+  transform: rotate(14deg);
+  animation: rl-beam-sweep 2800ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* ------------------------------------------------- progress, in numbers */
+
+.rl-track {
+  border-radius: 999px;
+}
+
+/* the bar is driven by state now, not by an endless animation */
+.rl-track i {
+  animation: none;
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rl-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: -12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint, var(--faint));
+  transition: opacity 160ms linear;
+}
+
+.rl-pct {
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.rl-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.rl-dots i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: rl-blink 1200ms ease-in-out infinite;
+}
+
+.rl-dots i:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.rl-dots i:nth-child(3) {
+  animation-delay: 320ms;
+}
+
+/* on the hand-off only the mark should still be visible */
+.rl.is-dock .rl-glow,
+.rl.is-dock .rl-ring,
+.rl.is-dock .rl-orbit,
+.rl.is-dock .rl-beam,
+.rl.is-dock .rl-status {
+  opacity: 0;
+  transition: opacity 200ms linear;
+}
+
+@keyframes rl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rl-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes rl-beam-sweep {
+  0% {
+    transform: translateX(0) rotate(14deg);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(340%) rotate(14deg);
+    opacity: 0;
+  }
+}
+
+@keyframes rl-blink {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* motion is decoration here; the ring and the number carry the meaning */
+@media (prefers-reduced-motion: reduce) {
+  .rl-glow,
+  .rl-orbit,
+  .rl-beam::before,
+  .rl-dots i {
+    animation: none !important;
+  }
+  .rl-ring-arc,
+  .rl-track i {
+    transition: none !important;
+  }
+}
+
+/* Full-viewport hold while a lazily-loaded route chunk downloads (the App.jsx
+   Suspense fallback for the Admin / Workspace screens). Reserving the height
+   keeps the shell from collapsing to zero while the chunk is in flight. */
+.page-loading {
+  min-height: 60vh;
+}

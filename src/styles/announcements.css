@@ -1,0 +1,132 @@
+/* ==========================================================================
+   Announcements — the site-wide banner strip (v12.7)
+   --------------------------------------------------------------------------
+   Tones reuse the alert palette tokens from string-ui.css, so the strip
+   follows both themes for free. The admin list rows live here too.
+   ========================================================================== */
+
+.ann {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px max(16px, 4vw) 0;
+}
+
+/* The banner is a single strip: every active announcement is merged into one
+   item, so the page never stacks two competing messages under the header. */
+.ann-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+}
+
+.ann-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ann-body b {
+  font-size: var(--fs-sm);
+}
+
+.ann-body span {
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+
+/* when more than one message is merged, note how many were combined */
+.ann-count {
+  flex: none;
+  align-self: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.ann-info {
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  background: var(--primary-soft);
+}
+
+.ann-ok {
+  border-color: color-mix(in srgb, var(--ok) 45%, transparent);
+  background: var(--ok-soft);
+}
+
+.ann-warn {
+  border-color: color-mix(in srgb, var(--warn) 45%, transparent);
+  background: var(--warn-soft);
+}
+
+.ann-x {
+  flex: none;
+  margin-left: auto;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.ann-x:hover {
+  color: inherit;
+  background: var(--border);
+}
+
+/* --------------------------------------------------------- admin list */
+
+.ann-adm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ann-adm-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.ann-adm-row.is-off {
+  opacity: 0.55;
+}
+
+.ann-adm-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ann-adm-main p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+}
+
+.ann-adm-meta {
+  color: var(--muted);
+  font-size: var(--fs-xs);
+}
+
+.ann-adm-actions {
+  flex: none;
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}

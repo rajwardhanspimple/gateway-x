@@ -1,0 +1,195 @@
+/* ==========================================================================
+   admin-ragestar.css — the real admin panel on the RageStar "flight manual" theme
+   --------------------------------------------------------------------------
+   The RageStar staff console (src/ragestar/admin/Admin.jsx) mounts the gateway's
+   real admin panel (src/pages/Admin.jsx, `bare` mode) inside .ragestar-scope.
+   The panel's own classes — .ap-* / .adm-* / .sui-* / .kw-* / .wk-* / .sheet —
+   read the gateway's CSS tokens, so this sheet re-declares those tokens with
+   the RageStar paper values, scoped so nothing leaks out of the panel.
+
+   Scope order: the kit defines its tokens on .ragestar-scope; this block sets the
+   same names on .ragestar-admin, which is a descendant, so the panel follows the
+   paper theme. Both themes are light — there is no dark variant to break.
+   ========================================================================== */
+
+.ragestar-admin {
+  /* RageStar "paper" palette, mapped onto the gateway token names the admin
+     surfaces already read. */
+  --line: rgba(16, 24, 20, 0.12);
+  --line-strong: rgba(16, 24, 20, 0.2);
+  --panel: #eef0e6;
+  --panel-soft: #e7eadd;
+  --accent: #2447e8;
+  --accent-soft: rgba(36, 71, 232, 0.1);
+  --text: #101814;
+  /* Both tiers were far too light for the paper they sit on: --muted at .55
+     measured 3.9:1 and --faint at .38 measured 2.4:1, so table headers,
+     captions and empty-state copy were washed out. Raised to .72 / .60, which
+     clears AA (≈6.5:1 and 4.6:1) while keeping three distinct text tiers. */
+  --muted: rgba(16, 24, 20, 0.72);
+  --faint: rgba(16, 24, 20, 0.63);
+  --hover: rgba(16, 24, 20, 0.045);
+  --paper: #e9ece4;
+  --ink-950: #e9ece4;
+  --mono: "Martian Mono", ui-monospace, monospace;
+
+  color: var(--text);
+}
+
+/* The panel paints on paper; make its structural surfaces read as cards on it. */
+.ragestar-admin .adm-body {
+  gap: 18px;
+}
+.ragestar-admin .adm-card,
+.ragestar-admin .ap-panel,
+.ragestar-admin .adm-stat,
+.ragestar-admin .adm-table-wrap,
+.ragestar-admin .sheet,
+.ragestar-admin .kw,
+.ragestar-admin .adm-empty {
+  background: #f0f2e8;
+  border: 1px solid rgba(16, 24, 20, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  color: var(--text);
+}
+
+.ragestar-admin .adm-head h1 {
+  font-family: "Syne", "Instrument Sans", ui-sans-serif, sans-serif;
+  color: #101814;
+}
+.ragestar-admin .adm-head p,
+.ragestar-admin .sub,
+.ragestar-admin .faint {
+  color: var(--muted);
+}
+
+/* inputs + selects read as instruments on paper */
+.ragestar-admin .adm-input,
+.ragestar-admin .adm-select,
+.ragestar-admin .adm-textarea,
+.ragestar-admin .input,
+.ragestar-admin .sui-input,
+.ragestar-admin .kw-select {
+  background: #fbfbf7;
+  border: 1px solid rgba(16, 24, 20, 0.16);
+  color: #101814;
+}
+.ragestar-admin .adm-input::placeholder,
+.ragestar-admin .input::placeholder {
+  /* placeholders are text too: .35 was 2.2:1, well under AA */
+  color: var(--faint);
+}
+
+/* tables stay legible: ink text, hairline rules */
+.ragestar-admin .adm-table {
+  color: #101814;
+}
+.ragestar-admin .adm-table th {
+  /* .45 measured 2.86:1 on the header fill — the faintest text in the panel */
+  color: var(--faint);
+  border-bottom: 1px solid rgba(16, 24, 20, 0.12);
+  background: #eceee2;
+}
+.ragestar-admin .adm-table td {
+  border-bottom: 1px solid rgba(16, 24, 20, 0.07);
+}
+.ragestar-admin .adm-table tbody tr:hover {
+  background: rgba(36, 71, 232, 0.045);
+}
+
+/* primary action = the kit's cobalt */
+.ragestar-admin .sui-btn-primary,
+.ragestar-admin .adm-form-actions .sui-btn-primary {
+  background: linear-gradient(120deg, #2447e8, #1630b8);
+  color: #fff;
+}
+.ragestar-admin .sui-btn-danger {
+  background: rgba(226, 61, 40, 0.12);
+  color: #a82310;
+  border-color: rgba(226, 61, 40, 0.3);
+}
+
+/* status chips keep their tone, on ink */
+.ragestar-admin .st {
+  border: 1px solid rgba(16, 24, 20, 0.14);
+}
+.ragestar-admin .st-working,
+.ragestar-admin .st-active {
+  background: rgba(13, 122, 102, 0.1);
+  color: #0a6353;
+  border-color: rgba(13, 122, 102, 0.3);
+}
+.ragestar-admin .st-failing,
+.ragestar-admin .st-disabled {
+  background: rgba(226, 61, 40, 0.1);
+  color: #a82310;
+  border-color: rgba(226, 61, 40, 0.3);
+}
+.ragestar-admin .st-rate_limited,
+.ragestar-admin .st-preview {
+  background: rgba(199, 154, 30, 0.12);
+  /* #8f6a0d was 4.0:1 on the brass tint — under AA for a status chip */
+  color: #83610c;
+  border-color: rgba(199, 154, 30, 0.32);
+}
+
+/* the keywatch card + sheet grids read as the kit's glass on paper */
+.ragestar-admin .kw {
+  background: #f0f2e8;
+  border: 1px solid rgba(16, 24, 20, 0.1);
+}
+.ragestar-admin .kw-msg {
+  background: rgba(36, 71, 232, 0.06);
+  border: 1px solid rgba(36, 71, 232, 0.2);
+  color: #1630b8;
+}
+.ragestar-admin .kw-err {
+  background: rgba(226, 61, 40, 0.06);
+  border-color: rgba(226, 61, 40, 0.22);
+  color: #a82310;
+}
+
+/* sheet grid (KIE usage / model mapping) */
+.ragestar-admin .sheet {
+  border: 1px solid rgba(16, 24, 20, 0.1);
+  background: #f0f2e8;
+}
+.ragestar-admin .sheet-head .sheet-title {
+  color: #101814;
+}
+.ragestar-admin .sheet-sub,
+.ragestar-admin .ap-muted {
+  color: rgba(16, 24, 20, 0.5);
+}
+.ragestar-admin .sheet-chip {
+  border: 1px solid rgba(16, 24, 20, 0.16);
+}
+.ragestar-admin .sheet-chip.ok {
+  background: rgba(13, 122, 102, 0.1);
+  color: #0a6353;
+}
+.ragestar-admin .sheet-chip.bad {
+  background: rgba(226, 61, 40, 0.1);
+  color: #a82310;
+}
+
+/* links + focus follow the kit's cobalt */
+.ragestar-admin a {
+  color: #2447e8;
+}
+.ragestar-admin *:focus-visible {
+  outline-color: #2447e8;
+}
+
+/* the pulse alerts and toasts inside the panel stay on the alert palette */
+.ragestar-admin .sui-alert-error {
+  background: rgba(226, 61, 40, 0.07);
+  border-color: rgba(226, 61, 40, 0.25);
+  color: #a82310;
+}
+.ragestar-admin .sui-alert-ok {
+  background: rgba(13, 122, 102, 0.08);
+  border-color: rgba(13, 122, 102, 0.28);
+  color: #0a6353;
+}

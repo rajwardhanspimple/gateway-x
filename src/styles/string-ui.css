@@ -1,0 +1,792 @@
+/* ==========================================================================
+   STRING UI — component kit + StringTune bindings
+   Tokens come from styles.css; nothing here hard-codes a theme colour that
+   isn't derived from a variable, so light/dark both work.
+   ========================================================================== */
+
+@property --progress {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --spotlight-distance {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* ---------------------------------------------------- StringTune surfaces */
+.str-progress {
+  --progress: 0;
+}
+
+.str-rail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.str-rail-track {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  overflow: hidden;
+}
+.str-rail-track i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--progress) * 100%);
+  background: var(--grad);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--primary) 60%, transparent);
+  border-radius: 99px;
+}
+.str-rail-label {
+  color: var(--faint);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.str-lazy {
+  opacity: 0;
+  transform: scale(1.03);
+  transition: opacity 0.7s var(--ease-out), transform 0.9s var(--ease-out);
+}
+.str-lazy.is-str-loaded,
+.str-lazy[src] {
+  opacity: 1;
+  transform: none;
+}
+
+/* split text ------------------------------------------------------------- */
+.str-split {
+  display: inline-block;
+}
+.str-split .-s-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.str-split .-s-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.55em) rotateX(-40deg);
+  transform-origin: 50% 100%;
+  transition: opacity 0.6s var(--ease-out), transform 0.7s var(--ease-out);
+  transition-delay: var(--s-delay, 0s);
+  will-change: transform, opacity;
+}
+.str-split.is-in .-s-char {
+  opacity: 1;
+  transform: none;
+}
+
+/* spotlight -------------------------------------------------------------- */
+.str-spot {
+  position: relative;
+  --sx: 50%;
+  --sy: 0%;
+}
+.str-spot-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: calc(0.25 + var(--spotlight-distance, 0) * 0.75);
+  background: radial-gradient(
+    320px circle at var(--sx) var(--sy),
+    color-mix(in srgb, var(--primary) 22%, transparent),
+    transparent 62%
+  );
+  transition: opacity 0.35s var(--ease-out);
+  z-index: 0;
+}
+/* stacking fix: everything except the glow sits above it.
+   .hud-c is excluded on purpose — it is a zero-size marker whose ::before/
+   ::after draw the bottom HUD brackets, so it must stay `static` and let the
+   card be its containing block. Giving it `position: relative` pins the
+   brackets to the content-box origin and they read as a stray glyph. */
+.str-spot > *:not(.str-spot-glow):not(.hud-c) {
+  position: relative;
+  z-index: 1;
+}
+
+/* engine chip ------------------------------------------------------------ */
+.str-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--surface-solid) 65%, transparent);
+  color: var(--faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.str-chip i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+  animation: dot-pulse 2.4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+.sui-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 20px;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.22s var(--ease-spring), box-shadow 0.25s var(--ease-out),
+    background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
+}
+.sui-btn svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.sui-btn-label {
+  position: relative;
+  z-index: 1;
+}
+.sui-btn:hover {
+  transform: translateY(-1px);
+}
+.sui-btn:active {
+  transform: translateY(1px) scale(0.99);
+}
+.sui-btn:disabled,
+.sui-btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+.sui-btn-shine {
+  position: absolute;
+  inset: 0 auto 0 -60%;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, #fff 45%, transparent),
+    transparent
+  );
+  transform: skewX(-18deg) translateX(0);
+  opacity: 0;
+  transition: transform 0.75s var(--ease-out), opacity 0.2s;
+  z-index: 0;
+}
+.sui-btn:hover .sui-btn-shine {
+  opacity: 0.35;
+  transform: skewX(-18deg) translateX(340%);
+}
+
+.sui-btn-primary {
+  background: var(--grad);
+  color: var(--primary-ink);
+  box-shadow: 0 8px 26px color-mix(in srgb, var(--primary) 26%, transparent);
+}
+.sui-btn-primary:hover {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 55%, transparent),
+    0 14px 38px color-mix(in srgb, var(--primary) 38%, transparent);
+}
+.sui-btn-outline {
+  border-color: var(--border-strong);
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface-solid) 45%, transparent);
+}
+.sui-btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+.sui-btn-ghost {
+  color: var(--muted);
+  background: transparent;
+}
+.sui-btn-ghost:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+.sui-btn-sm {
+  padding: 8px 14px;
+  min-height: 38px;
+  font-size: var(--fs-xs);
+  border-radius: 9px;
+}
+.sui-btn-lg {
+  padding: 15px 26px;
+  min-height: 52px;
+  font-size: var(--fs-base);
+}
+.sui-btn-block {
+  width: 100%;
+}
+
+/* spinner ---------------------------------------------------------------- */
+.sui-spin {
+  display: inline-block;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+  animation: sui-spin 0.7s linear infinite;
+  flex: none;
+}
+@keyframes sui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   FIELDS + INPUTS
+   ========================================================================== */
+.sui-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.sui-field-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.sui-field-top label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.sui-field-opt {
+  color: var(--faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.sui-hint {
+  font-size: var(--fs-xs);
+  color: var(--faint);
+}
+.sui-err {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--danger);
+  animation: sui-shake 0.32s var(--ease-out);
+}
+@keyframes sui-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+.sui-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface-solid) 72%, transparent);
+  transition: border-color 0.2s, box-shadow 0.25s, background 0.2s;
+}
+.sui-input-wrap:hover {
+  border-color: var(--border-strong);
+}
+.sui-input-wrap:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+  background: color-mix(in srgb, var(--surface-solid) 92%, transparent);
+}
+.sui-input-wrap.is-invalid {
+  border-color: color-mix(in srgb, var(--danger) 65%, transparent);
+}
+.sui-input-wrap.is-invalid:focus-within {
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+.sui-input-icon {
+  display: grid;
+  place-items: center;
+  padding-left: 13px;
+  color: var(--faint);
+  transition: color 0.2s;
+}
+.sui-input-wrap:focus-within .sui-input-icon {
+  color: var(--primary);
+}
+.sui-input-icon svg {
+  width: 17px;
+  height: 17px;
+}
+.sui-input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 14px;
+  min-height: 46px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  border-radius: inherit;
+}
+.sui-input.has-icon {
+  padding-left: 10px;
+}
+.sui-input:focus {
+  outline: none;
+}
+.sui-input::placeholder {
+  color: var(--faint);
+}
+.sui-input:-webkit-autofill {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-solid) inset;
+}
+.sui-input-trail {
+  display: flex;
+  align-items: center;
+  padding-right: 8px;
+}
+.sui-input-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--primary) 30%, transparent),
+      color-mix(in srgb, var(--violet) 30%, transparent)
+    )
+    border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  transition: opacity 0.3s;
+}
+.sui-input-wrap:focus-within .sui-input-glow {
+  opacity: 1;
+}
+.sui-reveal {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.sui-reveal:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+.sui-caps {
+  color: var(--warn);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------ password strength */
+.sui-strength {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 2px;
+}
+.sui-strength-bar {
+  height: 4px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  overflow: hidden;
+}
+.sui-strength-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--danger);
+  transition: width 0.35s var(--ease-out), background 0.35s;
+}
+.sui-strength[data-tone="fair"] .sui-strength-bar i { background: var(--warn); }
+.sui-strength[data-tone="good"] .sui-strength-bar i { background: var(--primary); }
+.sui-strength[data-tone="best"] .sui-strength-bar i { background: var(--ok); }
+.sui-strength-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.sui-strength-label {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.sui-strength[data-tone="best"] .sui-strength-label { color: var(--ok); }
+.sui-strength[data-tone="good"] .sui-strength-label { color: var(--primary); }
+.sui-strength[data-tone="fair"] .sui-strength-label { color: var(--warn); }
+.sui-rules {
+  list-style: none;
+  padding: 0;
+  margin: 2px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 14px;
+}
+.sui-rules li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-xs);
+  color: var(--faint);
+  transition: color 0.2s;
+}
+.sui-rules li.is-ok {
+  color: var(--ok);
+}
+.sui-rule-dot {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  color: var(--primary-ink);
+  transition: background 0.25s var(--ease-spring), border-color 0.2s, transform 0.25s var(--ease-spring);
+}
+.sui-rules li.is-ok .sui-rule-dot {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #06210a;
+  transform: scale(1.08);
+}
+
+/* ------------------------------------------------------------- checkbox */
+.sui-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  min-height: 24px;
+}
+.sui-check input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.sui-check-box {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  flex: none;
+  margin-top: 1px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface-solid) 70%, transparent);
+  color: transparent;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s var(--ease-spring);
+}
+.sui-check input:checked + .sui-check-box {
+  background: var(--grad);
+  border-color: transparent;
+  color: var(--primary-ink);
+  transform: scale(1.05);
+}
+.sui-check input:focus-visible + .sui-check-box {
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.sui-check.is-invalid .sui-check-box {
+  border-color: var(--danger);
+}
+.sui-check-label a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ------------------------------------------------------------- segmented */
+.sui-seg {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-2) 75%, transparent);
+}
+.sui-seg button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 12px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s, background 0.25s var(--ease-out), box-shadow 0.25s;
+}
+.sui-seg button em {
+  font-style: normal;
+  color: var(--faint);
+}
+.sui-seg button:hover {
+  color: var(--text);
+}
+.sui-seg button.is-on {
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface-solid) 92%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-strong),
+    0 6px 18px color-mix(in srgb, var(--bg) 55%, transparent);
+}
+.sui-seg button.is-on em {
+  color: var(--primary);
+}
+
+/* ----------------------------------------------------------------- alert */
+.sui-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+  background: color-mix(in srgb, var(--surface-solid) 70%, transparent);
+  animation: page-in 0.35s var(--ease-out);
+}
+.sui-alert svg {
+  flex: none;
+  margin-top: 2px;
+}
+.sui-alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sui-alert-body strong {
+  font-size: var(--fs-sm);
+}
+.sui-alert-body span {
+  color: var(--muted);
+  font-size: var(--fs-xs);
+}
+.sui-alert-error {
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.sui-alert-ok {
+  border-color: color-mix(in srgb, var(--ok) 45%, transparent);
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.sui-alert-info {
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.sui-alert-warn {
+  border-color: color-mix(in srgb, var(--warn) 45%, transparent);
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+/* --------------------------------------------------------------- divider */
+.sui-div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sui-div span {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+.sui-div em {
+  font-style: normal;
+  color: var(--faint);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------- oauth */
+.sui-oauth {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  min-height: 46px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface-solid) 60%, transparent);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease-spring);
+}
+.sui-oauth:hover {
+  border-color: var(--border-strong);
+  background: var(--hover);
+  transform: translateY(-1px);
+}
+.sui-oauth:disabled {
+  opacity: 0.6;
+  cursor: progress;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sui-btn,
+  .sui-oauth,
+  .str-split .-s-char,
+  .str-lazy {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  .str-split .-s-char {
+    opacity: 1;
+  }
+}
+
+/* spotlight cards used inside a grid: equal height, rail pinned to the floor
+   so three cards with different copy lengths still line up.                */
+.grid > .str-spot {
+  display: flex;
+}
+.str-spot > .card-body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.str-spot > .card-body > .str-rail {
+  margin-top: auto;
+  padding-top: var(--sp-4);
+}
+
+/* pricing flag: sits on the card edge, so it needs an opaque backing or the
+   gradient border reads through the pill.                                   */
+.plan-flag {
+  background: var(--surface-solid);
+  box-shadow:
+    0 0 0 1px rgba(79, 227, 255, 0.35),
+    0 10px 24px -16px rgba(79, 227, 255, 0.9);
+  line-height: 1.6;
+  padding-block: 4px;
+}
+
+/* console: signed-in identity above the footer links ---------------------- */
+.console-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--raised) 55%, transparent);
+}
+.console-user .hdr-user-meta {
+  min-width: 0;
+}
+.console-user .hdr-user-meta b,
+.console-user .hdr-user-meta small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 132px;
+}
+
+/* header account chip ----------------------------------------------------- */
+.hdr-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 12px 5px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--raised) 60%, transparent);
+}
+.hdr-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 999px;
+  background: var(--grad);
+  color: var(--primary-ink);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.hdr-user-meta {
+  display: grid;
+  line-height: 1.2;
+}
+.hdr-user-meta b {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.hdr-user-meta small {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--faint);
+}
+.mobile-signout {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+}
+.mobile-signout:hover {
+  color: var(--text);
+}
+@media (max-width: 1120px) {
+  .hdr-user-meta {
+    display: none;
+  }
+  .hdr-user {
+    padding: 5px;
+  }
+}

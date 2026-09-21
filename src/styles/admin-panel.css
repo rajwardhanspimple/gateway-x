@@ -1,0 +1,408 @@
+/* ==========================================================================
+   Admin panel layer  (v11)
+   --------------------------------------------------------------------------
+   The control room grew one flat strip of fifteen tabs, which is why it felt
+   like a wall. This sheet adds the pieces that strip could not express:
+
+     · a grouped rail (Operations, Routing, Customers, Money, Security,
+       Records, Configuration) so a tab is found by category, not by reading
+       every label
+     · a top bar with one search box that jumps straight to a section
+     · a filter kit for the heavy tables (search, chips, selects)
+     · dashboard primitives: KPI tiles, bars, live dots, section headers
+
+   Everything is namespaced `ap-` so not one existing `adm-` rule changes
+   meaning. Tokens are read from flim.css with literal fallbacks, so the sheet
+   still renders correctly if it is ever loaded on its own.
+   ========================================================================== */
+
+.ap {
+  --ap-line: var(--line, #e4e4e7);
+  --ap-ink: var(--ink, #111113);
+  --ap-faint: var(--muted, #6b7280);
+  --ap-bg: var(--paper, #ffffff);
+  --ap-soft: var(--paper-2, #fafafa);
+  --ap-accent: var(--accent, #2563eb);
+  --ap-ok: var(--ok, #15803d);
+  --ap-warn: var(--warn, #b45309);
+  --ap-bad: var(--bad, #b91c1c);
+  --ap-radius: 10px;
+}
+
+/* ------------------------------------------------------------------ rail */
+
+.ap-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ap-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ap-group > h4 {
+  margin: 0 0 4px;
+  padding: 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ap-faint);
+}
+
+.ap-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--ap-radius);
+  background: transparent;
+  color: var(--ap-ink);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ap-tab:hover {
+  background: var(--ap-soft);
+  border-color: var(--ap-line);
+}
+
+.ap-tab[aria-selected="true"] {
+  background: var(--ap-soft);
+  border-color: var(--ap-line);
+  font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--ap-accent);
+}
+
+.ap-tab .ap-count {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 1px 6px;
+  border: 1px solid var(--ap-line);
+  border-radius: 999px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ap-faint);
+  text-align: center;
+}
+
+.ap-tab .ap-hint {
+  font-size: 11px;
+  color: var(--ap-faint);
+}
+
+/* ---------------------------------------------------------------- topbar */
+
+.ap-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 0 12px;
+  border-bottom: 1px solid var(--ap-line);
+  margin-bottom: 14px;
+}
+
+.ap-topbar .ap-search {
+  flex: 1 1 260px;
+  min-width: 200px;
+}
+
+.ap-jump {
+  position: relative;
+  flex: 1 1 280px;
+}
+
+.ap-jump-list {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 280px;
+  overflow: auto;
+  background: var(--ap-bg);
+  border: 1px solid var(--ap-line);
+  border-radius: var(--ap-radius);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.ap-jump-list button {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ap-jump-list button:hover {
+  background: var(--ap-soft);
+}
+
+.ap-jump-list small {
+  margin-left: auto;
+  color: var(--ap-faint);
+  font-size: 11px;
+}
+
+/* ---------------------------------------------------------------- filters */
+
+.ap-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px;
+  margin: 0 0 12px;
+  border: 1px solid var(--ap-line);
+  border-radius: var(--ap-radius);
+  background: var(--ap-soft);
+}
+
+.ap-filters .ap-grow {
+  flex: 1 1 220px;
+  min-width: 160px;
+}
+
+.ap-filters label.ap-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ap-faint);
+}
+
+.ap-chips {
+  display: inline-flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.ap-chip {
+  padding: 4px 10px;
+  border: 1px solid var(--ap-line);
+  border-radius: 999px;
+  background: var(--ap-bg);
+  color: var(--ap-faint);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ap-chip[aria-pressed="true"] {
+  border-color: var(--ap-ink);
+  color: var(--ap-ink);
+  font-weight: 600;
+}
+
+.ap-result {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ap-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------- dashboard */
+
+.ap-grid {
+  display: grid;
+  gap: 16px;
+  /* A smaller minimum than the old 220px, so a wide screen packs MORE tiles
+     per row instead of stretching four of them across the entire width. */
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  margin-bottom: 18px;
+}
+
+.ap-grid.ap-two {
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+}
+
+.ap-kpi {
+  padding: 18px 20px;
+  border: 1px solid var(--ap-line);
+  border-radius: var(--ap-radius);
+  background: var(--ap-bg);
+}
+
+.ap-kpi .l {
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ap-faint);
+}
+
+.ap-kpi .v {
+  margin-top: 6px;
+  font-size: 32px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.08;
+}
+
+.ap-kpi .s {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--ap-faint);
+}
+
+.ap-kpi.is-bad .v { color: var(--ap-bad); }
+.ap-kpi.is-ok .v { color: var(--ap-ok); }
+.ap-kpi.is-warn .v { color: var(--ap-warn); }
+
+.ap-panel {
+  padding: 18px;
+  border: 1px solid var(--ap-line);
+  border-radius: var(--ap-radius);
+  background: var(--ap-bg);
+}
+
+.ap-panel > header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ap-panel > header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.ap-panel > header .ap-sub {
+  font-size: 12px;
+  color: var(--ap-faint);
+}
+
+.ap-panel > header .ap-act {
+  margin-left: auto;
+}
+
+.ap-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--ap-soft);
+  border: 1px solid var(--ap-line);
+}
+
+.ap-bar i {
+  display: block;
+  height: 100%;
+}
+
+.ap-bar i.ok { background: var(--ap-ok); }
+.ap-bar i.bad { background: var(--ap-bad); }
+.ap-bar i.warn { background: var(--ap-warn); }
+.ap-bar i.idle { background: var(--ap-line); }
+
+.ap-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ap-faint);
+}
+
+.ap-legend b { color: var(--ap-ink); font-variant-numeric: tabular-nums; }
+
+.ap-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ap-line);
+  margin-right: 6px;
+}
+
+.ap-dot.is-live {
+  background: var(--ap-ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ap-ok) 20%, transparent);
+}
+
+.ap-dot.is-stale { background: var(--ap-warn); }
+.ap-dot.is-off { background: var(--ap-line); }
+
+.ap-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ap-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.ap-row .ap-row-label {
+  flex: 0 0 auto;
+  min-width: 110px;
+  color: var(--ap-faint);
+}
+
+.ap-row .ap-row-track { flex: 1 1 auto; }
+
+.ap-row .ap-row-value {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-empty {
+  padding: 18px;
+  border: 1px dashed var(--ap-line);
+  border-radius: var(--ap-radius);
+  color: var(--ap-faint);
+  font-size: 13px;
+  text-align: center;
+}
+
+.ap-muted { color: var(--ap-faint); }
+.ap-xs { font-size: 12px; }
+
+/* --------------------------------------------------------------- keywatch */
+
+.kw-server {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ap-faint);
+}
+
+.kw-server .kw-pill {
+  padding: 2px 8px;
+  border: 1px solid var(--ap-line);
+  border-radius: 999px;
+}
+
+.kw-server .kw-pill.is-on { border-color: var(--ap-ok); color: var(--ap-ok); }
+.kw-server .kw-pill.is-off { border-color: var(--ap-line); }
+.kw-server .kw-pill.is-stale { border-color: var(--ap-warn); color: var(--ap-warn); }
+
+@media (max-width: 860px) {
+  .ap-topbar { padding-bottom: 8px; }
+  .ap-rail { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .ap-group { flex: 1 1 160px; }
+}

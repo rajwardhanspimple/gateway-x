@@ -1,0 +1,240 @@
+/* ==========================================================================
+   Kie provider admin tab (src/pages/admin/KieTab.jsx)
+   Builds on admin-panel.css (ap-*) and adds the sub-tab strip + key rows.
+   ========================================================================== */
+
+.kie-subtabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border, #2a2a2a);
+}
+.kie-subtab {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--muted, #8a8a8a);
+  font: inherit;
+  font-weight: 600;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.kie-subtab:hover {
+  color: var(--text, #eaeaea);
+}
+.kie-subtab.is-active {
+  color: var(--text, #eaeaea);
+  border-bottom-color: var(--primary, #c8ff4d);
+}
+.kie-subtab small {
+  display: block;
+  font-weight: 400;
+  font-size: var(--fs-xs, 11px);
+  color: var(--muted, #8a8a8a);
+}
+
+.kie-blurb {
+  color: var(--muted, #8a8a8a);
+  font-size: var(--fs-sm, 13px);
+  margin: 0 0 14px;
+}
+
+.kie-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+.kie-grid .kie-wide {
+  grid-column: 1 / -1;
+}
+.kie-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.kie-field > span {
+  font-size: var(--fs-sm, 13px);
+  color: var(--muted, #8a8a8a);
+}
+.kie-field input[type="text"],
+.kie-field input[type="url"],
+.kie-field textarea {
+  font: inherit;
+  color: var(--text, #eaeaea);
+  background: var(--bg, #0e0e0e);
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: var(--radius, 10px);
+  padding: 8px 10px;
+}
+.kie-field textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+.kie-field input:focus,
+.kie-field textarea:focus {
+  outline: none;
+  border-color: var(--border-strong, #4a4a4a);
+}
+.kie-mono input,
+.kie-mono textarea {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--fs-sm, 13px);
+}
+.kie-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.kie-check input {
+  width: 16px;
+  height: 16px;
+}
+.kie-locknote {
+  font-size: var(--fs-xs, 11px);
+  color: var(--muted, #8a8a8a);
+}
+.kie-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+/* status chips (mirror the admin key-state chips) */
+.kie-st {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border, #2a2a2a);
+  color: var(--muted, #8a8a8a);
+  white-space: nowrap;
+}
+.kie-st-working {
+  color: var(--ok, #35c46a);
+}
+.kie-st-failing {
+  color: var(--danger, #ff5c5c);
+}
+.kie-st-disabled {
+  opacity: 0.7;
+}
+
+/* -------------------------------------------------------------------- keys */
+.kie-keys {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kie-key {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: var(--radius, 10px);
+  padding: 10px 12px;
+  background: var(--bg, #0e0e0e);
+}
+.kie-key-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 220px;
+}
+.kie-key-val {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text, #eaeaea);
+  overflow-wrap: anywhere;
+}
+.kie-key-sub {
+  font-size: var(--fs-xs, 11px);
+  color: var(--muted, #8a8a8a);
+}
+.kie-key-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-left: auto;
+}
+.kie-key-empty {
+  color: var(--muted, #8a8a8a);
+  font-size: var(--fs-sm, 13px);
+  padding: 6px 0;
+}
+.kie-addkey {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 12px;
+}
+.kie-addkey input {
+  font: inherit;
+  color: var(--text, #eaeaea);
+  background: var(--bg, #0e0e0e);
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: var(--radius, 10px);
+  padding: 8px 10px;
+}
+.kie-addkey .kie-addkey-key {
+  flex: 1;
+  min-width: 220px;
+  font-family: var(--font-mono, monospace);
+}
+
+/* -------------------------------------------------------------------- test */
+.kie-test {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.kie-test input {
+  font: inherit;
+  color: var(--text, #eaeaea);
+  background: var(--bg, #0e0e0e);
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: var(--radius, 10px);
+  padding: 8px 10px;
+}
+.kie-test .kie-test-prompt {
+  flex: 1;
+  min-width: 240px;
+}
+.kie-out {
+  margin-top: 12px;
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: var(--radius, 10px);
+  background: var(--bg, #0e0e0e);
+  padding: 12px;
+}
+.kie-out-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: var(--fs-sm, 13px);
+  color: var(--muted, #8a8a8a);
+}
+.kie-out pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text, #eaeaea);
+}
+
+@media (max-width: 720px) {
+  .kie-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,375 @@
+/* ==========================================================================
+   motion.css — the motion layer (loaded last)
+   --------------------------------------------------------------------------
+   Why this file exists
+   -------------------
+   minimal.css clamps motion for the whole document:
+
+     *, *::before, *::after {
+       animation-duration: .01ms !important;
+       animation-delay: 0ms !important;
+       transition-duration: 120ms !important;
+     }
+
+   …so every keyframe in the app fired instantly and nothing could stage,
+   stream or stagger. interactive.css re-opened a few hover states; this file
+   re-opens *arrival* and *state change* across the product, one selector at
+   a time. Anything animated here re-declares its duration with !important,
+   otherwise the clamp above wins.
+
+   House rules
+   -----------
+     · short (140–520ms), small (≤ 14px), and only on arrival or input
+     · transform-only where possible: `translate` / `scale` / `opacity`
+       (never `top`/`height`), so nothing triggers layout
+     · `translate` + `scale` are used as standalone properties so a revealed
+       card can still lift on hover via `transform` — the two compose
+     · content is only hidden *after* JS arms it (`.m-armed` is added at
+       observe time by src/lib/motion.js), so if the runtime never loads the
+       page stays fully visible
+     · one kill switch at the bottom for prefers-reduced-motion
+   ========================================================================== */
+
+:root {
+  --m-1: 140ms;
+  --m-2: 220ms;
+  --m-3: 340ms;
+  --m-4: 520ms;
+  --m-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --m-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --m-spring: cubic-bezier(0.34, 1.36, 0.44, 1);
+  --m-step: 42ms; /* stagger pitch */
+}
+
+/* ========================================================= 1. arrivals = */
+/* `data-m` is stamped by src/lib/motion.js. `m-armed` means "JS owns this
+   now"; `m-in` means "it has been seen". */
+
+[data-m].m-armed {
+  opacity: 0;
+  transition:
+    opacity var(--m-4) var(--m-out),
+    translate var(--m-4) var(--m-out),
+    scale var(--m-4) var(--m-out) !important;
+  transition-delay: calc(var(--m-i, 0) * var(--m-step)) !important;
+  will-change: opacity, translate;
+}
+
+[data-m="rise"].m-armed { translate: 0 12px; }
+[data-m="fade"].m-armed { translate: none; }
+[data-m="left"].m-armed { translate: -14px 0; }
+[data-m="right"].m-armed { translate: 14px 0; }
+[data-m="pop"].m-armed { scale: 0.97; translate: 0 6px; }
+
+[data-m].m-armed.m-in {
+  opacity: 1;
+  translate: none;
+  scale: none;
+  will-change: auto;
+}
+
+/* rows arrive quicker and tighter than blocks — a long table should not
+   feel like a slideshow */
+[data-m].m-row.m-armed {
+  transition-duration: var(--m-3) !important;
+  --m-step: 26ms;
+}
+
+/* ===================================================== 2. route + panel = */
+
+.page-enter {
+  animation: m-page-in var(--m-4) var(--m-out) both !important;
+}
+@keyframes m-page-in {
+  from { opacity: 0; translate: 0 14px; }
+  to { opacity: 1; translate: none; }
+}
+
+/* the console/admin panel remounts on tab change (key={tab}) */
+.con-panel,
+.adm-panel {
+  animation: m-panel-in var(--m-3) var(--m-out) both !important;
+}
+@keyframes m-panel-in {
+  from { opacity: 0; translate: 0 8px; }
+  to { opacity: 1; translate: none; }
+}
+
+/* section headings lead their panel in */
+.con-panel .adm-head,
+.adm-panel .adm-head {
+  animation: m-head-in var(--m-4) var(--m-out) both !important;
+}
+@keyframes m-head-in {
+  from { opacity: 0; translate: 0 10px; }
+  to { opacity: 1; translate: none; }
+}
+
+/* ========================================================= 3. surfaces = */
+
+.adm-card,
+.adm-table-wrap,
+.credit-hero,
+.key-new {
+  transition:
+    border-color var(--m-2) var(--m-ease),
+    box-shadow var(--m-2) var(--m-ease),
+    background-color var(--m-2) var(--m-ease) !important;
+}
+.adm-card:hover,
+.adm-table-wrap:hover {
+  border-color: var(--border-strong);
+}
+
+/* stat tiles: the number lifts in, the tile answers the pointer */
+.adm-stat {
+  transition:
+    background-color var(--m-2) var(--m-ease),
+    transform var(--m-2) var(--m-ease) !important;
+}
+.adm-stat:hover {
+  background: var(--raised);
+  transform: translateY(-2px);
+}
+.adm-stat .v {
+  animation: m-value-in var(--m-4) var(--m-out) both !important;
+}
+@keyframes m-value-in {
+  from { opacity: 0; translate: 0 8px; }
+  to { opacity: 1; translate: none; }
+}
+
+/* quick actions + any card that is really a button */
+.con-quick button,
+.pg-preset,
+.pg-hist-row {
+  transition:
+    transform var(--m-1) var(--m-ease),
+    border-color var(--m-2) var(--m-ease),
+    background-color var(--m-2) var(--m-ease) !important;
+}
+.con-quick button:hover,
+.pg-hist-row:hover {
+  transform: translateY(-2px);
+}
+.con-quick button:active,
+.pg-hist-row:active {
+  transform: translateY(0) scale(0.995);
+}
+.con-quick button svg {
+  transition: translate var(--m-2) var(--m-spring) !important;
+}
+.con-quick button:hover svg {
+  translate: 2px 0;
+}
+
+/* ============================================================ 4. rows = */
+
+.adm-table tbody tr,
+.dt tbody tr {
+  transition:
+    background-color var(--m-1) var(--m-ease),
+    box-shadow var(--m-1) var(--m-ease) !important;
+}
+
+/* ========================================================== 5. buttons = */
+/* Button renders an empty <span class="sui-btn-shine"> — put it to work:
+   a single pass of light on hover, nothing on idle. */
+
+.sui-btn {
+  position: relative;
+  overflow: hidden;
+}
+.sui-btn .sui-btn-shine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -40%;
+  width: 35%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    color-mix(in srgb, var(--primary-ink, #fff) 42%, transparent),
+    transparent
+  );
+  opacity: 0;
+  translate: 0 0;
+}
+.sui-btn:hover .sui-btn-shine,
+.sui-btn:focus-visible .sui-btn-shine {
+  animation: m-shine 620ms var(--m-ease) 1 !important;
+}
+.sui-btn-ghost .sui-btn-shine,
+.sui-btn-quiet .sui-btn-shine {
+  background: linear-gradient(
+    100deg,
+    transparent,
+    color-mix(in srgb, var(--text) 12%, transparent),
+    transparent
+  );
+}
+@keyframes m-shine {
+  0% { opacity: 0; translate: 0 0; }
+  18% { opacity: 1; }
+  100% { opacity: 0; translate: 420% 0; }
+}
+
+/* a busy button breathes instead of freezing */
+.sui-btn[aria-busy="true"] {
+  animation: m-breathe 1.6s var(--m-ease) infinite !important;
+}
+@keyframes m-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+
+/* ============================================================= 6. tabs = */
+/* the strip deals itself in on mount, left to right (--m-i comes from
+   Console.jsx); the active pill then lands on top of that */
+
+.con-tabs-track .con-tab {
+  animation: m-tab-in var(--m-3) var(--m-out) both !important;
+  animation-delay: calc(var(--m-i, 0) * 26ms) !important;
+}
+@keyframes m-tab-in {
+  from { opacity: 0; translate: 0 -6px; }
+  to { opacity: 1; translate: none; }
+}
+
+.con-tab.is-on,
+.con-tab[aria-selected="true"],
+.adm-tab[aria-selected="true"] {
+  animation: m-pill var(--m-3) var(--m-spring) both !important;
+}
+@keyframes m-pill {
+  from { scale: 0.94; opacity: 0.6; }
+  to { scale: 1; opacity: 1; }
+}
+
+.con-tab svg,
+.adm-tab svg {
+  transition: translate var(--m-2) var(--m-spring), opacity var(--m-2) var(--m-ease) !important;
+}
+.con-tab:hover svg {
+  translate: 0 -1px;
+}
+
+/* ======================================================== 7. live state = */
+
+.m-pulse,
+.dot-ok,
+.dot-live {
+  animation: m-pulse 2.2s var(--m-ease) infinite !important;
+}
+@keyframes m-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 45%, transparent); }
+  70% { opacity: 0.85; box-shadow: 0 0 0 5px transparent; }
+}
+
+/* skeleton placeholder used while a request is in flight */
+.m-skel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--hover);
+}
+.m-skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--text) 9%, transparent),
+    transparent
+  );
+  translate: -100% 0;
+  animation: m-sweep 1.25s var(--m-ease) infinite !important;
+}
+@keyframes m-sweep {
+  to { translate: 100% 0; }
+}
+
+/* blinking caret for streamed text */
+.m-caret {
+  display: inline-block;
+  width: 7px;
+  margin-left: 1px;
+  border-bottom: 1.5px solid currentColor;
+  animation: m-blink 1s steps(2) infinite !important;
+}
+@keyframes m-blink {
+  50% { opacity: 0; }
+}
+
+/* a value that just changed flashes its own frame, not the whole card */
+.m-flash {
+  animation: m-flash var(--m-4) var(--m-ease) 1 !important;
+}
+@keyframes m-flash {
+  from { background-color: var(--primary-soft); }
+  to { background-color: transparent; }
+}
+
+/* inputs settle when focused */
+input:not(.ragestar-scope *),
+select:not(.ragestar-scope *),
+textarea:not(.ragestar-scope *),
+.sui-input-wrap {
+  transition:
+    border-color var(--m-2) var(--m-ease),
+    box-shadow var(--m-2) var(--m-ease),
+    background-color var(--m-2) var(--m-ease) !important;
+}
+
+/* chips answer a hover so they read as filters, not decoration */
+.badge,
+.st,
+.pg-chip {
+  transition:
+    border-color var(--m-2) var(--m-ease),
+    color var(--m-2) var(--m-ease),
+    background-color var(--m-2) var(--m-ease) !important;
+}
+
+/* ==================================================== 8. reduced motion = */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-m].m-armed,
+  [data-m].m-armed.m-in {
+    opacity: 1 !important;
+    translate: none !important;
+    scale: none !important;
+    transition: none !important;
+  }
+  .page-enter,
+  .con-panel,
+  .adm-panel,
+  .con-panel .adm-head,
+  .adm-panel .adm-head,
+  .adm-stat .v,
+  .con-tabs-track .con-tab,
+  .con-tab.is-on,
+  .con-tab[aria-selected="true"],
+  .adm-tab[aria-selected="true"],
+  .sui-btn[aria-busy="true"],
+  .m-pulse,
+  .dot-ok,
+  .dot-live,
+  .m-flash,
+  .m-caret {
+    animation: none !important;
+  }
+  .sui-btn:hover .sui-btn-shine,
+  .sui-btn:focus-visible .sui-btn-shine,
+  .m-skel::after {
+    animation: none !important;
+    opacity: 0;
+  }
+  .adm-stat:hover,
+  .con-quick button:hover,
+  .pg-hist-row:hover {
+    transform: none;
+  }
+}

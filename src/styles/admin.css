@@ -1,0 +1,402 @@
+/* ==========================================================================
+   admin.css — admin panel + console data surfaces
+   Purely additive: reuses the tokens already defined in styles.css
+   ========================================================================== */
+
+.adm {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  padding: 28px 0 72px;
+}
+
+.adm-rail {
+  position: sticky;
+  top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+}
+
+.adm-rail-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+
+.adm-rail-head b { font-size: 13px; letter-spacing: -0.01em; }
+.adm-rail-head small { display: block; font-size: 11px; color: var(--muted); }
+
+.adm-tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+
+.adm-tab:hover { background: var(--hover); color: var(--text); }
+
+.adm-tab[aria-selected="true"] {
+  background: var(--hover);
+  border-color: var(--line);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.adm-tab .count {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  color: var(--faint);
+}
+
+.adm-body { min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+
+.adm-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.adm-head h1 { font-size: clamp(22px, 3vw, 30px); letter-spacing: -0.02em; margin: 0; }
+.adm-head p { margin: 6px 0 0; color: var(--muted); font-size: 13.5px; max-width: 66ch; }
+.adm-head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ------------------------------------------------------------------ stats */
+
+.adm-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.adm-stat {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.adm-stat .l {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.adm-stat .v {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-stat .s { margin-top: 2px; font-size: 11.5px; color: var(--muted); }
+
+/* ------------------------------------------------------------------ table */
+
+.adm-table-wrap {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  overflow: auto;
+  max-width: 100%;
+}
+
+.adm-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+
+.adm-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 60%, transparent);
+  vertical-align: middle;
+}
+
+.adm-table tr:last-child td { border-bottom: 0; }
+.adm-table tbody tr:hover { background: var(--hover); }
+.adm-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.adm-table .mono { font-family: var(--mono, ui-monospace, monospace); font-size: 12px; }
+.adm-table .acts { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* ------------------------------------------------------------------ forms */
+
+.adm-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  padding: 18px;
+}
+
+.adm-card > h3 { margin: 0 0 4px; font-size: 15px; letter-spacing: -0.01em; }
+.adm-card > p.sub { margin: 0 0 14px; font-size: 12.5px; color: var(--muted); }
+
+.adm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px 14px;
+}
+
+.adm-grid.two { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.adm-form-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+
+.adm-input,
+.adm-select,
+.adm-textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.adm-textarea { min-height: 78px; resize: vertical; font-family: var(--mono, ui-monospace, monospace); font-size: 12px; }
+.adm-input:focus-visible,
+.adm-select:focus-visible,
+.adm-textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.adm-label { display: block; font-size: 11.5px; color: var(--muted); margin-bottom: 5px; }
+.adm-label .req { color: var(--danger, #e5484d); }
+
+/* ------------------------------------------------------------------ chips */
+
+.st {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.st::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.st-working { color: #37c489; border-color: color-mix(in oklab, #37c489 40%, transparent); background: color-mix(in oklab, #37c489 12%, transparent); }
+.st-failing { color: #e5484d; border-color: color-mix(in oklab, #e5484d 40%, transparent); background: color-mix(in oklab, #e5484d 12%, transparent); }
+.st-rate_limited,
+.st-expired { color: #e8a13a; border-color: color-mix(in oklab, #e8a13a 40%, transparent); background: color-mix(in oklab, #e8a13a 12%, transparent); }
+.st-unknown { color: var(--muted); }
+.st-disabled { color: var(--faint); }
+.st-active { color: #37c489; border-color: color-mix(in oklab, #37c489 40%, transparent); }
+.st-suspended,
+.st-revoked { color: #e5484d; border-color: color-mix(in oklab, #e5484d 40%, transparent); }
+
+/* ------------------------------------------------------------------ empty */
+
+.adm-empty,
+.empty-state {
+  padding: 34px 22px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+  font-size: 13.5px;
+  background: color-mix(in oklab, var(--panel) 60%, transparent);
+}
+
+.adm-empty b,
+.empty-state b { display: block; color: var(--text); font-size: 14.5px; margin-bottom: 5px; }
+.adm-empty .sui-btn,
+.empty-state .sui-btn { margin-top: 14px; }
+
+.gate-wait { text-align: center; padding: 90px 0; }
+
+/* --------------------------------------------------------------- reveal box */
+
+.reveal-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.reveal-box code { flex: 1; min-width: 0; }
+
+/* ----------------------------------------------------------------- console */
+
+.key-new {
+  border: 1px solid color-mix(in oklab, #37c489 45%, var(--line));
+  background: color-mix(in oklab, #37c489 8%, transparent);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.pg-out {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.pg-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.pg-meta span {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+.spark-svg { width: 100%; height: 56px; display: block; overflow: visible; }
+
+@media (max-width: 980px) {
+  .adm { grid-template-columns: minmax(0, 1fr); gap: 18px; padding-top: 18px; }
+  .adm-rail {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 10px;
+  }
+  .adm-rail-head { display: none; }
+  .adm-tab { white-space: nowrap; }
+  .adm-tab .count { display: none; }
+}
+
+/* ==========================================================================
+   Token bridge
+   styles.css names its tokens --border / --surface-solid / --primary /
+   --font-mono. The admin + console surfaces above are written against the
+   shorter aliases, so map them once here (both themes resolve dynamically).
+   ========================================================================== */
+:root {
+  --line: var(--border);
+  --line-strong: var(--border-strong);
+  --panel: var(--surface-solid);
+  --panel-soft: var(--surface);
+  --accent: var(--primary);
+  --accent-soft: var(--primary-soft);
+  --mono: var(--font-mono);
+}
+
+/* -------------------------------------------------------------- refinements */
+
+/* action cells: keep every control on one row and let the wrapper scroll */
+.adm-table td.acts,
+.adm-table th.acts {
+  display: table-cell;
+  text-align: right;
+  white-space: nowrap;
+}
+.adm-table td.acts > * {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+.adm-table td.acts > *:first-child { margin-left: 0; }
+.adm-table td.acts .adm-select {
+  width: auto;
+  min-width: 116px;
+  padding: 6px 9px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+.adm-table { min-width: 760px; }
+
+/* stat sub-label (both spellings used across surfaces) */
+.adm-stat .s,
+.adm-stat .d {
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* long secrets must never slide under the copy button */
+.reveal-box,
+.key-new {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.reveal-box code,
+.key-new code {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+.reveal-box .sui-btn,
+.key-new .sui-btn { flex: 0 0 auto; }
+
+/* rail tabs are real buttons in the panel — give the selected one a fill */
+.adm-tab.is-active,
+.adm-tab[aria-selected="true"] {
+  background: var(--primary-soft);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+/* forms: labels wrap their control, so keep spacing sane when nested */
+.adm-label .adm-input,
+.adm-label .adm-select,
+.adm-label .adm-textarea { margin-top: 5px; }
+
+/* tighten the head row on wide screens */
+.adm-head { align-items: flex-start; }
+
+/* ------------------------------------------------------- table legibility */
+/* identifiers and masked secrets must stay on one line — the wrapper scrolls */
+.adm-table td:first-child { min-width: 196px; }
+.adm-table td:first-child > b { white-space: nowrap; }
+.adm-table td .mono,
+.adm-table td .xs { white-space: nowrap; }
+.adm-table td.acts .sui-btn {
+  padding: 5px 9px;
+  font-size: 11.5px;
+  min-height: 0;
+}

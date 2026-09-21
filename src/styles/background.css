@@ -1,0 +1,98 @@
+/* ==========================================================================
+   BACKGROUND — v5.5
+   --------------------------------------------------------------------------
+   Replaces the old ten-layer stack (aurora blobs, conic beams, perspective
+   floor, dot matrix, scanline, animated film grain) with three quiet layers:
+
+     -3  wash      two very soft, static tints that give the page depth
+     -2  weave     one crisp SVG drawing: engineered grid + three route traces
+     -1  vignette  keeps the edges from competing with content
+
+   The traces are the only thing that moves, they move slowly, and they are
+   the same shape as the request path in the hero diagram — so the background
+   is part of the story rather than decoration.
+   ========================================================================== */
+
+.bg-stage {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* -3 · wash --------------------------------------------------------------- */
+.bg-wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(52% 40% at 16% -6%, color-mix(in srgb, var(--primary) 13%, transparent), transparent 70%),
+    radial-gradient(46% 38% at 88% 4%, color-mix(in srgb, var(--violet) 12%, transparent), transparent 72%),
+    linear-gradient(180deg, var(--bg-2), var(--bg) 46%);
+}
+[data-theme="light"] .bg-wash {
+  background:
+    radial-gradient(52% 40% at 16% -6%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 70%),
+    radial-gradient(46% 38% at 88% 4%, color-mix(in srgb, var(--violet) 7%, transparent), transparent 72%),
+    linear-gradient(180deg, var(--bg-2), var(--bg) 46%);
+}
+
+/* -2 · weave -------------------------------------------------------------- */
+.bg-weave {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.bgw-line {
+  stroke: color-mix(in srgb, var(--primary) 26%, transparent);
+  stroke-width: 1;
+}
+[data-theme="light"] .bgw-line {
+  stroke: color-mix(in srgb, var(--primary) 22%, transparent);
+}
+.bgw-dot {
+  fill: color-mix(in srgb, var(--violet) 42%, transparent);
+}
+.bgw-trace {
+  fill: none;
+  stroke: color-mix(in srgb, var(--primary) 34%, transparent);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-dasharray: 120 1400;
+  stroke-dashoffset: 1520;
+  animation: bgw-travel 26s linear infinite;
+}
+.bgw-trace.is-2 {
+  stroke: color-mix(in srgb, var(--violet) 34%, transparent);
+  animation-duration: 34s;
+  animation-delay: -8s;
+}
+.bgw-trace.is-3 {
+  stroke: color-mix(in srgb, var(--primary) 22%, transparent);
+  animation-duration: 42s;
+  animation-delay: -19s;
+}
+@keyframes bgw-travel {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* -1 · vignette ----------------------------------------------------------- */
+.bg-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(130% 86% at 50% -12%, transparent 44%, color-mix(in srgb, var(--bg) 88%, transparent) 100%),
+    linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--bg) 80%, transparent) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bgw-trace {
+    animation: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    opacity: 0.5;
+  }
+}

@@ -1,0 +1,793 @@
+/* ==========================================================================
+   dashboard-v12.css — "RAIL"
+   --------------------------------------------------------------------------
+   The unified app shell and the only member-facing dashboard:
+
+     · the admin panel (#/admin) is a grouped strip with a jump box
+     · this one (#/dashboard) is a vertical rail: grouped sections down the
+       left, a sticky top bar with a breadcrumb and a live pulse row, and one
+       canvas that every section paints into — including the community portal,
+       which has no screen of its own any more.
+
+   Loaded last in main.jsx so it owns the geometry of .wk-* outright. Colours
+   come from the flim.css tokens, so both palettes come for free.
+   ========================================================================== */
+
+.wk-page {
+  --wk-rail: 268px;
+  --wk-rail-collapsed: 74px;
+  --wk-top: 62px;
+  min-height: 100vh;
+  background: var(--paper, var(--bg));
+}
+
+.wk-shell {
+  display: grid;
+  grid-template-columns: var(--wk-rail) minmax(0, 1fr);
+  align-items: start;
+  min-height: 100vh;
+}
+
+.wk-shell[data-collapsed="true"] {
+  grid-template-columns: var(--wk-rail-collapsed) minmax(0, 1fr);
+}
+
+/* ==================================================================== rail */
+.wk-rail {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--card, var(--surface));
+  border-right: 1px solid var(--rule, var(--border));
+}
+
+.wk-rail-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--wk-top);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--rule-soft, var(--border));
+}
+
+.wk-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.wk-brand-name {
+  font-family: var(--font-display, inherit);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.wk-brand-name .dim {
+  color: var(--muted, var(--ink-soft));
+}
+
+.wk-brand-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted, var(--ink-soft));
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.wk-rail-toggle {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted, var(--ink-soft));
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.wk-rail-toggle:hover {
+  background: var(--hover, var(--bg-2));
+  color: var(--text, var(--ink));
+}
+
+.wk-rail-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 10px 18px;
+}
+
+.wk-group + .wk-group {
+  margin-top: 16px;
+}
+
+.wk-group-label {
+  display: block;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--faint, var(--ink-faint));
+  padding: 0 10px 6px;
+}
+
+.wk-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wk-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text, var(--ink));
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.wk-nav-item:hover {
+  background: var(--hover, var(--bg-2));
+}
+
+.wk-nav-item.is-on {
+  background: var(--primary, var(--ink));
+  border-color: var(--primary, var(--ink));
+  color: var(--primary-ink, #fff);
+  font-weight: 600;
+}
+
+.wk-nav-ico {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  color: currentColor;
+  opacity: 0.85;
+}
+
+.wk-nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wk-nav-count {
+  flex: 0 0 auto;
+  font-family: var(--font-mono, monospace);
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--rule, var(--border));
+  color: var(--muted, var(--ink-soft));
+}
+
+.wk-nav-item.is-on .wk-nav-count {
+  border-color: currentColor;
+  color: inherit;
+}
+
+.wk-rail-foot {
+  border-top: 1px solid var(--rule-soft, var(--border));
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.wk-user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.wk-avatar {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--bg-2, var(--paper-2));
+  border: 1px solid var(--rule, var(--border));
+}
+
+.wk-user-meta {
+  min-width: 0;
+  display: grid;
+  line-height: 1.25;
+}
+
+.wk-user-meta b {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wk-user-meta small {
+  font-size: 11px;
+  color: var(--muted, var(--ink-soft));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wk-rail-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.wk-mini {
+  flex: 1 1 auto;
+  text-align: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 6px 8px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted, var(--ink-soft));
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.wk-mini:hover {
+  background: var(--hover, var(--bg-2));
+  color: var(--text, var(--ink));
+}
+
+/* collapsed rail: icons only, labels and prose hidden */
+.wk-shell[data-collapsed="true"] .wk-brand-name,
+.wk-shell[data-collapsed="true"] .wk-brand-tag,
+.wk-shell[data-collapsed="true"] .wk-group-label,
+.wk-shell[data-collapsed="true"] .wk-nav-label,
+.wk-shell[data-collapsed="true"] .wk-nav-count,
+.wk-shell[data-collapsed="true"] .wk-user-meta,
+.wk-shell[data-collapsed="true"] .wk-rail-actions {
+  display: none;
+}
+
+.wk-shell[data-collapsed="true"] .wk-nav-item {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.wk-shell[data-collapsed="true"] .wk-group + .wk-group {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule-soft, var(--border));
+}
+
+.wk-shell[data-collapsed="true"] .wk-user {
+  justify-content: center;
+}
+
+/* ==================================================================== main */
+
+.wk-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wk-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  min-height: var(--wk-top);
+  padding: 10px clamp(14px, 2vw, 26px);
+  background: color-mix(in srgb, var(--paper, #f4f4f2) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule, var(--border));
+}
+
+.wk-crumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, var(--ink-soft));
+}
+
+.wk-crumb b {
+  color: var(--text, var(--ink));
+  letter-spacing: 0.04em;
+}
+
+.wk-crumb-sep {
+  opacity: 0.5;
+}
+
+.wk-top-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wk-icon-btn {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted, var(--ink-soft));
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.wk-icon-btn:hover {
+  background: var(--hover, var(--bg-2));
+  color: var(--text, var(--ink));
+}
+
+/* the live facts row — visible on every section, so no tab has to be opened
+   just to read a balance or a key count */
+.wk-pulse {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  flex-wrap: wrap;
+  padding: 0 clamp(14px, 2vw, 26px);
+  border-bottom: 1px solid var(--rule-soft, var(--border));
+  background: var(--card, var(--surface));
+}
+
+.wk-pulse-item {
+  display: grid;
+  gap: 1px;
+  padding: 9px 18px 9px 0;
+  margin-right: 18px;
+  border-right: 1px solid var(--rule-soft, var(--border));
+}
+
+.wk-pulse-item:last-child {
+  border-right: 0;
+  margin-right: 0;
+}
+
+.wk-pulse-l {
+  font-family: var(--font-mono, monospace);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--faint, var(--ink-faint));
+}
+
+.wk-pulse-v {
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 30ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wk-pulse-v.is-live {
+  color: var(--ok, var(--live));
+}
+
+.wk-canvas {
+  flex: 1;
+  min-width: 0;
+  padding: clamp(16px, 2vw, 28px) clamp(14px, 2vw, 26px) clamp(48px, 6vw, 80px);
+}
+
+.wk-canvas > .wk-panel {
+  min-width: 0;
+  animation: wk-rise 0.26s var(--ease-out, cubic-bezier(0.2, 0.8, 0.2, 1)) both;
+}
+
+@keyframes wk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-canvas > .wk-panel {
+    animation: none;
+  }
+}
+
+/* the canvas hosts the existing console tabs unchanged, so give their own
+   vocabulary the same breathing room it has in the console */
+.wk-panel .adm-card {
+  margin-bottom: 0;
+}
+
+.wk-panel .adm-table-wrap {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.wk-loading {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  min-height: 60vh;
+  text-align: center;
+}
+
+/* ============================================================ panel header */
+
+.wk-panel-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--rule, var(--border));
+}
+
+.wk-eyebrow {
+  display: block;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--faint, var(--ink-faint));
+}
+
+.wk-panel-head h1 {
+  margin: 2px 0 4px;
+  font-family: var(--font-display, inherit);
+  font-size: clamp(22px, 2.4vw, 30px);
+  letter-spacing: -0.02em;
+}
+
+.wk-panel-head p {
+  margin: 0;
+  max-width: 72ch;
+  color: var(--muted, var(--ink-soft));
+  font-size: 14px;
+}
+
+.wk-panel-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wk-chip {
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, var(--ink-soft));
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.wk-chip.is-live {
+  color: var(--ok, var(--live));
+  border-color: currentColor;
+}
+
+/* ========================================================== admin snapshot */
+
+.wk-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.wk-kpi {
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 12px;
+  background: var(--card, var(--surface));
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.wk-kpi .l {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--faint, var(--ink-faint));
+}
+
+.wk-kpi .v {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--rule-soft, var(--border));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wk-jump {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.wk-jump a {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 12px;
+  background: var(--card, var(--surface));
+  color: inherit;
+  text-decoration: none;
+}
+
+.wk-jump a:hover {
+  border-color: var(--border-strong, var(--rule));
+  background: var(--hover, var(--bg-2));
+}
+
+.wk-jump b {
+  font-size: 14px;
+}
+
+.wk-jump span {
+  font-size: 12px;
+  color: var(--muted, var(--ink-soft));
+}
+
+/* ========================================================= community panel */
+
+.wk-community {
+  min-width: 0;
+}
+
+.wk-community .cm-shell {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.wk-community .cm-rooms,
+.wk-community .cm-main {
+  height: clamp(420px, calc(100vh - 290px), 760px);
+  min-height: 380px;
+  border-radius: 12px;
+}
+
+.wk-community .cm-main-title {
+  flex-wrap: wrap;
+}
+
+/* the rooms rail folds into a button on narrow screens: the dashboard rail
+   already owns the left edge, so a third column would not fit */
+.wk-rooms-toggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--rule, var(--border));
+  border-radius: 10px;
+  background: var(--card, var(--surface));
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wk-rooms-toggle em {
+  margin-left: auto;
+  font-style: normal;
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, var(--ink-soft));
+}
+
+/* ============================================================= responsive */
+
+@media (max-width: 1080px) {
+  .wk-community .cm-shell {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .wk-page {
+    --wk-rail: var(--wk-rail-collapsed);
+  }
+  .wk-shell,
+  .wk-shell[data-collapsed="true"] {
+    grid-template-columns: var(--wk-rail-collapsed) minmax(0, 1fr);
+  }
+  .wk-shell .wk-brand-name,
+  .wk-shell .wk-brand-tag,
+  .wk-shell .wk-group-label,
+  .wk-shell .wk-nav-label,
+  .wk-shell .wk-nav-count,
+  .wk-shell .wk-user-meta,
+  .wk-shell .wk-rail-actions {
+    display: none;
+  }
+  .wk-shell .wk-nav-item {
+    justify-content: center;
+    padding-inline: 0;
+  }
+  .wk-rail-toggle {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .wk-community .cm-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .wk-rooms-toggle {
+    display: flex;
+  }
+  .wk-community .cm-rooms {
+    display: none;
+    height: auto;
+    max-height: 260px;
+  }
+  .wk-community .cm-rooms.is-open {
+    display: block;
+  }
+  .wk-community .cm-main {
+    height: clamp(380px, calc(100vh - 320px), 640px);
+  }
+  .wk-pulse-item {
+    padding-right: 12px;
+    margin-right: 12px;
+  }
+}
+
+/* ==========================================================================
+   UI/UX pass (ui-ux-pro-max checklist) — accessibility & interaction polish
+   --------------------------------------------------------------------------
+   Scoped to the dashboard shell (.wk-*). Tokens come from flim.css, so both
+   palettes keep working. Three goals:
+
+     1. TOUCH TARGETS — rail toggle, nav items, icon buttons and rail minis
+        were 28–37px; WCAG 2.5.8 / platform guidance wants ≥ 44px.
+     2. FOCUS — keyboard users had no visible ring on rail controls; add a
+        consistent :focus-visible outline on every interactive .wk element.
+     3. FEEDBACK — state changes were instant; give colour/background/border
+        a fast 150–180ms transition, and a gentle width ease for the rail
+        collapse. Motion is disabled under prefers-reduced-motion.
+   ========================================================================== */
+
+/* ---- 1. touch targets ---------------------------------------------------- */
+
+.wk-nav-item {
+  min-height: 44px;
+  padding-block: 10px;
+}
+
+.wk-rail-toggle {
+  width: 44px;
+  height: 44px;
+}
+
+.wk-icon-btn {
+  width: 44px;
+  height: 44px;
+}
+
+.wk-mini {
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+.wk-jump a {
+  min-height: 44px;
+}
+
+/* Collapsed rail (icons only) and the ≤900px auto-collapse: keep the glyph
+   optically centred inside the now-taller 44px row. */
+.wk-shell[data-collapsed="true"] .wk-nav-item {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+/* ---- 2. visible focus ----------------------------------------------------- */
+
+.wk-nav-item:focus-visible,
+.wk-rail-toggle:focus-visible,
+.wk-icon-btn:focus-visible,
+.wk-mini:focus-visible,
+.wk-jump a:focus-visible,
+.wk-rooms-toggle:focus-visible,
+.wk-brand:focus-visible {
+  outline: 2px solid var(--primary, currentColor);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+/* ---- 3. smooth feedback --------------------------------------------------- */
+
+.wk-nav-item,
+.wk-rail-toggle,
+.wk-icon-btn,
+.wk-mini,
+.wk-jump a,
+.wk-rooms-toggle {
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.wk-shell {
+  transition: grid-template-columns 220ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-nav-item,
+  .wk-rail-toggle,
+  .wk-icon-btn,
+  .wk-mini,
+  .wk-jump a,
+  .wk-rooms-toggle,
+  .wk-shell {
+    transition: none;
+  }
+}
+

@@ -1,0 +1,286 @@
+/* ==========================================================================
+   tree.css — the folder/file explorer used by the Keys and Models tabs
+   --------------------------------------------------------------------------
+   Deliberately quiet: one hairline border, no card shadows, no gradients.
+   The indent and the guide line carry the hierarchy, so nothing else has to.
+   ========================================================================== */
+
+.tr-shell {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------- toolbar */
+.tr-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tr-toolbar .con-search {
+  flex: 1 1 200px;
+  min-width: 160px;
+}
+
+.tr-toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+/* --------------------------------------------------------------- split */
+.tr-split {
+  display: grid;
+  grid-template-columns: minmax(240px, 340px) 1fr;
+  min-height: 280px;
+}
+
+.tr-split > .tr {
+  border-right: 1px solid var(--border);
+}
+
+@media (max-width: 900px) {
+  .tr-split {
+    grid-template-columns: 1fr;
+  }
+  .tr-split > .tr {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+/* ---------------------------------------------------------------- tree */
+.tr {
+  padding: 8px 0;
+  font-size: var(--fs-sm);
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.tr-group + .tr-group {
+  margin-top: 2px;
+}
+
+.tr-folder,
+.tr-file {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 5px 12px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.45;
+}
+
+.tr-folder:hover,
+.tr-file:hover {
+  background: var(--hover);
+}
+
+.tr-folder:focus-visible,
+.tr-file:focus-visible {
+  outline: 1px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.tr-folder {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.tr-folder .tr-ico {
+  color: var(--primary);
+}
+
+/* the guide line that makes a leaf read as "inside" its folder */
+.tr-children {
+  margin-left: 21px;
+  border-left: 1px solid var(--border);
+}
+
+.tr-file {
+  padding-left: 14px;
+  color: var(--muted);
+}
+
+.tr-file .tr-ico {
+  color: var(--faint);
+}
+
+.tr-file.is-on {
+  background: var(--primary-soft);
+  color: var(--text);
+  box-shadow: inset 2px 0 0 var(--primary);
+}
+
+.tr-file.is-on .tr-ico {
+  color: var(--primary);
+}
+
+.tr-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tr-meta {
+  flex: 0 0 auto;
+  color: var(--faint);
+  font-size: var(--fs-xs);
+  font-family: var(--font-mono);
+}
+
+.tr-count {
+  flex: 0 0 auto;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--raised);
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+
+.tr-badge {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--faint);
+  text-transform: lowercase;
+}
+
+.tr-badge.is-ok {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+  background: var(--ok-soft);
+}
+.tr-badge.is-warn {
+  color: var(--warn);
+  border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+  background: var(--warn-soft);
+}
+.tr-badge.is-danger {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  background: var(--danger-soft);
+}
+
+.tr-chev {
+  flex: 0 0 auto;
+  color: var(--faint);
+  transition: transform 0.14s var(--ease-out);
+}
+
+.tr-chev.is-open {
+  transform: rotate(90deg);
+}
+
+.tr-ico {
+  flex: 0 0 auto;
+}
+
+.tr-empty {
+  padding: 5px 12px 5px 26px;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+}
+
+.tr-foot {
+  padding: 8px 12px 2px;
+  color: var(--faint);
+  font-size: var(--fs-xs);
+}
+
+/* -------------------------------------------------------------- detail */
+.tr-detail {
+  padding: 16px 18px;
+  min-width: 0;
+}
+
+.tr-detail.is-empty {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 40px 18px;
+}
+
+.tr-path {
+  color: var(--faint);
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+
+.tr-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tr-detail-head h4 {
+  margin: 0;
+  font-size: var(--fs-base);
+  overflow-wrap: anywhere;
+}
+
+.tr-detail-head p {
+  margin: 3px 0 0;
+}
+
+.tr-rows {
+  margin: 0;
+  padding: 12px 0 0;
+  display: grid;
+  gap: 1px;
+}
+
+.tr-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 30%) 1fr;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: var(--fs-sm);
+}
+
+.tr-row + .tr-row {
+  border-top: 1px solid var(--border);
+}
+
+.tr-row dt {
+  color: var(--faint);
+  font-size: var(--fs-xs);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+
+.tr-row dd {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .tr-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}

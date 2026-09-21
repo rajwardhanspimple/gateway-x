@@ -1,0 +1,549 @@
+/* ==========================================================================
+   AUTH — split-screen sign in / create account
+   Left: live routing proof (canvas fabric + scroll-linked rails).
+   Right: the form, on a glass card with HUD corners.
+   ========================================================================== */
+
+.auth-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+}
+
+/* ------------------------------------------------------------------ aside */
+.auth-aside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding: var(--sp-5) clamp(var(--sp-5), 4vw, var(--sp-7));
+  border-right: 1px solid var(--border);
+  background:
+    radial-gradient(1000px 520px at 8% -10%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 70%),
+    radial-gradient(760px 420px at 96% 108%, color-mix(in srgb, var(--violet) 14%, transparent), transparent 68%),
+    color-mix(in srgb, var(--bg-2) 82%, transparent);
+  overflow: hidden;
+}
+.auth-aside::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(139, 160, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 160, 255, 0.05) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: radial-gradient(ellipse 80% 60% at 20% 0%, #000 10%, transparent 76%);
+}
+.auth-aside > * {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  width: fit-content;
+}
+.auth-brand svg {
+  width: 30px;
+  height: 30px;
+  transition: transform 0.4s var(--ease-spring);
+}
+.auth-brand:hover svg {
+  transform: rotate(-8deg) scale(1.08);
+}
+.auth-brand .dim {
+  color: var(--faint);
+}
+
+.auth-lede {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 32ch;
+}
+.auth-headline {
+  font-size: clamp(2.1rem, 3.4vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+.auth-sub {
+  color: var(--muted);
+  font-size: var(--fs-base);
+  max-width: 44ch;
+}
+
+/* live proof panel -------------------------------------------------------- */
+.auth-proof {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-solid) 55%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+  box-shadow: var(--shadow-pop);
+}
+.auth-proof-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: 11px var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.auth-proof canvas {
+  width: 100%;
+  height: 172px;
+  display: block;
+}
+.auth-proof-foot {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--border);
+}
+.auth-proof-foot div {
+  padding: 12px var(--sp-4);
+  border-right: 1px solid var(--border);
+}
+.auth-proof-foot div:last-child {
+  border-right: 0;
+}
+.auth-proof-foot .v {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.auth-proof-foot .l {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* scroll rails + feature list -------------------------------------------- */
+.auth-rails {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.auth-feats {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.auth-feat {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+.auth-feat svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 3px;
+  color: var(--primary);
+}
+.auth-feat b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.auth-quote {
+  border-left: 2px solid var(--primary);
+  padding-left: var(--sp-4);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+}
+.auth-quote .who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  color: var(--text);
+  font-size: var(--fs-xs);
+}
+.auth-quote .avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--primary-ink);
+  background: var(--grad);
+}
+.auth-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* ------------------------------------------------------------------- main */
+.auth-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-5) clamp(var(--sp-4), 3.4vw, var(--sp-7)) var(--sp-6);
+  gap: var(--sp-5);
+}
+.auth-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.auth-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  padding: 7px 11px;
+  border-radius: 99px;
+  border: 1px solid transparent;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.auth-back:hover {
+  color: var(--text);
+  border-color: var(--border);
+  background: var(--hover);
+}
+.auth-back svg {
+  width: 15px;
+  height: 15px;
+}
+.auth-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-shell {
+  flex: 1;
+  display: flex;
+}
+.auth-card {
+  /* margin auto (not place-items) so a tall card still scrolls instead of clipping */
+  margin: auto;
+  width: min(468px, 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: clamp(var(--sp-5), 3vw, var(--sp-6));
+  background: color-mix(in srgb, var(--surface-solid) 78%, transparent);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  box-shadow: var(--shadow-pop);
+  animation: auth-card-in 0.55s var(--ease-out) both;
+}
+@keyframes auth-card-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.985); }
+}
+.auth-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: var(--sp-5);
+}
+.auth-card-head h1 {
+  font-size: clamp(1.5rem, 2.4vw, 1.85rem);
+  letter-spacing: -0.025em;
+}
+.auth-card-head p {
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.auth-link {
+  color: var(--primary);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+.auth-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.auth-oauth {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.auth-switch {
+  margin-top: var(--sp-5);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+.auth-legal {
+  margin-top: var(--sp-4);
+  color: var(--faint);
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+.auth-legal a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.auth-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--faint);
+}
+
+/* success state ----------------------------------------------------------- */
+.auth-success {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  animation: page-in 0.45s var(--ease-out);
+}
+.auth-success-mark {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: var(--primary-ink);
+  background: var(--grad);
+  box-shadow: 0 12px 34px color-mix(in srgb, var(--primary) 35%, transparent);
+  animation: auth-pop 0.5s var(--ease-spring) both;
+}
+@keyframes auth-pop {
+  from { transform: scale(0.4) rotate(-12deg); opacity: 0; }
+}
+.auth-success-mark svg {
+  width: 26px;
+  height: 26px;
+}
+.auth-log {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+  padding: var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.95;
+  color: var(--muted);
+}
+.auth-log span {
+  display: block;
+  animation: boot-ln 0.25s var(--ease-out);
+}
+.auth-log .ok { color: var(--ok); }
+.auth-log .hl { color: var(--primary); }
+
+/* --------------------------------------------------------------- responsive */
+@media (max-width: 1040px) {
+  .auth-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .auth-aside {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    padding-block: var(--sp-5);
+    gap: var(--sp-5);
+  }
+  .auth-aside .auth-proof,
+  .auth-aside .auth-quote,
+  .auth-aside .auth-rails {
+    display: none;
+  }
+  .auth-lede {
+    max-width: none;
+  }
+  .auth-headline {
+    font-size: clamp(1.8rem, 6vw, 2.4rem);
+  }
+  .auth-feats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+  }
+  .auth-main {
+    padding-top: var(--sp-4);
+  }
+}
+
+@media (max-width: 560px) {
+  .auth-aside {
+    padding-inline: var(--sp-4);
+  }
+  .auth-main {
+    padding-inline: var(--sp-4);
+  }
+  .auth-card {
+    padding: var(--sp-5) var(--sp-4);
+    border-radius: var(--radius);
+  }
+  .auth-oauth {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .auth-feats .auth-feat {
+    font-size: var(--fs-xs);
+  }
+}
+
+/* ==========================================================================
+   DESKTOP: app-style split screen. The proof panel stays put, the form
+   column is the only scroller, so the card is always optically centred.
+   ========================================================================== */
+@media (min-width: 1041px) {
+  .auth-page {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .auth-aside {
+    overflow: hidden;
+  }
+  .auth-main {
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .auth-main::-webkit-scrollbar {
+    width: 8px;
+  }
+  .auth-main::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 99px;
+  }
+}
+
+/* short viewports: shed the optional proof blocks rather than clip them */
+@media (min-width: 1041px) and (max-height: 980px) {
+  .auth-aside .auth-quote {
+    display: none;
+  }
+}
+@media (min-width: 1041px) and (max-height: 860px) {
+  .auth-aside .auth-rails,
+  .auth-aside .marquee {
+    display: none;
+  }
+  .auth-aside .auth-proof canvas {
+    height: 136px;
+  }
+}
+@media (min-width: 1041px) and (max-height: 720px) {
+  .auth-aside .auth-proof,
+  .auth-aside .auth-feats {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   MOBILE: form first. The proof column shrinks to a branded lede so the
+   card is reachable without scrolling past a wall of marketing.
+   ========================================================================== */
+@media (max-width: 1040px) {
+  .auth-aside {
+    gap: var(--sp-4);
+    padding-block: var(--sp-4);
+  }
+  .auth-headline {
+    font-size: clamp(1.55rem, 5.6vw, 2.1rem);
+  }
+  .auth-sub {
+    font-size: var(--fs-sm);
+  }
+  .auth-main {
+    gap: var(--sp-4);
+  }
+}
+
+@media (max-width: 760px) {
+  .auth-aside .auth-feats,
+  .auth-aside .marquee,
+  .auth-aside .auth-trust {
+    display: none;
+  }
+  .auth-back {
+    white-space: nowrap;
+    padding-inline: 8px;
+  }
+  .auth-topbar-right .str-chip {
+    display: none;
+  }
+  .auth-meta {
+    font-size: 0.66rem;
+  }
+}
+
+/* ==========================================================================
+   LIGHT THEME: keep the telemetry panel dark. A cyan routing graph on a
+   near-white sheet reads as washed-out noise, so the proof panel becomes an
+   inset "console" — same trick the docs terminal uses.
+   ========================================================================== */
+[data-theme="light"] .auth-proof {
+  background: linear-gradient(180deg, #0b111f 0%, #070c17 100%);
+  border-color: rgba(20, 32, 66, 0.18);
+  box-shadow: 0 22px 44px -30px rgba(9, 16, 38, 0.55);
+}
+[data-theme="light"] .auth-proof-head {
+  color: #aab6dd;
+  border-bottom-color: rgba(139, 160, 255, 0.16);
+}
+[data-theme="light"] .auth-proof-foot,
+[data-theme="light"] .auth-proof-foot div {
+  border-color: rgba(139, 160, 255, 0.16);
+}
+[data-theme="light"] .auth-proof-foot .v {
+  color: #eaf0ff;
+}
+[data-theme="light"] .auth-proof-foot .l {
+  color: #7d89b4;
+}
+
+/* A button that reads as a link — used for "remove this invite code". */
+.link-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link-btn:hover {
+  color: var(--text);
+}
