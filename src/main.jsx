@@ -108,10 +108,11 @@ import "./styles/appearance-readability.css";
    under .lp, with a designed dark appearance rather than an inverted one. It
    does not read the kit's tokens and the kit's sheets do not reach into it, so
    order relative to everything above is not load-bearing; it sits here so the
-   two files stay together. See the header in landing.css for the brief.
+   three files stay together. See the header in landing.css for the brief.
    --------------------------------------------------------------------------- */
 import "./styles/landing.css";
 import "./styles/landing-sections.css";
+import "./styles/landing-fixes.css";
 /* Theme bootstrap.
    This used to be an inline <script> in index.html. Inline scripts are blocked
    by the Content-Security-Policy shipped with the production build, so the
