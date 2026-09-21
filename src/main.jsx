@@ -84,6 +84,10 @@ import "./ragestar/chrome.css";
    light appearance is active. See the header in the file itself and
    APPEARANCE-PLAN.md. */
 import "./styles/appearance-dark.css";
+/* The floating light/dark switch (.rs-appearance), mounted once in App.jsx.
+   After appearance-dark.css because it reads the gateway token names that file
+   re-bridges for the dark appearance. */
+import "./styles/appearance-control.css";
 /* Contrast and type-size floors, after the palette so it can express its
    thresholds against whichever appearance is active. A STOPGAP: it answers
    the utility class names in the markup instead of editing the 14 kit files
