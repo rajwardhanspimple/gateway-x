@@ -1,0 +1,143 @@
+/* ==========================================================================
+   appearance-control.css — the floating light/dark switch
+   --------------------------------------------------------------------------
+   The switch is mounted ONCE in App.jsx, next to the toaster, the command
+   palette and back-to-top. That is deliberate: those four layers render at the
+   document root, OUTSIDE .ragestar-scope, so one mount covers all twelve
+   routes including the auth screens, which render no navigation of their own.
+
+   Consequence for styling, and the reason this file exists: outside
+   .ragestar-scope the kit's Tailwind colour utilities are wrong. `text-white`
+   resolves to --color-white, which the kit defines as PINE INK (#101814), and
+   appearance-dark.css only inverts that token inside the scope. A button
+   styled with kit utilities would therefore be dark-on-dark once the dark
+   appearance is active — invisible exactly when it is needed.
+
+   So this uses the GATEWAY tokens (--card, --rule, --ink, --primary) the way
+   .rs-scrolltop and .rs-toaster do. appearance-dark.css section 5 already
+   re-bridges those four names for the dark appearance on these same roots, so
+   the button follows both appearances without a second rule set.
+
+   Positioning: bottom-LEFT. The bottom-right corner is occupied by
+   .rs-toaster (z 120) and .rs-scrolltop (z 90), and the top-right by each
+   screen's own nav. The left corner is empty on every route.
+   ========================================================================== */
+
+.rs-appearance {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 90;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  /* 40px tall: comfortably over the 24px minimum target size and matched to
+     the back-to-top control on the opposite corner */
+  height: 40px;
+  padding: 0 12px;
+
+  background: var(--card, #f4f6f1);
+  border: 1px solid var(--rule, rgba(16, 24, 20, 0.14));
+  border-radius: 999px;
+  box-shadow: var(--rs-shadow, 0 18px 44px -28px rgba(16, 24, 20, 0.55));
+  color: var(--ink, #101814);
+
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.rs-appearance:hover {
+  background: var(--hover, #dbe0d2);
+  border-color: var(--border-strong, rgba(16, 24, 20, 0.26));
+  transform: translateY(-1px);
+}
+
+.rs-appearance:active {
+  transform: translateY(0);
+}
+
+/* The gateway sets a focus ring globally, but this control sits on its own
+   above the page, so make the ring unmissable rather than inherited. */
+.rs-appearance:focus-visible {
+  outline: 2px solid var(--primary, #2447e8);
+  outline-offset: 2px;
+}
+
+.rs-appearance-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+/* The word next to the icon. An icon alone is ambiguous about what it will do
+   (does a moon mean "currently dark" or "switch to dark"?), so the label names
+   the DESTINATION. Dropped below 480px, where the icon plus aria-label is
+   enough and the corner is tight. */
+.rs-appearance-label {
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .rs-appearance {
+    padding: 0;
+    width: 40px;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .rs-appearance-label {
+    /* not display:none — that would drop it from the accessibility tree too */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* The auth screens lock page scroll on desktop and centre a single card. The
+   control stays, because those screens render no nav at all and would
+   otherwise have no way to switch, but it tucks in tighter. */
+body.is-auth-route .rs-appearance {
+  left: 12px;
+  bottom: 12px;
+}
+
+/* Keep clear of the toast stack, which moves to full width on small screens. */
+@media (max-width: 560px) {
+  .rs-appearance {
+    bottom: 76px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-appearance,
+  .rs-appearance:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Under forced colours the user's own palette wins outright. */
+@media (forced-colors: active) {
+  .rs-appearance {
+    border: 1px solid ButtonBorder;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+}
