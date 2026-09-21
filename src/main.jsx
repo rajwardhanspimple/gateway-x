@@ -84,6 +84,12 @@ import "./ragestar/chrome.css";
    light appearance is active. See the header in the file itself and
    APPEARANCE-PLAN.md. */
 import "./styles/appearance-dark.css";
+/* The staff admin panel in dark. A separate sheet because that panel is NOT
+   built from kit utilities — it is the gateway's own panel mounted inside
+   .ragestar-admin, skinned by admin-panel.css and admin-ragestar.css with
+   literal light hex, which the token swap above cannot reach. Must load after
+   both of those sheets. */
+import "./styles/appearance-dark-admin.css";
 /* The floating light/dark switch (.rs-appearance), mounted once in App.jsx.
    After appearance-dark.css because it reads the gateway token names that file
    re-bridges for the dark appearance. */
