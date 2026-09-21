@@ -1,0 +1,319 @@
+/* ==========================================================================
+   appearance-dark-admin.css — the staff console + admin panel in dark
+   --------------------------------------------------------------------------
+   WHY THE MAIN DARK SHEET DOES NOT COVER THIS
+
+   appearance-dark.css swaps the kit's Tailwind @theme tokens, which is enough
+   for every screen built from kit utilities. The admin panel is not one of
+   those screens. It is the gateway's own panel (src/pages/Admin.jsx in `bare`
+   mode) mounted inside .ragestar-admin, and it is skinned by two sheets that
+   predate the dark appearance:
+
+     admin-panel.css      declares .ap-* primitives (KPI tiles, panels, bars,
+                          rails) reading --ap-* tokens with LITERAL LIGHT
+                          fallbacks: #e4e4e7, #ffffff, #fafafa …
+     admin-ragestar.css   re-declares the gateway token names on
+                          .ragestar-admin with literal paper hex (#f0f2e8,
+                          #eef0e6, #101814 …) and states in its own header
+                          "Both themes are light — there is no dark variant to
+                          break". That is no longer true.
+
+   Because those values are literals on a selector the token swap never
+   reaches, the dark appearance produced a dark page with cream cards on it,
+   and — worse — dark ink text on dark tiles. The ERRORS 24H, AVG LATENCY and
+   UPSTREAM KEYS labels and the whole MODEL column of the failures table were
+   invisible, not merely low contrast.
+
+   This sheet answers the same selectors with dark values. It is the same
+   category of exception noted in appearance-dark.css section 4: the real fix
+   is to make those two sheets read tokens instead of literals, which is the
+   tokenize pass in APPEARANCE-PLAN.md. Until then this is the difference
+   between a usable panel and an unreadable one.
+
+   Loaded after both admin sheets AND after appearance-dark.css, so it wins
+   without !important. Every rule is gated on [data-theme="dark"], so the
+   light appearance is untouched.
+   ========================================================================== */
+
+/* ==================================================== 1. the token layer */
+
+/* admin-ragestar.css sets these on .ragestar-admin as literal paper values.
+   Same names, dark values. Everything that reads a token follows from here,
+   which is most of the panel. */
+
+[data-theme="dark"] .ragestar-admin {
+  --line: rgba(233, 236, 228, 0.16);
+  --line-strong: rgba(233, 236, 228, 0.28);
+  --panel: #171e1a;
+  --panel-soft: #1c241f;
+  --accent: #6e9bf5;
+  --accent-soft: rgba(110, 155, 245, 0.16);
+  --text: #e9ece4;
+
+  /* Three distinct tiers, all clearing AA on the panel surface, mirroring the
+     light sheet's reasoning: primary, secondary, faint — never below 4.5:1. */
+  --muted: rgba(233, 236, 228, 0.74);
+  --faint: rgba(233, 236, 228, 0.62);
+
+  --hover: rgba(233, 236, 228, 0.06);
+  --paper: #101814;
+  --ink-950: #101814;
+
+  color: var(--text);
+}
+
+/* The wrapper carries a literal `text-[#101814]` utility in Admin.jsx, which
+   is pine ink on a pine canvas. It has to be answered here because it is an
+   arbitrary Tailwind value in the markup, not a token. */
+[data-theme="dark"] .ragestar-admin {
+  color: #e9ece4;
+}
+
+/* admin-panel.css's .ap-* primitives resolve --ap-* from the gateway tokens
+   with literal LIGHT fallbacks. The tokens above now feed them, but the
+   fallbacks still fire for the three names admin-ragestar.css never set. */
+[data-theme="dark"] .ragestar-admin .ap,
+[data-theme="dark"] .ap {
+  --ap-line: rgba(233, 236, 228, 0.16);
+  --ap-ink: #e9ece4;
+  --ap-faint: rgba(233, 236, 228, 0.62);
+  --ap-bg: #171e1a;
+  --ap-soft: #1c241f;
+  --ap-accent: #6e9bf5;
+  --ap-ok: #3db495;
+  --ap-warn: #d9ae3a;
+  --ap-bad: #f2705c;
+}
+
+/* ======================================================== 2. the surfaces */
+
+/* admin-ragestar.css paints all of these #f0f2e8 with a white inset highlight.
+   On a dark canvas that is the cream-card-on-dark-page effect in the report. */
+
+[data-theme="dark"] .ragestar-admin .adm-card,
+[data-theme="dark"] .ragestar-admin .ap-panel,
+[data-theme="dark"] .ragestar-admin .adm-stat,
+[data-theme="dark"] .ragestar-admin .adm-table-wrap,
+[data-theme="dark"] .ragestar-admin .sheet,
+[data-theme="dark"] .ragestar-admin .kw,
+[data-theme="dark"] .ragestar-admin .adm-empty,
+[data-theme="dark"] .ragestar-admin .ap-kpi {
+  background: #171e1a;
+  border: 1px solid rgba(233, 236, 228, 0.14);
+  /* the inset was a white highlight for a paper card; invert it to a subtle
+     top edge rather than dropping it, so the card keeps its lift */
+  box-shadow: 0 1px 0 rgba(233, 236, 228, 0.05) inset;
+  color: var(--text);
+}
+
+/* The KPI tiles are the headline row. Their label and sub-line use --ap-faint,
+   now dark-aware above; the value inherits and needs the ink. */
+[data-theme="dark"] .ragestar-admin .ap-kpi .v {
+  color: #e9ece4;
+}
+
+/* The tone variants set an explicit colour, so they need the lifted accents.
+   These are the ERRORS 24H / AVG LATENCY / UPSTREAM KEYS tiles in the report,
+   whose values were rendering in light-theme ink on a dark tint. */
+[data-theme="dark"] .ragestar-admin .ap-kpi.is-bad .v {
+  color: #f2705c;
+}
+[data-theme="dark"] .ragestar-admin .ap-kpi.is-ok .v {
+  color: #3db495;
+}
+[data-theme="dark"] .ragestar-admin .ap-kpi.is-warn .v {
+  color: #d9ae3a;
+}
+
+[data-theme="dark"] .ragestar-admin .adm-head h1,
+[data-theme="dark"] .ragestar-admin .sheet-head .sheet-title {
+  color: #e9ece4;
+}
+
+[data-theme="dark"] .ragestar-admin .adm-head p,
+[data-theme="dark"] .ragestar-admin .sub,
+[data-theme="dark"] .ragestar-admin .faint,
+[data-theme="dark"] .ragestar-admin .sheet-sub,
+[data-theme="dark"] .ragestar-admin .ap-muted,
+[data-theme="dark"] .ragestar-admin .ap-sub,
+[data-theme="dark"] .ragestar-admin .ap-legend {
+  color: var(--muted);
+}
+
+/* =========================================================== 3. the tables
+
+   The failures table in the report had an invisible MODEL column: the cell ink
+   stayed #101814 while the row went dark. Header, body and hover all need
+   answering because admin-ragestar.css sets each with a literal. */
+
+[data-theme="dark"] .ragestar-admin .adm-table {
+  color: #e9ece4;
+}
+
+[data-theme="dark"] .ragestar-admin .adm-table th {
+  color: var(--faint);
+  border-bottom: 1px solid rgba(233, 236, 228, 0.14);
+  background: #1c241f;
+}
+
+[data-theme="dark"] .ragestar-admin .adm-table td {
+  border-bottom: 1px solid rgba(233, 236, 228, 0.08);
+}
+
+[data-theme="dark"] .ragestar-admin .adm-table tbody tr:hover {
+  background: rgba(110, 155, 245, 0.07);
+}
+
+/* ======================================================== 4. form controls */
+
+[data-theme="dark"] .ragestar-admin .adm-input,
+[data-theme="dark"] .ragestar-admin .adm-select,
+[data-theme="dark"] .ragestar-admin .adm-textarea,
+[data-theme="dark"] .ragestar-admin .input,
+[data-theme="dark"] .ragestar-admin .sui-input,
+[data-theme="dark"] .ragestar-admin .kw-select {
+  background: #1c241f;
+  border: 1px solid rgba(233, 236, 228, 0.2);
+  color: #e9ece4;
+}
+
+[data-theme="dark"] .ragestar-admin .adm-input::placeholder,
+[data-theme="dark"] .ragestar-admin .input::placeholder {
+  color: var(--faint);
+}
+
+/* The section search in the top bar is its own control. */
+[data-theme="dark"] .ragestar-admin .ap-topbar .ap-search {
+  background: #1c241f;
+  border-color: rgba(233, 236, 228, 0.18);
+  color: #e9ece4;
+}
+
+/* ============================================================= 5. buttons */
+
+/* The primary action keeps its cobalt gradient but needs light ink on it: the
+   sheet sets `color: #fff`, and #fff is correct here, so only the gradient
+   stops move to the dark-appearance cobalt. */
+[data-theme="dark"] .ragestar-admin .sui-btn-primary,
+[data-theme="dark"] .ragestar-admin .adm-form-actions .sui-btn-primary {
+  background: linear-gradient(120deg, #2f55e4, #1f3fd0);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ragestar-admin .sui-btn-danger {
+  background: rgba(242, 112, 92, 0.16);
+  color: #f2705c;
+  border-color: rgba(242, 112, 92, 0.38);
+}
+
+/* ======================================================== 6. status chips */
+
+/* Each chip sets an explicit dark-on-tint colour for paper. On a dark tint the
+   ink has to become the lifted accent, or the chip reads as a solid block. */
+
+[data-theme="dark"] .ragestar-admin .st {
+  border: 1px solid rgba(233, 236, 228, 0.18);
+}
+
+[data-theme="dark"] .ragestar-admin .st-working,
+[data-theme="dark"] .ragestar-admin .st-active,
+[data-theme="dark"] .ragestar-admin .sheet-chip.ok {
+  background: rgba(61, 180, 149, 0.14);
+  color: #3db495;
+  border-color: rgba(61, 180, 149, 0.36);
+}
+
+[data-theme="dark"] .ragestar-admin .st-failing,
+[data-theme="dark"] .ragestar-admin .st-disabled,
+[data-theme="dark"] .ragestar-admin .sheet-chip.bad {
+  background: rgba(242, 112, 92, 0.14);
+  color: #f2705c;
+  border-color: rgba(242, 112, 92, 0.36);
+}
+
+[data-theme="dark"] .ragestar-admin .st-rate_limited,
+[data-theme="dark"] .ragestar-admin .st-preview {
+  background: rgba(217, 174, 58, 0.14);
+  color: #d9ae3a;
+  border-color: rgba(217, 174, 58, 0.38);
+}
+
+/* ===================================================== 7. the keywatch card */
+
+[data-theme="dark"] .ragestar-admin .kw {
+  background: #171e1a;
+  border: 1px solid rgba(233, 236, 228, 0.14);
+}
+
+[data-theme="dark"] .ragestar-admin .kw-msg {
+  background: rgba(110, 155, 245, 0.1);
+  border: 1px solid rgba(110, 155, 245, 0.28);
+  color: #93b3f8;
+}
+
+[data-theme="dark"] .ragestar-admin .kw-err {
+  background: rgba(242, 112, 92, 0.1);
+  border-color: rgba(242, 112, 92, 0.3);
+  color: #f2705c;
+}
+
+/* ========================================================= 8. sheet grids */
+
+[data-theme="dark"] .ragestar-admin .sheet {
+  border: 1px solid rgba(233, 236, 228, 0.14);
+  background: #171e1a;
+}
+
+[data-theme="dark"] .ragestar-admin .sheet-chip {
+  border: 1px solid rgba(233, 236, 228, 0.2);
+}
+
+/* ================================================== 9. links, focus, alerts */
+
+[data-theme="dark"] .ragestar-admin a {
+  color: #6e9bf5;
+}
+
+[data-theme="dark"] .ragestar-admin *:focus-visible {
+  outline-color: #6e9bf5;
+}
+
+[data-theme="dark"] .ragestar-admin .sui-alert-error {
+  background: rgba(242, 112, 92, 0.1);
+  border-color: rgba(242, 112, 92, 0.32);
+  color: #f2705c;
+}
+
+[data-theme="dark"] .ragestar-admin .sui-alert-ok {
+  background: rgba(61, 180, 149, 0.12);
+  border-color: rgba(61, 180, 149, 0.34);
+  color: #3db495;
+}
+
+/* ============================================== 10. the grouped rail + bars */
+
+[data-theme="dark"] .ragestar-admin .ap-group > h4 {
+  color: var(--faint);
+}
+
+[data-theme="dark"] .ragestar-admin .ap-bar {
+  background: #222b25;
+  border: 1px solid rgba(233, 236, 228, 0.14);
+}
+
+[data-theme="dark"] .ragestar-admin .ap-bar i.idle {
+  background: rgba(233, 236, 228, 0.16);
+}
+
+[data-theme="dark"] .ragestar-admin .ap-legend b {
+  color: #e9ece4;
+}
+
+[data-theme="dark"] .ragestar-admin .ap-dot {
+  background: rgba(233, 236, 228, 0.22);
+}
+
+[data-theme="dark"] .ragestar-admin .ap-chip {
+  border-color: rgba(233, 236, 228, 0.18);
+  color: var(--muted);
+}
