@@ -2,7 +2,12 @@
    site.jsx — the RageStar marketing site, mounted on the gateway's public
    routes (#/, #/models, #/pricing, #/docs, #/status, #/login, #/signup).
    --------------------------------------------------------------------------
-   Each exported page wraps itself in the kit's scoped shell:
+   The landing page (#/) is the "Switchboard Orrery" build in
+   components/Landing.jsx: its own stylesheet, its own tokens, scoped under
+   .lp, and NO Ambient backdrop — the brief calls for flat colour fields and
+   a page that holds still. See src/styles/landing.css for the brief.
+
+   Every other page still wraps itself in the kit's scoped shell:
      · .ragestar-scope  — theme isolation (see ragestar/theme.css)
      · ToastProvider — the kit's toast layer (copy buttons, actions)
      · Ambient       — the drafting-paper backdrop with sparks + scanline
@@ -10,24 +15,10 @@
    these components only own their own content and in-page navigation.
    ========================================================================== */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Ambient from "./components/Ambient.jsx";
 import { ToastProvider } from "./lib/toast.jsx";
-import {
-  CtaSection,
-  FaqSection,
-  Hero,
-  Nav,
-  PartnerStrip,
-  Platform,
-  PlaygroundDemo,
-  PricingTeaser,
-  ProcessSection,
-  SideRail,
-  SiteFooter,
-  StatsSection,
-  Testimonials,
-} from "./components/marketing.jsx";
+import Landing from "./components/Landing.jsx";
 import { LoginPage, ModelsPage } from "./pages/pages.jsx";
 import DocsPage from "./pages/docs.jsx";
 import PricingPage from "./pages/pricing.jsx";
@@ -51,33 +42,6 @@ export function ragestarNavigate(path) {
 function useKitSession() {
   const { isAuthed, user } = useSession();
   return isAuthed ? { email: user?.email || "" } : null;
-}
-
-/** Reading progress bar — the gradient filament from the RageStar landing. */
-function ScrollProgress() {
-  const [p, setP] = useState(0);
-  useEffect(() => {
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setP(max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-
-  return (
-    <div className="fixed inset-x-0 top-0 z-[60] h-[2px] bg-white/5">
-      <div
-        className="h-full origin-left bg-gradient-to-r from-orange-500 via-rose-400 to-lime-300 transition-transform duration-150 ease-out"
-        style={{ transform: `scaleX(${p})` }}
-      />
-    </div>
-  );
 }
 
 /* ------------------------------------------------------------- shared shell */
@@ -107,29 +71,13 @@ export function RageStarHome() {
     return () => window.clearTimeout(id);
   }, []);
 
+  /* No RageStarShell here on purpose: the landing page owns its own field
+     colour and must not sit on the kit's paper or under the Ambient sparks.
+     ToastProvider stays so any copy action still has somewhere to report. */
   return (
-    <RageStarShell ambient={26}>
-      <ToastProvider>
-        <div className="relative">
-          <ScrollProgress />
-          <Nav session={session} />
-          <SideRail />
-          <main className="relative z-10">
-            <Hero />
-            <PartnerStrip />
-            <Platform />
-            <PlaygroundDemo />
-            <StatsSection />
-            <ProcessSection />
-            <Testimonials />
-            <PricingTeaser />
-            <FaqSection />
-            <CtaSection />
-          </main>
-          <SiteFooter session={session} />
-        </div>
-      </ToastProvider>
-    </RageStarShell>
+    <ToastProvider>
+      <Landing navigate={ragestarNavigate} session={session} />
+    </ToastProvider>
   );
 }
 
@@ -156,6 +104,7 @@ export function RageStarDocs() {
     </RageStarShell>
   );
 }
+
 
 export function RageStarPricing() {
   const session = useKitSession();
