@@ -1,28 +1,24 @@
 /* ==========================================================================
-   AppearanceToggle — the visible light/dark switch
+   AppearanceToggle — the global light/dark switch
    --------------------------------------------------------------------------
-   The appearance switch was reachable by keyboard only: App.jsx owns the
-   state and the command palette binds Cmd/Ctrl+Shift+L, but no screen
-   rendered a control, so nobody who did not already know the shortcut could
-   find it.
+   Mounted ONCE in App.jsx, beside the toaster, the command palette and
+   back-to-top. One mount covers all twelve routes, including the auth screens,
+   which render no navigation of their own and would otherwise offer no way to
+   switch.
 
    This component does not own the appearance. App.jsx is the writer of
-   `data-theme` and the owner of the stored preference; every other surface
-   either calls it or listens to it. The contract:
+   `data-theme` and of the stored preference. The contract both sides honour:
 
      write   set data-theme on <html>, persist under "ragestar-theme",
-             then dispatch `ragestar-theme-change` with the new value
-     read    subscribe to `ragestar-theme-change`, never read the attribute
-             once on mount — that is what leaves a control stale when the
-             appearance is switched from somewhere else
+             then dispatch `ragestar-theme-change` carrying the new value
+     read    subscribe to that event — never read the attribute once on mount,
+             which is what leaves a control stale when the appearance is
+             changed from the command palette or the keyboard shortcut
 
-   The subscription is the whole reason this is a component and not a button:
-   four separate surfaces switch the appearance (this control, the command
-   palette, the keyboard shortcut, and any other mounted instance), and every
-   one of them has to agree on what is currently active.
-
-   Styled with .ragestar-scope utilities so it inherits both palettes from the
-   token layer. See src/styles/appearance-dark.css and APPEARANCE-PLAN.md.
+   Styling lives in src/styles/appearance-control.css and uses the GATEWAY
+   tokens, not the kit's Tailwind utilities. That matters: this renders outside
+   .ragestar-scope, where `text-white` still resolves to the kit's pine ink, so
+   kit utilities would make the button dark-on-dark in the dark appearance.
    ========================================================================== */
 
 import { useCallback, useEffect, useState } from "react";
@@ -30,21 +26,22 @@ import { useCallback, useEffect, useState } from "react";
 const STORAGE_KEY = "ragestar-theme";
 const EVENT = "ragestar-theme-change";
 
-/** The two appearances. Anything else resolves to light. */
 const LIGHT = "light";
 const DARK = "dark";
 
+/** The live appearance, read from the document. Anything but "dark" is light. */
 function currentAppearance() {
   if (typeof document === "undefined") return LIGHT;
   return document.documentElement.getAttribute("data-theme") === DARK ? DARK : LIGHT;
 }
 
 /**
- * Apply an appearance app-wide. Exported so the command palette and any other
- * caller go through one path rather than each writing the attribute directly.
+ * Apply an appearance app-wide.
  *
- * A storage failure (private mode, storage disabled, quota) must not block the
- * switch — the appearance still applies for the rest of the session.
+ * Exported so the command palette and any future caller share one path rather
+ * than each writing the attribute themselves. A storage failure (private mode,
+ * storage disabled, quota) must not block the switch: the appearance still
+ * applies for the rest of the session.
  */
 export function setAppearance(next) {
   const value = next === DARK ? DARK : LIGHT;
@@ -59,7 +56,7 @@ export function setAppearance(next) {
 }
 
 /**
- * Read the active appearance and stay in sync with every other switch.
+ * Track the active appearance and stay in sync with every other switch.
  * Exported for surfaces that need to know the appearance without rendering a
  * control of their own.
  */
@@ -67,10 +64,15 @@ export function useAppearance() {
   const [appearance, setLocal] = useState(currentAppearance);
 
   useEffect(() => {
-    /* The event carries the new value, but fall back to the attribute so a
-       dispatch with no detail still resynchronises rather than desyncing. */
-    const onChange = (e) => setLocal(e?.detail === DARK ? DARK : e?.detail === LIGHT ? LIGHT : currentAppearance());
+    /* Trust the event's detail when it carries one, fall back to the attribute
+       otherwise, so a dispatch with no detail resynchronises instead of
+       desyncing. App.jsx's own effect dispatches without one. */
+    const onChange = (e) => {
+      const d = e?.detail;
+      setLocal(d === DARK ? DARK : d === LIGHT ? LIGHT : currentAppearance());
+    };
     window.addEventListener(EVENT, onChange);
+
     /* Another tab writing the preference should move this one too. */
     const onStorage = (e) => {
       if (e.key !== STORAGE_KEY) return;
@@ -79,6 +81,13 @@ export function useAppearance() {
       setLocal(value);
     };
     window.addEventListener("storage", onStorage);
+
+    /* One catch-up read. Between this component's first render and this effect
+       running, App.jsx's own theme effect may already have written the
+       attribute; without this the first paint of the button could disagree
+       with the page for a frame. */
+    setLocal(currentAppearance());
+
     return () => {
       window.removeEventListener(EVENT, onChange);
       window.removeEventListener("storage", onStorage);
@@ -93,50 +102,74 @@ export function useAppearance() {
 }
 
 /* --- icons ---------------------------------------------------------------
-   Both are drawn, never swapped by CSS display, so the button has exactly one
-   child and no chance of both showing during a transition. 18px explicit:
-   these viewBox-only strings measure 0x0 inside a flex parent otherwise,
-   which is the bug DESIGN-NOTES.md records for the v7.0 step icons. */
+   Sized explicitly at 18px via .rs-appearance-icon. These viewBox-only SVGs
+   measure 0x0 inside a flex parent otherwise, which is the v7.0 step-icon bug
+   recorded in DESIGN-NOTES.md. Only one is ever rendered, so there is no
+   chance of both showing mid-transition. */
 
 function SunIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+    <svg
+      className="rs-appearance-icon"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      aria-hidden="true"
+      focusable="false"
+    >
       <circle cx="12" cy="12" r="4.2" />
-      <path d="M12 2.6v2.4M12 19v2.4M4.4 12H2M22 12h-2.4M6.1 6.1 4.4 4.4M19.6 19.6l-1.7-1.7M17.9 6.1l1.7-1.7M4.4 19.6l1.7-1.7" strokeLinecap="round" />
+      <path
+        d="M12 2.6v2.4M12 19v2.4M4.4 12H2M22 12h-2.4M6.1 6.1 4.4 4.4M19.6 19.6l-1.7-1.7M17.9 6.1l1.7-1.7M4.4 19.6l1.7-1.7"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 function MoonIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+    <svg
+      className="rs-appearance-icon"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M20.5 14.3A8.6 8.6 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8Z" strokeLinejoin="round" />
     </svg>
   );
 }
 
 /**
- * The switch itself.
+ * The switch.
  *
- * `aria-pressed` carries the state rather than the label, so a screen reader
- * announces the change on the same element the user activated. The label names
- * the destination ("Switch to dark"), because a control named for its current
- * state is ambiguous about what pressing it does.
+ * The label names the DESTINATION ("Dark", "Light"), not the current state: a
+ * control labelled for what it currently is leaves the reader guessing what
+ * pressing it does. `aria-pressed` carries the state instead, announced on the
+ * same element the user activated.
  */
-export default function AppearanceToggle({ className = "" }) {
+export default function AppearanceToggle() {
   const { isDark, toggle } = useAppearance();
-  const label = isDark ? "Switch to light appearance" : "Switch to dark appearance";
+  const target = isDark ? "light" : "dark";
 
   return (
     <button
       type="button"
+      className="rs-appearance"
       onClick={toggle}
-      title={label}
-      aria-label={label}
+      title={`Switch to ${target} appearance`}
+      aria-label={`Switch to ${target} appearance`}
       aria-pressed={isDark}
-      className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white/90 ${className}`}
     >
       {isDark ? <SunIcon /> : <MoonIcon />}
+      <span className="rs-appearance-label">{isDark ? "Light" : "Dark"}</span>
     </button>
   );
 }
