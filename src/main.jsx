@@ -103,16 +103,6 @@ import "./styles/appearance-control.css";
    that carry them. Delete it when those source edits land — do not layer on
    top of it. See the header in the file itself. */
 import "./styles/appearance-readability.css";
-/* ---------------------------------------------------------------------------
-   The landing page: "Switchboard Orrery". Its own tokens, its own type, scoped
-   under .lp, with a designed dark appearance rather than an inverted one. It
-   does not read the kit's tokens and the kit's sheets do not reach into it, so
-   order relative to everything above is not load-bearing; it sits here so the
-   three files stay together. See the header in landing.css for the brief.
-   --------------------------------------------------------------------------- */
-import "./styles/landing.css";
-import "./styles/landing-sections.css";
-import "./styles/landing-fixes.css";
 /* Theme bootstrap.
    This used to be an inline <script> in index.html. Inline scripts are blocked
    by the Content-Security-Policy shipped with the production build, so the
