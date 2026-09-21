@@ -9,6 +9,7 @@ import { ScrollTop } from "./components/ui/interactions.jsx";
 import { announce, useConnectionToasts, useScrollProgress } from "./lib/ux.js";
 import { signOut, useSession } from "./lib/auth.js";
 import RouteLoader from "./components/RouteLoader.jsx";
+import AppearanceToggle from "./ragestar/components/AppearanceToggle.jsx";
 
 /* The whole site now runs the RageStar UI kit (ported from the create-3d
    landing page project): landing, models, pricing, docs, status, auth and
@@ -28,6 +29,7 @@ const RageStarReset = lazy(() => import("./ragestar/site.jsx").then((m) => ({ de
 /* The authenticated workspaces (dashboard rail + every console tab; the
    staff admin panel) are the heaviest screens in the kit. */
 const RageStarApp = lazy(() => import("./ragestar/RageStarApp.jsx"));
+
 
 const ROUTES = {
   "#/": RageStarHome,
@@ -81,6 +83,7 @@ const PALETTE_ROUTES = [
 /* The single workspace is #/dashboard. These tabs are mirrored from the
    RageStar dashboard's own rail so "logs" or "keys" jumps straight to that
    panel instead of the overview. */
+
 const CONSOLE_TABS = [
   { id: "overview", label: "Overview" },
   { id: "models", label: "Models available" },
@@ -133,14 +136,21 @@ function currentRoute() {
   return nested || "#/";
 }
 
+
 export default function App() {
   const [booted, setBooted] = useState(false);
   const [bootPhase, setBootPhase] = useState("cover");
   const [route, setRoute] = useState(currentRoute);
   const activeRoute = useRef(currentRoute());
   const [transition, setTransition] = useState(null); // { phase: "cover"|"dock", tag }
+  /* Light is the default, matching index.html and the bootstrap in main.jsx.
+     This used to fall back to "dark", which disagreed with both: on a first
+     visit with no stored preference the attribute is absent, so this state
+     started as "dark" and the effect below then WROTE that to the document —
+     flipping a first-time visitor to dark and persisting it, in a build that
+     had no dark palette to show them. */
   const [theme, setTheme] = useState(() =>
-    document.documentElement.getAttribute("data-theme") || "dark"
+    document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light"
   );
   const pendingRoute = useRef(null);
 
@@ -178,7 +188,8 @@ export default function App() {
   }, []);
 
   /* hash router with packet-sweep transition */
-  useEffect(() => {
+  
+useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const onHash = () => {
       const next = currentRoute();
@@ -233,12 +244,19 @@ export default function App() {
   useScrollProgress();
   useConnectionToasts();
 
-  /* The hash router never reloads the document, so nothing tells a screen
+  
+/* The hash router never reloads the document, so nothing tells a screen
      reader that the page changed. Announce it in a live region instead. */
   useEffect(() => {
     const tag = ROUTE_TAGS[route];
     if (tag) announce(tag + " loaded");
   }, [route]);
+
+  /* Announce the appearance too. The switch is a button, so a sighted user sees
+     the page change; a screen reader user gets nothing unless we say so. */
+  useEffect(() => {
+    announce(theme === "dark" ? "dark appearance" : "light appearance");
+  }, [theme]);
 
   /* flag auth routes so the shell can drop page padding / scroll chrome */
   useEffect(() => {
@@ -252,7 +270,8 @@ export default function App() {
   /* The router + failure boundary remain the gateway's responsibility. Every
      routed screen now supplies its own RageStar chrome, so there is no parallel
      legacy Header/Footer layer to fight the imported UI kit. */
-  return (
+  
+return (
     <>
       <a className="skip-link" href="#main">Skip to content</a>
 
@@ -291,6 +310,13 @@ export default function App() {
         showTrigger={false}
       />
       <ScrollTop />
+      {/* The appearance switch. Mounted here rather than in each screen's nav
+          because it has to be reachable from all twelve routes, including the
+          auth screens, which render no navigation at all. It writes the
+          attribute itself and dispatches ragestar-theme-change, which the
+          effect above listens for — so this component and the command palette
+          stay in agreement without either owning the other. */}
+      <AppearanceToggle />
     </>
   );
 }
