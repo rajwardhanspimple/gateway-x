@@ -1,0 +1,609 @@
+/* ==========================================================================
+   landing.css — "Switchboard Orrery"
+   --------------------------------------------------------------------------
+   The RageStar landing page, rebuilt from a brief rather than from the last
+   version. Reference: a star with planets in orbit. Collision: a 1960s
+   telephone exchange (routing, patch cords, jack fields, telex) with Japanese
+   woodblock print (flat saturated colour fields, hard outlines, the flat red
+   sun). Emotion in the first three seconds: impressed — this is serious
+   engineering.
+
+   PALETTE — "Exchange Room". Derived from the two references, not reused.
+
+     indigo     #1b2340   ukiyo-e ai ink; the field the exchange sits in
+     washi      #f2ead8   unbleached mulberry paper
+     vermilion  #d8432b   shu ink, Hokusai's sun — THE STAR. Once per screen.
+     bakelite   #2a2521   a switchboard panel
+     patchcord  #e0a84b   brass jack plugs, cloth-wrapped cords
+     verdigris  #3c8a76   oxidised relay contacts — the "connected" signal
+
+   Two real appearances, not an inversion: WASHI (paper field, indigo type) and
+   INDIGO (indigo field, washi type). Both are designed.
+
+   TYPE. Two families, clearly distinct.
+     display   Zen Kaku Gothic New 900 — woodblock-heavy strokes, set tight
+     body      IBM Plex Mono — for EVERYTHING else. Body, labels, numbers.
+               One family for all running text is the choice that keeps this
+               from reading as "monospace for small data labels".
+
+   RULES THIS PAGE KEEPS
+     - flush left, always. Nothing is centred except the star.
+     - square corners. The only circle on the page is an orbit.
+     - sections are divided by full-bleed colour fields, not by card gaps.
+     - no all-caps eyebrows, no mid-dot meta strings, no one-word-in-a-colour
+       headline, no fade-and-slide on scroll. Motion is the orrery and the
+       switchboard; everything else holds still.
+
+   Scoped under .lp so the dashboard and the kit's other pages are untouched.
+   ========================================================================== */
+
+/* --------------------------------------------------------------- tokens */
+
+.lp {
+  --lp-indigo: #1b2340;
+  --lp-indigo-2: #232d52;
+  --lp-washi: #f2ead8;
+  --lp-washi-2: #e9dfc8;
+  --lp-vermilion: #d8432b;
+  --lp-bakelite: #2a2521;
+  --lp-patchcord: #e0a84b;
+  --lp-verdigris: #3c8a76;
+
+  /* appearance-mapped roles. Washi appearance is the default. */
+  --lp-field: var(--lp-washi);
+  --lp-field-2: var(--lp-washi-2);
+  --lp-ink: var(--lp-indigo);
+  --lp-ink-2: rgba(27, 35, 64, 0.72);
+  --lp-ink-3: rgba(27, 35, 64, 0.56);
+  --lp-rule: rgba(27, 35, 64, 0.22);
+  --lp-rule-2: rgba(27, 35, 64, 0.1);
+  --lp-panel: #faf5e9;
+  --lp-signal: var(--lp-verdigris);
+  --lp-signal-ink: #2d6f5e; /* verdigris darkened to 4.9:1 on washi as text */
+  --lp-cord: #a8761d; /* patchcord darkened to 4.6:1 on washi as text */
+
+  --lp-display: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --lp-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* type scale — Elements of Typographic Style ratios, mono body at 15px */
+  --lp-t-hero: clamp(3rem, 8.4vw, 7.2rem);
+  --lp-t-h2: clamp(2rem, 4.2vw, 3.4rem);
+  --lp-t-h3: 1.375rem;
+  --lp-t-body: 15px;
+  --lp-t-small: 13px;
+  --lp-t-num: 2.25rem;
+
+  --lp-gutter: clamp(20px, 5vw, 72px);
+  --lp-measure: 34em; /* < 80 chars at 15px mono */
+
+  background: var(--lp-field);
+  color: var(--lp-ink);
+  font-family: var(--lp-mono);
+  font-size: var(--lp-t-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="dark"] .lp {
+  --lp-field: var(--lp-indigo);
+  --lp-field-2: var(--lp-indigo-2);
+  --lp-ink: var(--lp-washi);
+  --lp-ink-2: rgba(242, 234, 216, 0.74);
+  --lp-ink-3: rgba(242, 234, 216, 0.6);
+  --lp-rule: rgba(242, 234, 216, 0.24);
+  --lp-rule-2: rgba(242, 234, 216, 0.1);
+  --lp-panel: #212a4a;
+  --lp-signal-ink: #5cbfa5; /* verdigris lifted to 7.1:1 on indigo */
+  --lp-cord: #e0a84b; /* patchcord as-is: 8.9:1 on indigo */
+}
+
+/* --------------------------------------------------------------- reset */
+
+.lp *,
+.lp *::before,
+.lp *::after {
+  box-sizing: border-box;
+}
+
+.lp h1,
+.lp h2,
+.lp h3,
+.lp p,
+.lp ul,
+.lp ol,
+.lp figure {
+  margin: 0;
+}
+
+.lp ul,
+.lp ol {
+  padding: 0;
+  list-style: none;
+}
+
+.lp a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.lp button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.lp svg {
+  display: block;
+}
+
+.lp :focus-visible {
+  outline: 3px solid var(--lp-vermilion);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------ typography */
+
+.lp-display {
+  font-family: var(--lp-display);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.lp-h1 {
+  font-size: var(--lp-t-hero);
+}
+
+.lp-h2 {
+  font-size: var(--lp-t-h2);
+  line-height: 0.98;
+}
+
+.lp-h3 {
+  font-family: var(--lp-display);
+  font-weight: 700;
+  font-size: var(--lp-t-h3);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.lp-lede {
+  max-width: var(--lp-measure);
+  color: var(--lp-ink-2);
+}
+
+.lp-small {
+  font-size: var(--lp-t-small);
+  color: var(--lp-ink-3);
+}
+
+/* ------------------------------------------------------------- layout */
+
+.lp-wrap {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-inline: var(--lp-gutter);
+}
+
+/* a full-bleed colour field. The ukiyo-e device: sections are colour blocks,
+   not cards on a page. */
+.lp-field {
+  padding-block: clamp(64px, 9vw, 128px);
+}
+
+.lp-field--indigo {
+  background: var(--lp-indigo);
+  color: var(--lp-washi);
+  --lp-ink: var(--lp-washi);
+  --lp-ink-2: rgba(242, 234, 216, 0.74);
+  --lp-ink-3: rgba(242, 234, 216, 0.6);
+  --lp-rule: rgba(242, 234, 216, 0.24);
+  --lp-rule-2: rgba(242, 234, 216, 0.1);
+  --lp-panel: #212a4a;
+  --lp-signal-ink: #5cbfa5;
+  --lp-cord: #e0a84b;
+}
+
+.lp-field--vermilion {
+  background: var(--lp-vermilion);
+  color: var(--lp-washi);
+  --lp-ink: var(--lp-washi);
+  --lp-ink-2: rgba(242, 234, 216, 0.86);
+  --lp-ink-3: rgba(242, 234, 216, 0.74);
+  --lp-rule: rgba(242, 234, 216, 0.34);
+  --lp-rule-2: rgba(242, 234, 216, 0.16);
+  --lp-panel: #b83620;
+  --lp-signal-ink: var(--lp-washi);
+  --lp-cord: var(--lp-washi);
+}
+
+/* a hairline. Used to divide, never to decorate. */
+.lp-rule {
+  height: 1px;
+  background: var(--lp-rule);
+}
+
+/* ----------------------------------------------------------------- nav */
+
+.lp-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in oklab, var(--lp-field) 86%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--lp-rule-2);
+}
+
+.lp-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 64px;
+}
+
+.lp-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--lp-display);
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+/* the mark: a flat vermilion disc. The star, small. */
+.lp-brand-mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--lp-vermilion);
+  flex: none;
+}
+
+.lp-nav-links {
+  display: none;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+@media (min-width: 900px) {
+  .lp-nav-links {
+    display: flex;
+  }
+}
+
+.lp-nav-links a,
+.lp-nav-links button {
+  padding: 8px 12px;
+  font-size: var(--lp-t-small);
+  color: var(--lp-ink-2);
+  border-bottom: 2px solid transparent;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+
+.lp-nav-links a:hover,
+.lp-nav-links button:hover {
+  color: var(--lp-ink);
+  border-bottom-color: var(--lp-vermilion);
+}
+
+.lp-nav-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ------------------------------------------------------------- buttons */
+
+/* Square. Hard 2px outline. A telephone exchange has no rounded controls. */
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  font-family: var(--lp-mono);
+  font-size: var(--lp-t-body);
+  font-weight: 500;
+  border: 2px solid var(--lp-ink);
+  color: var(--lp-ink);
+  background: transparent;
+  transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.lp-btn:hover {
+  background: var(--lp-ink);
+  color: var(--lp-field);
+}
+
+.lp-btn:active {
+  transform: translateY(1px);
+}
+
+.lp-btn--fill {
+  background: var(--lp-ink);
+  color: var(--lp-field);
+}
+
+.lp-btn--fill:hover {
+  background: var(--lp-vermilion);
+  border-color: var(--lp-vermilion);
+  color: var(--lp-washi);
+}
+
+.lp-btn--sm {
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: var(--lp-t-small);
+}
+
+/* a text link with the exchange's directional mark: a hard rule, not an arrow */
+.lp-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--lp-ink);
+  font-weight: 500;
+}
+
+.lp-link::after {
+  content: "";
+  width: 28px;
+  height: 2px;
+  background: currentColor;
+  transition: width 160ms ease;
+}
+
+.lp-link:hover::after {
+  width: 44px;
+}
+
+/* ---------------------------------------------------------------- hero */
+
+.lp-hero {
+  padding-block: clamp(56px, 8vw, 112px) clamp(48px, 6vw, 88px);
+}
+
+.lp-hero-grid {
+  display: grid;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 1000px) {
+  .lp-hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 46%);
+    gap: 56px;
+  }
+}
+
+.lp-hero-copy .lp-lede {
+  margin-top: 28px;
+  font-size: 17px;
+}
+
+.lp-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  align-items: center;
+  margin-top: 36px;
+}
+
+/* ----------------------------------------------------------- the orrery */
+
+.lp-orrery {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.lp-orrery svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Orbit rings. The dasharray is the wildcard: a barely-irregular dash makes
+   the ring read as an inked line on paper rather than a plotted one. */
+.lp-orbit {
+  fill: none;
+  stroke: var(--lp-rule);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 2 5 2 4 3;
+}
+
+/* The star. Flat vermilion, hard edge. No gradient, no glow. Hokusai's sun. */
+.lp-star {
+  fill: var(--lp-vermilion);
+}
+
+.lp-star-ring {
+  fill: none;
+  stroke: var(--lp-vermilion);
+  stroke-width: 1.5;
+  opacity: 0.45;
+}
+
+/* A body in orbit. Sized by live 24h traffic in the component. */
+.lp-body {
+  fill: var(--lp-ink);
+  transition: fill 160ms ease;
+}
+
+.lp-body--quiet {
+  fill: var(--lp-ink-3);
+}
+
+.lp-body-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.lp-body-group:hover .lp-body,
+.lp-body-group:focus-visible .lp-body,
+.lp-body-group[data-active="true"] .lp-body {
+  fill: var(--lp-signal);
+}
+
+.lp-body-group:focus-visible {
+  outline: none;
+}
+
+.lp-body-group:focus-visible .lp-body {
+  stroke: var(--lp-vermilion);
+  stroke-width: 3;
+}
+
+/* The ray: a request leaving the star and returning. pathLength="1" so the
+   dash is independent of geometry; the component sets --lp-ray-ms from the
+   live first-token figure so the animation IS the latency. */
+.lp-ray {
+  fill: none;
+  stroke: var(--lp-vermilion);
+  stroke-width: 2;
+  stroke-linecap: square;
+  stroke-dasharray: 0.18 1;
+  stroke-dashoffset: 1.18;
+  opacity: 0;
+}
+
+.lp-ray[data-firing="true"] {
+  animation: lp-ray-out var(--lp-ray-ms, 900ms) cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes lp-ray-out {
+  0% {
+    stroke-dashoffset: 1.18;
+    opacity: 1;
+  }
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -1.18;
+    opacity: 0;
+  }
+}
+
+/* A body flashes verdigris for a beat when its ray lands */
+.lp-body-group[data-lit="true"] .lp-body {
+  fill: var(--lp-signal);
+}
+
+/* The readout. A hard-edged label pinned to the hovered body. */
+.lp-readout {
+  position: absolute;
+  pointer-events: none;
+  padding: 8px 12px;
+  background: var(--lp-ink);
+  color: var(--lp-field);
+  font-size: var(--lp-t-small);
+  line-height: 1.4;
+  white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 14px));
+  z-index: 2;
+}
+
+.lp-readout b {
+  display: block;
+  font-weight: 600;
+}
+
+.lp-readout span {
+  opacity: 0.8;
+}
+
+/* the caption under the orrery: what am I looking at */
+.lp-orrery-caption {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: var(--lp-t-small);
+  color: var(--lp-ink-3);
+}
+
+/* --------------------------------------------------------- hero figures */
+
+/* Three live figures under a hairline. Not tiles. Not cards. A line of
+   type with the number set large in the display face. */
+.lp-figures {
+  margin-top: clamp(48px, 6vw, 80px);
+  padding-top: 28px;
+  border-top: 1px solid var(--lp-rule);
+  display: grid;
+  gap: 28px;
+}
+
+@media (min-width: 720px) {
+  .lp-figures {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+}
+
+.lp-figure-n {
+  font-family: var(--lp-display);
+  font-weight: 900;
+  font-size: var(--lp-t-num);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-figure-n small {
+  font-family: var(--lp-mono);
+  font-weight: 400;
+  font-size: 0.5em;
+  letter-spacing: 0;
+  margin-left: 4px;
+  color: var(--lp-ink-2);
+}
+
+.lp-figure-l {
+  margin-top: 8px;
+  color: var(--lp-ink-2);
+}
+
+/* ------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-ray[data-firing="true"] {
+    animation: none;
+    opacity: 0;
+  }
+  .lp-btn,
+  .lp-link::after,
+  .lp-body,
+  .lp-nav-links a,
+  .lp-nav-links button {
+    transition: none;
+  }
+}
+
+/* --------------------------------------------------------- forced colors */
+
+@media (forced-colors: active) {
+  .lp-btn {
+    border-color: ButtonBorder;
+  }
+  .lp-star {
+    fill: Highlight;
+  }
+  .lp-body {
+    fill: CanvasText;
+  }
+  .lp-orbit {
+    stroke: CanvasText;
+  }
+}
