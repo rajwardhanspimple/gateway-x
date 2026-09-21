@@ -1,0 +1,167 @@
+/* ==========================================================================
+   chrome.css — RageStar token bridge for the gateway's global layers
+   --------------------------------------------------------------------------
+   Why this file exists
+   --------------------
+   Every routed screen is a RageStar screen wrapped in .ragestar-scope, but four
+   layers render OUTSIDE that scope, at the document root:
+
+     .rl            the boot plate + the screen-to-screen hand-off
+     .rs-toaster    connection toasts, auth errors, copy confirmations
+     .rs-cmd        the command palette (Cmd/Ctrl+K)
+     .rs-scrolltop  back-to-top
+
+   They are built from the gateway's design tokens (--card, --rule, --ink,
+   --paper-2, --live, --stop, --flag, --primary …), which are declared on
+   :root and still describe the retired ragestar palette. Left alone they
+   float a grey/citron slab over a drafting-paper page.
+
+   Rather than rewrite those rules, this sheet re-declares the SAME token
+   names with RageStar values on the four roots. Every rule below them keeps
+   working unchanged and simply resolves to RageStar colours. Custom properties
+   inherit, so a token set here beats the :root value for that subtree.
+
+   Loaded last of all in main.jsx, so it also outranks flim.css /
+   interactions.css where those re-declare the same names.
+   ========================================================================== */
+
+/* --- the RageStar palette, once ---------------------------------------------
+   Mirrors src/ragestar/theme.css @theme. Kept literal (not var()) on purpose:
+   these are consumed by gateway rules that have no idea the kit exists. */
+.rl,
+.rs-toaster,
+.rs-cmd,
+.rs-modal,
+.rs-modal-scrim,
+.rs-cmd-scrim,
+.rs-scrolltop {
+  /* surfaces — drafting paper */
+  --paper: #e9ece4;
+  --paper-2: #e2e6da;
+  --card: #f4f6f1;
+  --bg: #e9ece4;
+  --hover: #dbe0d2;
+
+  /* pine ink, the kit's "white" */
+  --ink: #101814;
+  --ink-soft: rgba(16, 24, 20, 0.62);
+  --ink-faint: rgba(16, 24, 20, 0.42);
+  --faint: rgba(16, 24, 20, 0.38);
+
+  /* hairlines */
+  --rule: rgba(16, 24, 20, 0.14);
+  --rule-soft: rgba(16, 24, 20, 0.09);
+  --border: rgba(16, 24, 20, 0.14);
+  --border-strong: rgba(16, 24, 20, 0.26);
+
+  /* accent + state inks */
+  --primary: #2447e8; /* cobalt */
+  --citron: #2447e8;
+  --live: #0d7a66; /* instrument teal */
+  --stop: #e23d28; /* signal red */
+  --flag: #c79a1e; /* brass */
+
+  /* geometry + type */
+  --radius: 14px;
+  --radius-lg: 20px;
+  --font-mono: "Martian Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "Syne", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* shadows: soft, paper-appropriate, no neon bloom */
+  --rs-shadow: 0 18px 44px -28px rgba(16, 24, 20, 0.55);
+  --rs-shadow-lg: 0 40px 90px -40px rgba(16, 24, 20, 0.6);
+}
+
+/* --- the palette scrim ---------------------------------------------------
+   interactions.css darkens it further for [data-theme="dark"], which would
+   put a night scrim over a paper page. Pin it to the paper value. */
+.rs-modal-scrim,
+.rs-cmd-scrim {
+  background: rgba(16, 24, 20, 0.34);
+}
+
+[data-theme="dark"] .rs-modal-scrim,
+[data-theme="dark"] .rs-cmd-scrim {
+  background: rgba(16, 24, 20, 0.34);
+}
+
+/* --- the boot / hand-off plate -------------------------------------------
+   The route loader paints its own grid, so it needs the paper surfaces
+   (already bridged above). This only fixes the two things the bridge cannot:
+   the plate has to sit ON the paper, and its label reads in mono ink. */
+.rl {
+  color: var(--ink);
+}
+
+.rl-label,
+.rl-pct,
+.rl-status {
+  font-family: var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.rl-label {
+  color: var(--ink-faint);
+}
+
+.rl-pct {
+  color: var(--ink);
+}
+
+/* --- back-to-top ---------------------------------------------------------
+   The kit has no such affordance; make it read as one of its glass chips
+   instead of a gateway card. */
+.rs-scrolltop {
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+}
+
+.rs-scrolltop:hover {
+  background: #fff;
+  border-color: var(--border-strong);
+}
+
+/* --- command palette ------------------------------------------------------
+   The active row is driven by --paper-2 (light) and --hover (dark). Both are
+   bridged, but the dark-theme override in interactions.css uses a token the
+   bridge does not own, so pin the row to the paper value outright. */
+.rs-cmd-item[data-active],
+[data-theme="dark"] .rs-cmd-item[data-active] {
+  background: #dbe0d2;
+}
+
+.rs-cmd-trigger {
+  color: var(--ink-faint);
+}
+
+.rs-cmd-trigger:hover {
+  color: var(--ink);
+}
+
+/* --- toasts ---------------------------------------------------------------
+   The status stripe on the leading edge is what carries the tone, so the
+   bridging of --live / --stop / --flag is enough. This only keeps the
+   message text from inheriting the stripe colour. */
+.rs-toast-msg {
+  color: var(--ink-soft);
+}
+
+.rs-toast-bar {
+  opacity: 0.3;
+}
+
+/* --- reduced motion -------------------------------------------------------
+   The gateway sheets already clamp animation; restate it for these layers so
+   the plate and the toasts never animate for someone who asked them not to. */
+@media (prefers-reduced-motion: reduce) {
+  .rl,
+  .rs-toast,
+  .rs-cmd,
+  .rs-modal,
+  .rs-scrolltop {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

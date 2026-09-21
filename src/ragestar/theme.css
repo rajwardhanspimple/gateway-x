@@ -1,0 +1,416 @@
+/* ==========================================================================
+   RageStar UI kit — "flight manual" theme, ported from the RageStar landing kit.
+   --------------------------------------------------------------------------
+   Scoping strategy (read before touching):
+   1. Tailwind v4 is imported WITHOUT preflight, so the gateway's own global
+      reset and element styles are untouched. Utilities are emitted into
+      @layer utilities, where they always lose to the gateway's unlayered
+      sheets — meaning generated utilities can never restyle the gateway.
+   2. Everything RageStar renders inside <div class="ragestar-scope">. A scoped
+      base reset (in @layer base) restores the preflight essentials the
+      utilities rely on, but only for that subtree.
+   3. Gateway element selectors that would leak into the scope (h1-h4, a,
+      input/select/textarea, table, pre/code, and the two universal
+      !important clamps in minimal.css) are excluded at their source with
+      :not(.ragestar-scope *) — see the edits in minimal.css / flim.css /
+      interactive.css / motion.css.
+   4. Every custom class and keyframe from the kit is prefixed `pr-` because
+      the gateway already owns .page-enter, .route-wipe, .noise, .scanline,
+      .spark, [class*="reveal"] and @keyframes page-in / marquee.
+   ========================================================================== */
+
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
+
+@theme {
+  /* --- "flight manual" light theme -------------------------------------
+     Cool drafting-paper surfaces, pine-ink text, cobalt + signal-red +
+     instrument-teal inks. Token names are kept stable across the app:
+     `ink-*` are the LIGHT paper scale, `white` is redefined as the dark
+     ink so every `text-white/…` hairline reads as ink-on-paper. */
+  --color-ink-950: #e9ece4; /* page paper */
+  --color-ink-900: #e2e6da;
+  --color-ink-850: #dbe0d2;
+  --color-ink-800: #d3d9c8;
+  --color-ink-700: #c5cdba;
+
+  --color-white: #101814; /* pine ink — every white/alpha utility becomes ink */
+  --color-paper: #e9ece4;
+
+  /* --- accent system: cobalt / signal red / instrument teal / brass ----- */
+  --color-brand-ember: #2447e8; /* primary — cobalt */
+  --color-brand-coral: #e23d28; /* signal red */
+  --color-brand-gold: #c79a1e; /* brass */
+  --color-brand-clay: #1630b8; /* deep cobalt */
+  --color-brand-lime: #0d7a66; /* instrument teal */
+
+  /* --- remapped tailwind stops used across components ------------------- */
+  --color-orange-600: #14299e;
+  --color-orange-500: #2447e8;
+  --color-orange-400: #4c66ee;
+  --color-orange-200: #2447e8;
+  --color-orange-100: #1630b8;
+  --color-red-500: #2447e8;
+  --color-rose-500: #e23d28;
+  --color-rose-400: #e85a40;
+  --color-rose-300: #c63a22;
+  --color-rose-200: #a82310;
+  --color-rose-100: #8c1b0b;
+  --color-amber-500: #c79a1e;
+  --color-amber-400: #c79a1e;
+  --color-amber-300: #a67c12;
+  --color-amber-200: #8f6a0d;
+  --color-lime-400: #0d7a66;
+  --color-lime-300: #0a6353;
+  --color-lime-200: #085045;
+
+  /* --- type system ------------------------------------------------------ */
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Syne", "Instrument Sans", ui-sans-serif, sans-serif;
+  --font-mono: "Martian Mono", ui-monospace, monospace;
+
+  --animate-marquee: pr-marquee 38s linear infinite;
+  --animate-float-slow: pr-floaty 7s ease-in-out infinite;
+  --animate-pulse-ring: pr-pulseRing 3.2s ease-out infinite;
+  --animate-shimmer: pr-shimmer 3.5s linear infinite;
+}
+
+/* The gateway already owns --font-display / --font-mono on :root (unlayered),
+   so it wins over @theme's :root. Re-assert the RageStar faces inside the scope. */
+.ragestar-scope {
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Syne", "Instrument Sans", ui-sans-serif, sans-serif;
+  --font-mono: "Martian Mono", ui-monospace, monospace;
+}
+
+/* --- scoped preflight: the pieces of tailwind's reset the kit relies on -- */
+@layer base {
+  .ragestar-scope,
+  .ragestar-scope *,
+  .ragestar-scope *::before,
+  .ragestar-scope *::after {
+    box-sizing: border-box;
+  }
+  .ragestar-scope *,
+  .ragestar-scope *::before,
+  .ragestar-scope *::after {
+    border: 0 solid;
+  }
+  .ragestar-scope {
+    margin: 0;
+    background: var(--color-ink-950);
+    color: #101814;
+    font-family: var(--font-sans);
+    color-scheme: light;
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+    font-synthesis-weight: none;
+    overflow-x: clip;
+  }
+  .ragestar-scope h1,
+  .ragestar-scope h2,
+  .ragestar-scope h3,
+  .ragestar-scope h4,
+  .ragestar-scope h5,
+  .ragestar-scope h6 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .ragestar-scope p,
+  .ragestar-scope ul,
+  .ragestar-scope ol,
+  .ragestar-scope dl,
+  .ragestar-scope dd,
+  .ragestar-scope figure,
+  .ragestar-scope blockquote,
+  .ragestar-scope pre,
+  .ragestar-scope fieldset {
+    margin: 0;
+  }
+  .ragestar-scope ul,
+  .ragestar-scope ol,
+  .ragestar-scope menu {
+    list-style: none;
+    padding: 0;
+  }
+  .ragestar-scope button,
+  .ragestar-scope input,
+  .ragestar-scope select,
+  .ragestar-scope textarea {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+  }
+  .ragestar-scope button,
+  .ragestar-scope select {
+    cursor: pointer;
+  }
+  .ragestar-scope a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+  .ragestar-scope img,
+  .ragestar-scope svg,
+  .ragestar-scope video,
+  .ragestar-scope canvas {
+    display: block;
+    max-width: 100%;
+  }
+  .ragestar-scope table {
+    border-collapse: collapse;
+    border-color: inherit;
+    text-indent: 0;
+  }
+  .ragestar-scope textarea {
+    resize: vertical;
+  }
+  .ragestar-scope ::placeholder {
+    color: color-mix(in oklab, #101814 35%, transparent);
+  }
+  .ragestar-scope ::selection {
+    background: color-mix(in oklab, var(--color-brand-ember) 80%, transparent);
+    color: #e9ece4;
+  }
+}
+
+/* --- keyframes (pr- prefixed: the gateway owns page-in / marquee already)  */
+@keyframes pr-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes pr-floaty {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
+}
+@keyframes pr-pulseRing {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+@keyframes pr-shimmer {
+  from { background-position: 0% 50%; }
+  to { background-position: 200% 50%; }
+}
+@keyframes pr-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(0, -10px, 0) rotate(1.5deg); }
+}
+/* The `to` frame below deliberately lands on `translate: none` / `scale: none`
+   / `filter: none` instead of an identity transform.
+
+   .pr-page-enter wraps every authenticated screen and runs with fill-mode
+   `both`, so its finished frame stays applied for the life of the element. An
+   identity `transform`/`filter` is still not `none`, and any of them makes the
+   element the containing block for its `position: fixed` descendants — which
+   turns every modal in the kit into a box positioned against this page-tall
+   wrapper rather than the viewport. The dialog then centres somewhere far
+   below the fold and the user is left staring at the blurred backdrop with no
+   way to finish. Settling on `none` gives the containing block back to the
+   viewport. motion.css's .page-enter already ends on `translate: none` for
+   exactly this reason.
+
+   Do not "simplify" these back to transform: translate3d(0, 0, 0). */
+@keyframes pr-page-in {
+  from {
+    opacity: 0;
+    translate: 0 26px;
+    scale: 0.995;
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    translate: none;
+    scale: none;
+    filter: none;
+  }
+}
+@keyframes pr-page-out {
+  to {
+    opacity: 0;
+    translate: 0 -16px;
+    scale: 0.998;
+    filter: blur(6px);
+  }
+}
+@keyframes pr-wipe {
+  0% { transform: scaleX(0); opacity: 1; }
+  60% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+@keyframes pr-rise {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  12% { opacity: var(--spark-o, 0.7); }
+  80% { opacity: var(--spark-o, 0.7); }
+  100% { transform: translate3d(var(--spark-x, 0px), -108vh, 0); opacity: 0; }
+}
+@keyframes pr-glow-breathe {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.07); }
+}
+@keyframes pr-scan {
+  0% { top: -12%; opacity: 0; }
+  10% { opacity: 0.5; }
+  50% { opacity: 0.28; }
+  90% { opacity: 0.5; }
+  100% { top: 112%; opacity: 0; }
+}
+@keyframes pr-drawline {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes pr-toast-in {
+  from { opacity: 0; transform: translate3d(26px, 0, 0) scale(0.97); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* --- kit utilities (same layer as tailwind's, so they compose the same way) */
+@layer utilities {
+  .pr-glass {
+    background: #f1f3eb;
+    border: 1.5px solid rgba(16, 24, 20, 0.8);
+    box-shadow: 5px 5px 0 rgba(16, 24, 20, 0.08);
+  }
+  .pr-glass-strong {
+    background: rgba(241, 243, 235, 0.94);
+    border: 1.5px solid rgba(16, 24, 20, 0.85);
+    backdrop-filter: blur(14px);
+    box-shadow: 8px 8px 0 rgba(16, 24, 20, 0.1);
+  }
+  .pr-glow-ember {
+    box-shadow:
+      6px 6px 0 0 #101814,
+      0 22px 55px -22px rgba(36, 71, 232, 0.5);
+  }
+  .pr-grid-backdrop {
+    background-image:
+      linear-gradient(to right, rgb(16 24 20 / 0.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(16 24 20 / 0.055) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 78%);
+  }
+  .pr-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  }
+  .pr-tilt-card {
+    transform-style: preserve-3d;
+    transition:
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.35s ease,
+      box-shadow 0.35s ease;
+  }
+  .pr-perspective-1200 {
+    perspective: 1200px;
+  }
+  .pr-preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .pr-reveal {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0) scale(0.985);
+    transition:
+      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .pr-reveal-in {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  .pr-reveal-3d {
+    transform: perspective(1400px) rotateX(18deg) translate3d(0, 46px, -70px) scale(0.97);
+    transform-origin: 50% 100%;
+  }
+  .pr-reveal-3d-in {
+    transform: perspective(1400px) rotateX(0deg) translate3d(0, 0, 0) scale(1);
+  }
+  .pr-text-shadow-deep {
+    text-shadow: none;
+  }
+  .pr-page-enter {
+    animation: pr-page-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .pr-page-leave {
+    animation: pr-page-out 0.23s cubic-bezier(0.55, 0, 0.68, 0.4) both;
+  }
+  .pr-route-wipe {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 80;
+    background: linear-gradient(90deg, #2447e8, #e23d28 55%, #c79a1e);
+    transform-origin: 0 50%;
+    animation: pr-wipe 0.7s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+  .pr-spark {
+    position: absolute;
+    bottom: -2vh;
+    border-radius: 999px;
+    animation-name: pr-rise;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform, opacity;
+  }
+  .pr-glow-breathe {
+    animation: pr-glow-breathe 11s ease-in-out infinite;
+  }
+  .pr-scanline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 130px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(36, 71, 232, 0.05) 42%,
+      rgba(199, 154, 30, 0.09) 55%,
+      transparent
+    );
+    animation: pr-scan 10.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  .pr-draw-line {
+    stroke-dasharray: 240;
+    stroke-dashoffset: 240;
+    animation: pr-drawline 1s 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .pr-toast-in {
+    animation: pr-toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+/* hard offset ink shadow — the theme's signature press, scope-limited */
+.ragestar-scope .bg-gradient-to-r.from-orange-600 {
+  box-shadow: 4px 4px 0 0 #101814;
+}
+.ragestar-scope .bg-gradient-to-r.from-orange-600:hover {
+  box-shadow:
+    6px 6px 0 0 #101814,
+    0 20px 44px -18px rgba(36, 71, 232, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ragestar-scope .pr-spark,
+  .ragestar-scope .pr-scanline,
+  .ragestar-scope .pr-route-wipe {
+    display: none;
+  }
+  .ragestar-scope .pr-page-enter,
+  .ragestar-scope .pr-page-leave,
+  .ragestar-scope .pr-toast-in,
+  .ragestar-scope .pr-glow-breathe {
+    animation: none;
+  }
+  .ragestar-scope .pr-draw-line {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .ragestar-scope .pr-reveal,
+  .ragestar-scope .pr-reveal-3d {
+    opacity: 1;
+    transform: none;
+  }
+}

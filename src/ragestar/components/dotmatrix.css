@@ -1,0 +1,79 @@
+/* Dot Matrix loader runtime — @dotmatrix/dotm-square-1 ("Neon Drift").
+   CSS-only animation; class names are registry-standard (dmx-*). */
+
+.dmx-root {
+  --dmx-cycle: 1800ms;
+  --dmx-opacity-base: 0.14;
+  --dmx-opacity-mid: 0.45;
+  --dmx-opacity-peak: 1;
+  --dmx-speed: 1;
+  display: inline-grid;
+  position: relative;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.dmx-dot {
+  display: block;
+  background: var(--dmx-dot-fill, currentColor);
+  transition: opacity 200ms ease;
+}
+
+/* glow pass — bloom / halo props add a colored drop-shadow to every dot */
+.dmx-root.dmx-glow .dmx-dot {
+  filter: drop-shadow(0 0 var(--dmx-glow-px, 2px) var(--dmx-glow, currentColor));
+}
+
+.dmx-inactive {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Neon Drift — wave sweeping top-right → bottom-left, alternate diagonals */
+.dmx-diagonal-alt-sweep {
+  animation: dmx-diagonal-alt-sweep calc(var(--dmx-cycle) * var(--dmx-speed, 1)) linear infinite;
+  animation-delay: calc(
+    (var(--dmx-path, 0) * 0.2 + var(--dmx-diagonal-parity, 0) * 0.5) * var(--dmx-cycle) *
+      var(--dmx-speed, 1)
+  );
+  will-change: opacity;
+}
+
+/* hover phase — concentric ripple out from center */
+.dmx-hover-ripple {
+  animation: dmx-hover-ripple calc(0.9 * var(--dmx-cycle) * var(--dmx-speed, 1)) ease-out infinite;
+  animation-delay: calc(var(--dmx-distance, 0) * 0.09 * var(--dmx-cycle) * var(--dmx-speed, 1));
+  will-change: opacity;
+}
+
+@keyframes dmx-diagonal-alt-sweep {
+  0%,
+  100% {
+    opacity: calc(0.5 * var(--dmx-opacity-base));
+  }
+  14% {
+    opacity: var(--dmx-opacity-peak);
+  }
+  30% {
+    opacity: calc(0.75 * var(--dmx-opacity-base));
+  }
+}
+
+@keyframes dmx-hover-ripple {
+  0% {
+    opacity: calc(0.5 * var(--dmx-opacity-base));
+  }
+  45% {
+    opacity: var(--dmx-opacity-peak);
+  }
+  100% {
+    opacity: var(--dmx-opacity-base);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dmx-diagonal-alt-sweep,
+  .dmx-hover-ripple {
+    animation: none !important;
+  }
+}
