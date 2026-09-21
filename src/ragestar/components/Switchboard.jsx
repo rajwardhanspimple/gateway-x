@@ -3,46 +3,33 @@
    --------------------------------------------------------------------------
    An exchange operator's board. The jack field on the left is every published
    model. Press a jack and the patch cord draws across to the RageStar socket.
-   Type a prompt and send: the request goes through the real gateway, the same
-   POST /chat/completions an SDK makes, and the reply types back on the telex.
+   Type a prompt and send: the board shows the exact request that would route
+   through the gateway for that model.
 
-   HONESTY RULE. The gateway needs a bearer key, and a signed-out visitor on
-   the landing page does not have one. So:
+   HONESTY RULE. The gateway needs a bearer key. The playground holds its key
+   in component state only, never in storage — a long-lived credential does not
+   belong anywhere a script on the origin can read it — so there is no key for
+   a landing-page visitor to borrow, and this board does not ask for one on a
+   public page.
 
-     with a key      the call is real, streamed, and the transcript shows the
-                     model that actually answered, its first-token time and
-                     the wall clock, from the response headers
-     without a key   the board still patches the cord and shows the EXACT curl
-                     for that model against the configured gateway, then
-                     points at sign-up. Nothing is typed out pretending to be
-                     a reply. A fake response on a page whose whole claim is
-                     "this routes for real" would undercut the claim.
+   So the board never sends. It patches the cord, prints the EXACT curl for
+   that model against the configured gateway with the visitor's own prompt in
+   it, and points at the playground. Nothing is typed out pretending to be a
+   reply. A fake response on a page whose whole claim is "this routes for real"
+   would undercut the claim; a real request needs a real key, and the place
+   for that is behind sign-in.
 
-   The key comes from `sessionStorage` (the playground stores it there for the
-   session) and never from a prop, so it is never in the page's markup.
+   What IS real here: the model list (public_models), the gateway URL, and the
+   request body. Copy the curl, add a key, and it runs.
    ========================================================================== */
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { models as fixtureModels } from "../dashboard/data.js";
 import { useCatalog } from "../lib/workspace.js";
 import { API_BASE, API_IS_REAL } from "../lib/gateway.js";
-import { streamGateway } from "../../lib/db.js";
-
-const KEY_STORE = "rs-playground-key";
-const SYSTEM = "You are a concise assistant. Answer in one or two sentences.";
-
-function readKey() {
-  try {
-    return (sessionStorage.getItem(KEY_STORE) || "").trim();
-  } catch {
-    return "";
-  }
-}
 
 /** The cord: a cubic from the jack field's edge to the star socket. */
-function CordSvg({ patched }) {
-  /* viewBox is 100 wide so the path scales with the panel; the plug and star
-     sit at fixed positions on that grid */
+function CordSvg() {
   return (
     <svg viewBox="0 0 100 72" preserveAspectRatio="none" aria-hidden="true" focusable="false">
       <path
@@ -52,25 +39,31 @@ function CordSvg({ patched }) {
       />
       <circle className="lp-cord-plug" cx="86" cy="36" r="3.2" />
       <circle className="lp-cord-star" cx="92" cy="36" r="5" />
-      {patched ? null : null}
     </svg>
   );
 }
 
-export default function Switchboard() {
+function curlFor(model, text) {
+  const body = JSON.stringify({
+    model: model.id,
+    messages: [{ role: "user", content: text }],
+  });
+  return [
+    `curl ${API_BASE}/chat/completions \\`,
+    `  -H "Authorization: Bearer $RAGESTAR_API_KEY" \\`,
+    `  -H "Content-Type: application/json" \\`,
+    `  -d '${body.replace(/'/g, "'\\''")}'`,
+  ].join("\n");
+}
+
+export default function Switchboard({ navigate }) {
   const catalog = useCatalog();
   const rows = catalog ?? fixtureModels;
   const [modelId, setModelId] = useState(null);
   const [prompt, setPrompt] = useState("");
   const [lines, setLines] = useState([]); /* { k, v, tone } */
-  const [busy, setBusy] = useState(false);
-  const [key, setKey] = useState("");
-  const abort = useRef(null);
+  const [copied, setCopied] = useState(false);
   const transcript = useRef(null);
-
-  useEffect(() => {
-    setKey(readKey());
-  }, []);
 
   const model = useMemo(() => rows.find((m) => m.id === modelId) ?? null, [rows, modelId]);
 
@@ -81,97 +74,45 @@ export default function Switchboard() {
   }, [lines]);
 
   const patch = (id) => {
-    if (busy) return;
     setModelId((cur) => (cur === id ? null : id));
     setLines([]);
+    setCopied(false);
   };
 
-  const curlFor = (m, text) =>
-    `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer $RAGESTAR_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${m.id}","messages":[{"role":"user","content":${JSON.stringify(text)}}]}'`;
-
-  const send = async (e) => {
+  const send = (e) => {
     e?.preventDefault?.();
     const text = prompt.trim();
-    if (!text || !model || busy) return;
+    if (!text || !model) return;
     setPrompt("");
-
+    setCopied(false);
     const stamp = new Date().toISOString().slice(11, 19);
-    const out = [
+    setLines([
       { k: stamp, v: `> ${model.id}`, tone: "" },
       { k: "you", v: text, tone: "" },
-    ];
+      { k: "request", v: curlFor(model, text), tone: "", curl: true },
+      {
+        k: "note",
+        v: API_IS_REAL
+          ? "This is the exact call. Add your key and it routes. Try it live in the playground."
+          : "The gateway is not configured in this build, so the request is shown rather than sent.",
+        tone: "",
+      },
+    ]);
+  };
 
-    if (!key || !API_IS_REAL) {
-      /* no key: show the real call, do not fake the answer */
-      setLines([
-        ...out,
-        { k: "request", v: curlFor(model, text), tone: "" },
-        {
-          k: "note",
-          v: API_IS_REAL
-            ? "Add an API key in the playground and this board sends the request for real. Create a workspace to get one."
-            : "The gateway is not configured in this build, so the request is shown rather than sent.",
-          tone: "",
-        },
-      ]);
-      return;
-    }
-
-    setBusy(true);
-    setLines([...out, { k: "gateway", v: "", tone: "ok", streaming: true }]);
-    const controller = new AbortController();
-    abort.current = controller;
-    let acc = "";
+  const copyCurl = async () => {
+    const line = lines.find((l) => l.curl);
+    if (!line) return;
     try {
-      const result = await streamGateway({
-        apiKey: key,
-        model: model.id,
-        messages: [
-          { role: "system", content: SYSTEM },
-          { role: "user", content: text },
-        ],
-        temperature: 0.7,
-        topP: 1,
-        maxTokens: 160,
-        signal: controller.signal,
-        onDelta: (delta) => {
-          acc += delta;
-          setLines((prev) => {
-            const copy = [...prev];
-            copy[copy.length - 1] = { k: "gateway", v: acc, tone: "ok", streaming: true };
-            return copy;
-          });
-        },
-      });
-      const served = result?.headers?.model || result?.model || model.id;
-      const ttft = result?.ttft ?? result?.firstToken;
-      const wall = result?.elapsed ?? result?.total;
-      setLines((prev) => [
-        ...prev.slice(0, -1),
-        { k: "gateway", v: acc, tone: "ok" },
-        {
-          k: "served",
-          v: [served, ttft ? `first token ${ttft} ms` : null, wall ? `${wall} ms total` : null]
-            .filter(Boolean)
-            .join("  "),
-          tone: "",
-        },
-      ]);
-    } catch (err) {
-      if (err?.name !== "AbortError") {
-        setLines((prev) => [
-          ...prev.slice(0, -1),
-          ...(acc ? [{ k: "gateway", v: acc, tone: "ok" }] : []),
-          { k: "error", v: err?.message || "The gateway call failed.", tone: "err" },
-        ]);
-      }
-    } finally {
-      setBusy(false);
-      abort.current = null;
+      await navigator.clipboard.writeText(line.v);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard blocked: the text is selectable on screen */
     }
   };
 
-  useEffect(() => () => abort.current?.abort(), []);
+  const hasCurl = lines.some((l) => l.curl);
 
   return (
     <div className="lp-board">
@@ -186,7 +127,6 @@ export default function Switchboard() {
             className="lp-jack"
             aria-pressed={modelId === m.id}
             onClick={() => patch(m.id)}
-            disabled={busy && modelId !== m.id}
           >
             <span className="lp-socket" aria-hidden="true" />
             <span className="lp-jack-name">{m.id}</span>
@@ -197,7 +137,7 @@ export default function Switchboard() {
 
       <div className="lp-operator">
         <div className="lp-cord" data-patched={Boolean(model)}>
-          <CordSvg patched={Boolean(model)} />
+          <CordSvg />
           <span className="lp-cord-label">{model ? `${model.id} patched to RageStar` : "pick a line"}</span>
         </div>
 
@@ -205,19 +145,30 @@ export default function Switchboard() {
           {lines.length === 0 ? (
             <p className="lp-transcript-empty">
               {model
-                ? `Line open to ${model.id}. Type a prompt and send it.`
-                : "Press a jack on the left to open a line. Then send a prompt through it and watch which model answers, and how fast."}
+                ? `Line open to ${model.id}. Type a prompt and send it to see the exact request.`
+                : "Press a jack on the left to open a line. Then send a prompt through it and see the request RageStar would route."}
             </p>
           ) : (
-            lines.map((l, i) => (
-              <div key={i} className="lp-transcript-line">
-                <span className="lp-transcript-k">{l.k}</span>
-                <span className={`lp-transcript-v${l.tone ? ` lp-transcript-v--${l.tone}` : ""}`}>
-                  {l.v}
-                  {l.streaming ? "\u2588" : ""}
-                </span>
-              </div>
-            ))
+            <>
+              {lines.map((l, i) => (
+                <div key={i} className="lp-transcript-line">
+                  <span className="lp-transcript-k">{l.k}</span>
+                  <span className={`lp-transcript-v${l.tone ? ` lp-transcript-v--${l.tone}` : ""}`}>{l.v}</span>
+                </div>
+              ))}
+              {hasCurl ? (
+                <div className="lp-transcript-actions">
+                  <button type="button" className="lp-link" onClick={copyCurl}>
+                    {copied ? "Copied" : "Copy the request"}
+                  </button>
+                  {API_IS_REAL && navigate ? (
+                    <button type="button" className="lp-link" onClick={() => navigate("login")}>
+                      Run it in the playground
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+            </>
           )}
         </div>
 
@@ -227,12 +178,12 @@ export default function Switchboard() {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder={model ? "Say something to the model" : "Open a line first"}
-            disabled={!model || busy}
+            disabled={!model}
             aria-label="Prompt"
             autoComplete="off"
           />
-          <button type="submit" className="lp-btn lp-btn--fill" disabled={!model || busy || !prompt.trim()}>
-            {busy ? "Sending" : "Send"}
+          <button type="submit" className="lp-btn lp-btn--fill" disabled={!model || !prompt.trim()}>
+            Send
           </button>
         </form>
       </div>
