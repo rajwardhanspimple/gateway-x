@@ -49,6 +49,7 @@ import "./styles/community.css";
    console geometry: the split grid, the stack tracks (the overlap fix), the
    wider container, the bigger stat tiles and the taller tab bar. */
 import "./styles/console-v11.css";
+
 /* v11 landing: the hero float canvas kept collisions between the drifting
    cards and the compressor bar. This sheet reserves a corridor for the bar
    and turns the scatter into a plain grid below 1100px. */
@@ -75,6 +76,14 @@ import "./styles/announcements.css";
    the gateway's :root tokens, so this re-declares those token names with
    RageStar values on those four roots. See the header in src/ragestar/chrome.css. */
 import "./ragestar/chrome.css";
+/* The dark appearance, after chrome.css and therefore after everything.
+   It has to be last for two reasons: it re-declares the kit's @theme token
+   names under [data-theme="dark"] .ragestar-scope, and it undoes the paper
+   values chrome.css pins onto the four out-of-scope layers with its own
+   [data-theme="dark"] rules. Tokens only, so it restyles nothing while the
+   light appearance is active. See the header in the file itself and
+   APPEARANCE-PLAN.md. */
+import "./styles/appearance-dark.css";
 /* Theme bootstrap.
    This used to be an inline <script> in index.html. Inline scripts are blocked
    by the Content-Security-Policy shipped with the production build, so the
@@ -100,6 +109,7 @@ try {
 completeDiscordCallback().catch(() => {
   /* a failed callback must never take the app down with it */
 });
+
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
