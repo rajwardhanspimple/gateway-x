@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QA — dashboard v12.2 "snow" — overview (dark)</title>
+
+    <!-- real sheets, in exactly the order main.jsx + App.jsx load them -->
+    <link rel="stylesheet" href="../src/styles/admin.css" />
+    <link rel="stylesheet" href="../src/styles/console-fix.css" />
+    <link rel="stylesheet" href="../src/styles/console-tabs.css" />
+    <link rel="stylesheet" href="../src/styles/tree.css" />
+    <link rel="stylesheet" href="../src/styles.css" />
+    <link rel="stylesheet" href="../src/styles/background.css" />
+    <link rel="stylesheet" href="../src/styles/string-ui.css" />
+    <link rel="stylesheet" href="../src/styles/auth.css" />
+    <link rel="stylesheet" href="../src/styles/art.css" />
+    <link rel="stylesheet" href="../src/styles/minimal.css" />
+    <link rel="stylesheet" href="../src/styles/interactive.css" />
+    <link rel="stylesheet" href="../src/styles/flim.css" />
+    <link rel="stylesheet" href="../src/styles/console-v10.css" />
+    <link rel="stylesheet" href="../src/styles/motion.css" />
+    <link rel="stylesheet" href="../src/styles/interactions.css" />
+    <link rel="stylesheet" href="../src/styles/admin-panel.css" />
+    <link rel="stylesheet" href="../src/styles/kie.css" />
+    <link rel="stylesheet" href="../src/styles/sheet.css" />
+    <link rel="stylesheet" href="../src/styles/community.css" />
+    <link rel="stylesheet" href="../src/styles/console-v11.css" />
+    <link rel="stylesheet" href="../src/styles/landing-v11.css" />
+    <link rel="stylesheet" href="../src/styles/route-loader.css" />
+    <link rel="stylesheet" href="../src/styles/dashboard-v12.css" />
+    <link rel="stylesheet" href="../src/styles/admin-v12.css" />
+    <link rel="stylesheet" href="../src/styles/dashboard-snow.css" />
+
+    <style>
+      /* screenshots must be deterministic */
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wk-page">
+      <div class="wk-shell" data-collapsed="false">
+        <!-- =================================================== rail -->
+        <aside class="wk-rail">
+          <div class="wk-rail-top">
+            <div class="wk-brand">
+              <span class="wk-avatar" aria-hidden="true">AR</span>
+              <span class="wk-brand-name">Ragestar<span class="dim"> AI</span></span>
+              <span class="wk-brand-tag">rail</span>
+            </div>
+            <button type="button" class="wk-rail-toggle" aria-label="Collapse">‹</button>
+          </div>
+
+          <div class="wk-rail-scroll">
+            <div class="wk-group">
+              <p class="wk-group-label">Workspace</p>
+              <div class="wk-nav">
+                <button type="button" class="wk-nav-item is-on">
+                  <span class="wk-nav-ico" aria-hidden="true">◈</span>
+                  <span class="wk-nav-label">Overview</span>
+                </button>
+                <button type="button" class="wk-nav-item">
+                  <span class="wk-nav-ico" aria-hidden="true">◍</span>
+                  <span class="wk-nav-label">Community</span>
+                  <span class="wk-nav-count">12</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="wk-group">
+              <p class="wk-group-label">Build</p>
+              <div class="wk-nav">
+                <button type="button" class="wk-nav-item">
+                  <span class="wk-nav-ico" aria-hidden="true">▶</span>
+                  <span class="wk-nav-label">Playground</span>
+                </button>
+                <button type="button" class="wk-nav-item">
+                  <span class="wk-nav-ico" aria-hidden="true">⚷</span>
+                  <span class="wk-nav-label">API keys</span>
+                  <span class="wk-nav-count">3</span>
+                </button>
+                <button type="button" class="wk-nav-item">
+                  <span class="wk-nav-ico" aria-hidden="true">▤</span>
+                  <span class="wk-nav-label">Models</span>
+                  <span class="wk-nav-count">74</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="wk-group">
+              <p class="wk-group-label">Usage</p>
+              <div class="wk-nav">
+                <button type="button" class="wk-nav-item">
+                  <span class="wk-nav-ico" aria-hidden="true">≡</span>
+                  <span class="wk-nav-label">Request logs</span>
+                </button>
+                <button type="button" class="wk-nav-item">
+                  <span class="wk-nav-ico" aria-hidden="true">◔</span>
+                  <span class="wk-nav-label">Status</span>
+                </button>
+                <button type="button" class="wk-nav-item">
+                  <span class="wk-nav-ico" aria-hidden="true">◎</span>
+                  <span class="wk-nav-label">Credits</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="wk-group">
+              <p class="wk-group-label">Account</p>
+              <div class="wk-nav">
+                <button type="button" class="wk-nav-item">
+                  <span class="wk-nav-ico" aria-hidden="true">✦</span>
+                  <span class="wk-nav-label">Referrals</span>
+                </button>
+                <button type="button" class="wk-nav-item">
+                  <span class="wk-nav-ico" aria-hidden="true">○</span>
+                  <span class="wk-nav-label">Profile</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="wk-rail-foot">
+            <div class="wk-user">
+              <span class="wk-avatar" aria-hidden="true">NC</span>
+              <span class="wk-user-meta">
+                <b>Natali Craig</b>
+                <small>natali@ragestar.ai</small>
+              </span>
+            </div>
+            <div class="wk-rail-actions">
+              <a class="wk-mini" href="#/console">Classic console</a>
+              <button type="button" class="wk-mini">Sign out</button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- =================================================== main -->
+        <div class="wk-main">
+          <header class="wk-top">
+            <nav class="wk-crumb" aria-label="Breadcrumb">
+              <span>Dashboard</span>
+              <span class="wk-crumb-sep" aria-hidden="true">/</span>
+              <span>Workspace</span>
+              <span class="wk-crumb-sep" aria-hidden="true">/</span>
+              <b>Overview</b>
+            </nav>
+
+            <div class="wk-top-actions">
+              <button type="button" class="rs-cmd-trigger">
+                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                  <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                  <path d="M16 16l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+                <span class="rs-cmd-trigger-text">Search or jump to…</span>
+                <span class="rs-cmd-trigger-keys" aria-hidden="true">
+                  <kbd class="rs-kbd">⌘</kbd><kbd class="rs-kbd">K</kbd>
+                </span>
+              </button>
+              <button type="button" class="wk-icon-btn" aria-label="Refresh">↻</button>
+              <button type="button" class="wk-icon-btn" aria-label="Theme">☾</button>
+              <span class="wk-avatar" aria-hidden="true">NC</span>
+            </div>
+          </header>
+
+          <div class="wk-pulse" aria-label="Account status">
+            <div class="wk-pulse-item">
+              <span class="wk-pulse-l">gateway</span>
+              <span class="wk-pulse-v">api.ragestar.ai</span>
+            </div>
+            <div class="wk-pulse-item">
+              <span class="wk-pulse-l">active keys</span>
+              <span class="wk-pulse-v">3</span>
+            </div>
+            <div class="wk-pulse-item">
+              <span class="wk-pulse-l">balance</span>
+              <span class="wk-pulse-v">$128.40</span>
+            </div>
+            <div class="wk-pulse-item">
+              <span class="wk-pulse-l">requests 30d</span>
+              <span class="wk-pulse-v">36,721</span>
+            </div>
+            <div class="wk-pulse-item">
+              <span class="wk-pulse-l">models</span>
+              <span class="wk-pulse-v">74</span>
+            </div>
+            <div class="wk-pulse-item">
+              <span class="wk-pulse-l">state</span>
+              <span class="wk-pulse-v is-live">live</span>
+            </div>
+          </div>
+
+          <div class="wk-canvas">
+            <section class="wk-panel con-panel">
+              <div class="adm-head">
+                <div>
+                  <p class="wk-eyebrow">Workspace</p>
+                  <h1>Overview</h1>
+                  <p>Traffic, spend and key health for the last 30 days.</p>
+                </div>
+                <div class="adm-head-actions">
+                  <span class="wk-chip is-live">live</span>
+                  <button type="button" class="sui-btn sui-btn-ghost">Export</button>
+                  <button type="button" class="sui-btn sui-btn-primary">New key</button>
+                </div>
+              </div>
+
+              <div class="adm-stats">
+                <div class="adm-stat">
+                  <div class="l">Requests</div>
+                  <div class="v">36,721</div>
+                  <div class="s">+11.01% vs last month</div>
+                </div>
+                <div class="adm-stat">
+                  <div class="l">Tokens</div>
+                  <div class="v">18.4M</div>
+                  <div class="s">-0.03% vs last month</div>
+                </div>
+                <div class="adm-stat">
+                  <div class="l">Spend</div>
+                  <div class="v">$695.20</div>
+                  <div class="s">+15.03% vs last month</div>
+                </div>
+                <div class="adm-stat">
+                  <div class="l">Avg latency</div>
+                  <div class="v">812 ms</div>
+                  <div class="s">+6.08% vs last month</div>
+                </div>
+                <div class="adm-stat" data-tone="warn">
+                  <div class="l">Error rate</div>
+                  <div class="v">1.4%</div>
+                  <div class="s">3 failing keys</div>
+                </div>
+              </div>
+
+              <div class="con-split">
+                <div class="con-stack">
+                  <div class="adm-card">
+                    <div class="con-card-head">
+                      <div>
+                        <h3>Requests, last 14 days</h3>
+                        <p class="sub">Rolling daily totals across every key.</p>
+                      </div>
+                      <button type="button" class="sui-btn sui-btn-ghost sui-btn-sm">Today</button>
+                    </div>
+                    <div class="con-spark">
+                      <svg class="spark-svg" viewBox="0 0 320 72" preserveAspectRatio="none" aria-hidden="true">
+                        <path
+                          d="M0 58 L24 52 L48 55 L72 40 L96 44 L120 30 L144 34 L168 22 L192 27 L216 16 L240 24 L264 12 L288 18 L320 8 L320 72 L0 72 Z"
+                          fill="currentColor"
+                          opacity="0.12"
+                        />
+                        <path
+                          d="M0 58 L24 52 L48 55 L72 40 L96 44 L120 30 L144 34 L168 22 L192 27 L216 16 L240 24 L264 12 L288 18 L320 8"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div class="adm-card">
+                    <div class="con-card-head">
+                      <div>
+                        <h3>Recent requests</h3>
+                        <p class="sub">Latest 5 calls through the gateway.</p>
+                      </div>
+                      <button type="button" class="sui-btn sui-btn-ghost sui-btn-sm">All logs</button>
+                    </div>
+                    <div class="adm-table-wrap">
+                      <table class="adm-table">
+                        <thead>
+                          <tr>
+                            <th>Request ID</th>
+                            <th>Model</th>
+                            <th>Key</th>
+                            <th class="num">Tokens</th>
+                            <th class="num">Cost</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="mono">#RQ9801</td>
+                            <td>gpt-4o-mini</td>
+                            <td class="mono">sk…a91f</td>
+                            <td class="num">1,284</td>
+                            <td class="num">$0.014</td>
+                            <td><span class="st st-working">working</span></td>
+                          </tr>
+                          <tr>
+                            <td class="mono">#RQ9802</td>
+                            <td>claude-3.5-sonnet</td>
+                            <td class="mono">sk… 3b02</td>
+                            <td class="num">6,410</td>
+                            <td class="num">$0.182</td>
+                            <td><span class="st st-working">working</span></td>
+                          </tr>
+                          <tr>
+                            <td class="mono">#RQ9803</td>
+                            <td>gemini-1.5-pro</td>
+                            <td class="mono">sk… 7d44</td>
+                            <td class="num">912</td>
+                            <td class="num">$0.009</td>
+                            <td><span class="st st-rate_limited">rate limited</span></td>
+                          </tr>
+                          <tr>
+                            <td class="mono">#RQ9804</td>
+                            <td>llama-3.1-70b</td>
+                            <td class="mono">sk… 1c58</td>
+                            <td class="num">22,180</td>
+                            <td class="num">$0.241</td>
+                            <td><span class="st st-failing">failing</span></td>
+                          </tr>
+                          <tr>
+                            <td class="mono">#RQ9805</td>
+                            <td>mistral-large</td>
+                            <td class="mono">sk… 9e11</td>
+                            <td class="num">3,004</td>
+                            <td class="num">$0.036</td>
+                            <td><span class="st st-unknown">unknown</span></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="con-stack">
+                  <div class="adm-card">
+                    <div class="con-card-head">
+                      <div>
+                        <h3>Uptime, 30 days</h3>
+                        <p class="sub">99.4% of checks healthy.</p>
+                      </div>
+                    </div>
+                    <div class="uptime-bars" aria-hidden="true">
+                      <span style="height: 26px; background: #37c489"></span>
+                      <span style="height: 30px; background: #37c489"></span>
+                      <span style="height: 22px; background: #37c489"></span>
+                      <span style="height: 30px; background: #37c489"></span>
+                      <span style="height: 18px; background: #e8a13a"></span>
+                      <span style="height: 28px; background: #37c489"></span>
+                      <span style="height: 30px; background: #37c489"></span>
+                      <span style="height: 24px; background: #37c489"></span>
+                      <span style="height: 14px; background: #e5484d"></span>
+                      <span style="height: 29px; background: #37c489"></span>
+                      <span style="height: 30px; background: #37c489"></span>
+                      <span style="height: 27px; background: #37c489"></span>
+                      <span style="height: 30px; background: #37c489"></span>
+                      <span style="height: 25px; background: #37c489"></span>
+                    </div>
+                  </div>
+
+                  <div class="adm-card">
+                    <div class="con-card-head">
+                      <div>
+                        <h3>Endpoint</h3>
+                        <p class="sub">Point any OpenAI-compatible SDK here.</p>
+                      </div>
+                    </div>
+                    <pre class="con-code con-endpoint">https://api.ragestar.ai/v1</pre>
+                  </div>
+
+                  <div class="adm-card">
+                    <div class="con-card-head">
+                      <div><h3>Quick actions</h3></div>
+                    </div>
+                    <div class="con-quick">
+                      <button type="button">
+                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" />
+                        </svg>
+                        <span><b>Create an API key</b><small>Scoped to one project</small></span>
+                      </button>
+                      <button type="button">
+                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" />
+                        </svg>
+                        <span><b>Open the playground</b><small>Try a model in the browser</small></span>
+                      </button>
+                      <button type="button">
+                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                          <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.8" fill="none" />
+                        </svg>
+                        <span><b>Top up credits</b><small>Balance covers ~9 days</small></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

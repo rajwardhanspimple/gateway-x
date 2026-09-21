@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QA · RageStar landing</title>
+<link rel="stylesheet" href="../src/styles.css" />
+<link rel="stylesheet" href="../src/styles/background.css" />
+<link rel="stylesheet" href="../src/styles/string-ui.css" />
+<link rel="stylesheet" href="../src/styles/admin.css" />
+<link rel="stylesheet" href="../src/styles/auth.css" />
+<link rel="stylesheet" href="../src/styles/art.css" />
+<style>
+  /* QA capture only: freeze entry animations at their end state so the
+     screenshot shows the resting composition. */
+  .gl-draw, .boot-mark .bm-draw, .cta-arc { stroke-dashoffset: 0 !important; animation: none !important; }
+  .gl-fill, .boot-mark .bm-fade { opacity: 1 !important; animation: none !important; }
+  .rr-words .w { opacity: 1 !important; transform: none !important; animation: none !important; }
+  .dg-packet { animation: none !important; offset-distance: 62% !important; }
+  .dg-packet.is-rev { offset-distance: 38% !important; }
+  .cta-spark { animation: none !important; offset-distance: 58% !important; }
+  .bgw-trace { animation: none !important; }
+  .rr-steps::before { transform: scaleX(1) !important; }
+</style>
+</head>
+<body class="qa-all">
+
+<!-- ===================================================== background layers -->
+<div class="bg-stage" aria-hidden="true">
+  <div class="bg-wash"></div>
+  <svg class="bg-weave" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+    <defs>
+      <pattern id="bgw-grid" width="60" height="60" patternUnits="userSpaceOnUse">
+        <path d="M60 0H0v60" fill="none" class="bgw-line" />
+      </pattern>
+      <radialGradient id="bgw-fade" cx="0.5" cy="0.04" r="0.82">
+        <stop offset="0" stop-color="#ffffff" stop-opacity="0.85" />
+        <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.24" />
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+      </radialGradient>
+      <mask id="bgw-mask"><rect x="0" y="0" width="1440" height="900" fill="url(#bgw-fade)" /></mask>
+    </defs>
+    <g mask="url(#bgw-mask)">
+      <rect x="0" y="0" width="1440" height="900" fill="url(#bgw-grid)" opacity="0.55" />
+      <circle cx="240" cy="180" r="1.8" class="bgw-dot" />
+      <circle cx="480" cy="360" r="1.8" class="bgw-dot" />
+      <circle cx="720" cy="120" r="1.8" class="bgw-dot" />
+      <circle cx="960" cy="420" r="1.8" class="bgw-dot" />
+      <circle cx="1200" cy="240" r="1.8" class="bgw-dot" />
+      <path d="M-80 250C220 250 300 420 620 420S1000 250 1520 250" class="bgw-trace" />
+      <path d="M-80 620C260 620 360 470 700 470S1080 640 1520 640" class="bgw-trace is-2" />
+      <path d="M-80 120C300 120 420 300 760 300S1180 120 1520 120" class="bgw-trace is-3" />
+    </g>
+  </svg>
+  <div class="bg-vignette"></div>
+</div>
+
+<!-- ================================================================ header -->
+<header class="site-header is-scrolled">
+  <div class="container">
+    <a class="brand" href="#/" aria-label="RageStar home">
+      <svg class="brand-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="width:30px;height:30px">
+        <defs><linearGradient id="rrg" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4fe3ff" /><stop offset="1" stop-color="#8f7bff" /></linearGradient></defs>
+        <rect class="bm-plate" x="1.15" y="1.15" width="29.7" height="29.7" rx="9.2" stroke="url(#rrg)" stroke-width="1.3" stroke-opacity="0.9" fill="rgba(79,227,255,.06)" />
+        <path d="M11.4 15.1 20.5 10.1M11.5 16h9.1M11.4 16.9l9.1 5" stroke="url(#rrg)" stroke-width="1.45" stroke-linecap="round" stroke-opacity="0.55" />
+        <path class="bm-signal" d="M11.5 16h9.1" pathLength="1" stroke="#4fe3ff" stroke-width="1.9" stroke-linecap="round" />
+        <circle cx="8.6" cy="16" r="2.7" fill="url(#rrg)" />
+        <circle class="bm-node bm-node-1" cx="22.9" cy="9.6" r="2.05" fill="#4fe3ff" />
+        <circle class="bm-node bm-node-2" cx="22.9" cy="16" r="2.05" fill="#8f7bff" />
+        <circle class="bm-node bm-node-3" cx="22.9" cy="22.4" r="2.05" fill="#4fe3ff" fill-opacity="0.72" />
+      </svg>
+      <span class="brand-name">Rage<span class="dim">Star</span></span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav-links">
+        <li><a href="#/" aria-current="page">Home</a></li>
+        <li><a href="#/models">Models</a></li>
+        <li><a href="#/pricing">Pricing</a></li>
+        <li><a href="#/docs">Docs</a></li>
+        <li><a href="#/status">Status</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button class="theme-toggle" type="button" aria-label="Toggle color theme"><span>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.6 12h2.2M19.2 12h2.2M6.2 17.8l-1.6 1.6M19.4 4.6l-1.6 1.6"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 14.6A8.6 8.6 0 0 1 9.4 3.8a8.6 8.6 0 1 0 10.8 10.8Z"/></svg>
+      </span></button>
+      <a class="btn btn-ghost btn-sm desktop-only" href="#/login">Sign in</a>
+      <a class="btn btn-primary btn-sm" href="#/signup">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 2.8 5.4 13.4h5.3L9.9 21.2l8-11h-5.3l.6-7.4Z"/></svg></span>
+        <span>Create account</span>
+      </a>
+      <button class="theme-toggle nav-burger" type="button" aria-label="Open menu"><span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.8 7.5h16.4M3.8 12h16.4M3.8 16.5h16.4"/></svg>
+      </span></button>
+    </div>
+  </div>
+</header>
+<div class="header-spacer"></div>
+
+<main id="main">
+
+  <!-- ================================================================ hero -->
+  <section class="rr-hero">
+    <div class="container rr-hero-grid">
+      <div>
+        <span class="eyebrow">your api in front of theirs</span>
+        <h1><span class="rr-words"><span class="w" style="--i:0">Resell </span><span class="w" style="--i:1">any </span><span class="w" style="--i:2">API </span><span class="w" style="--i:3">without </span><span class="w is-accent" style="--i:4">revealing </span><span class="w is-accent" style="--i:5">it.</span></span></h1>
+        <p class="rr-hero-sub">RageStar is a gateway you own. Upstream endpoints and their keys live in your database; customers only see your URL, your model names and the keys you issue them.</p>
+
+        <div class="rr-cta-row">
+          <a class="btn btn-primary" href="#/signup">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 2.8 5.4 13.4h5.3L9.9 21.2l8-11h-5.3l.6-7.4Z"/></svg></span>
+            <span>Create account</span>
+          </a>
+          <a class="rr-quiet-link" href="#/docs">Read the docs
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h14.2M12.8 6.2 18.8 12l-6 5.8"/></svg></span>
+          </a>
+        </div>
+
+        <div class="rr-endpoint">
+          <span class="rr-endpoint-tag">base</span>
+          <code class="mono">https://api.yourdomain.com/functions/v1/router</code>
+          <button type="button" class="btn btn-ghost btn-sm">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11.5" height="11.5" rx="2.6"/><path d="M15 6.2V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v6.5A2.5 2.5 0 0 0 6 15h.2"/></svg></span>
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+
+      <div data-reveal="" class="rv-in">
+        <figure class="dg-figure">
+          <div class="dg-frame">
+            <div class="dg-frame-top">
+              <span class="dg-frame-title">Request path</span>
+              <span class="dg-frame-note mono">caller → your gateway → origin</span>
+            </div>
+            <svg class="dg" viewBox="0 0 640 380" role="img" aria-label="How a request travels through your gateway">
+              <defs>
+                <linearGradient id="dg-trunk" x1="120" y1="0" x2="640" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" class="dg-stop-a" /><stop offset="0.52" class="dg-stop-b" /><stop offset="1" class="dg-stop-c" />
+                </linearGradient>
+                <linearGradient id="dg-plate" x1="256" y1="142" x2="384" y2="238" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" class="dg-plate-a" /><stop offset="1" class="dg-plate-b" />
+                </linearGradient>
+              </defs>
+
+              <text x="24" y="34" class="dg-label">callers</text>
+              <text x="256" y="34" class="dg-label">your surface</text>
+              <text x="452" y="34" class="dg-label is-locked">sealed · origin side</text>
+
+              <g class="dg-wires">
+                <path d="M132 74C188 74 200 190 256 190" class="dg-wire" />
+                <path d="M132 190H256" class="dg-wire" />
+                <path d="M132 306C188 306 200 190 256 190" class="dg-wire" />
+                <path d="M384 190C432 190 444 96 470 96" class="dg-wire is-origin" />
+                <path d="M384 190H470" class="dg-wire is-origin" />
+                <path d="M384 190C432 190 444 284 470 284" class="dg-wire is-origin" />
+              </g>
+
+              <g class="dg-packets">
+                <circle class="dg-packet is-req" r="3.4" style="--dg-path: path('M132 74C188 74 200 190 256 190'); --dg-delay:0s; --dg-dur:2.4s" />
+                <circle class="dg-packet is-req" r="3.4" style="--dg-path: path('M132 190H256'); --dg-delay:.85s; --dg-dur:2.4s" />
+                <circle class="dg-packet is-req" r="3.4" style="--dg-path: path('M132 306C188 306 200 190 256 190'); --dg-delay:1.7s; --dg-dur:2.4s" />
+                <circle class="dg-packet is-req" r="3.4" style="--dg-path: path('M384 190C432 190 444 96 470 96'); --dg-delay:1.2s; --dg-dur:2.4s" />
+                <circle class="dg-packet is-req" r="3.4" style="--dg-path: path('M384 190H470'); --dg-delay:2.05s; --dg-dur:2.4s" />
+                <circle class="dg-packet is-req" r="3.4" style="--dg-path: path('M384 190C432 190 444 284 470 284'); --dg-delay:2.9s; --dg-dur:2.4s" />
+                <circle class="dg-packet is-res is-rev" r="3.4" style="--dg-path: path('M384 190H470'); --dg-delay:2.6s; --dg-dur:2.4s" />
+                <circle class="dg-packet is-res is-rev" r="3.4" style="--dg-path: path('M132 190H256'); --dg-delay:3.5s; --dg-dur:2.4s" />
+              </g>
+
+              <g class="dg-client">
+                <rect x="24" y="56" width="108" height="36" rx="10" class="dg-chip" />
+                <g transform="translate(38 66)"><g class="dg-glyph"><rect x="0.9" y="1.9" width="14.2" height="12.2" rx="2.4" /><path d="M4.3 6.7 6.6 9l-2.3 2.3M8.9 11.3h3.2" /></g></g>
+                <text x="62" y="78" class="dg-chip-label">curl</text>
+              </g>
+              <g class="dg-client">
+                <rect x="24" y="172" width="108" height="36" rx="10" class="dg-chip" />
+                <g transform="translate(38 182)"><g class="dg-glyph"><path d="M5.6 3.9 1.5 8l4.1 4.1M10.4 3.9 14.5 8l-4.1 4.1" /></g></g>
+                <text x="62" y="194" class="dg-chip-label">openai-sdk</text>
+              </g>
+              <g class="dg-client">
+                <rect x="24" y="288" width="108" height="36" rx="10" class="dg-chip" />
+                <g transform="translate(38 298)"><g class="dg-glyph"><rect x="1.5" y="1.5" width="13" height="13" rx="3.2" /><circle cx="8" cy="8" r="2.1" /></g></g>
+                <text x="62" y="310" class="dg-chip-label">your app</text>
+              </g>
+
+              <g class="dg-vault">
+                <rect x="452" y="48" width="176" height="284" rx="18" class="dg-vault-frame" />
+                <path d="M452 190h-12" class="dg-vault-tick" />
+              </g>
+
+              <g class="dg-core">
+                <rect x="248" y="134" width="144" height="112" rx="22" class="dg-core-halo" />
+                <rect x="256" y="142" width="128" height="96" rx="18" class="dg-core-plate" />
+                <rect x="256" y="142" width="128" height="96" rx="18" class="dg-core-ring" />
+                <g class="dg-mark" transform="translate(306 152)">
+                  <circle cx="4" cy="14" r="2.7" class="dg-mark-core" />
+                  <path d="M7.4 14h4.4M12 14 22 6.6M12 14h10M12 14l10 7.4" />
+                  <circle cx="24.4" cy="6.6" r="2" /><circle cx="24.4" cy="14" r="2" /><circle cx="24.4" cy="21.4" r="2" />
+                </g>
+                <text x="320" y="203" text-anchor="middle" class="dg-core-name">your gateway</text>
+                <text x="320" y="221" text-anchor="middle" class="dg-core-host">api.yourdomain.com</text>
+                <circle cx="256" cy="190" r="4" class="dg-port" />
+                <circle cx="384" cy="190" r="4" class="dg-port" />
+              </g>
+
+              <g class="dg-origin">
+                <rect x="470" y="74" width="140" height="44" rx="12" class="dg-up" />
+                <g transform="translate(484 88)"><g class="dg-glyph"><circle cx="4.6" cy="8" r="3.1" /><path d="M7.7 8h6.8M12 8v2.6M14.5 8v1.9" /></g></g>
+                <text x="506" y="94" class="dg-up-mask">●●●●●●●●●●</text>
+                <text x="506" y="108" class="dg-up-note">origin 1</text>
+                <circle cx="598" cy="96" r="3.2" class="dg-state is-ok" />
+              </g>
+              <g class="dg-origin">
+                <rect x="470" y="168" width="140" height="44" rx="12" class="dg-up" />
+                <g transform="translate(484 182)"><g class="dg-glyph"><circle cx="4.6" cy="8" r="3.1" /><path d="M7.7 8h6.8M12 8v2.6M14.5 8v1.9" /></g></g>
+                <text x="506" y="188" class="dg-up-mask">●●●●●●●●●●</text>
+                <text x="506" y="202" class="dg-up-note">origin 2</text>
+                <circle cx="598" cy="190" r="3.2" class="dg-state is-ok" />
+              </g>
+              <g class="dg-origin">
+                <rect x="470" y="262" width="140" height="44" rx="12" class="dg-up" />
+                <g transform="translate(484 276)"><g class="dg-glyph"><circle cx="4.6" cy="8" r="3.1" /><path d="M7.7 8h6.8M12 8v2.6M14.5 8v1.9" /></g></g>
+                <text x="506" y="282" class="dg-up-mask">●●●●●●●●●●</text>
+                <text x="506" y="296" class="dg-up-note">origin 3</text>
+                <circle cx="598" cy="284" r="3.2" class="dg-state is-warn" />
+              </g>
+            </svg>
+            <div class="dg-legend">
+              <span class="dg-key"><i class="is-req"></i>request</span>
+              <span class="dg-key"><i class="is-res"></i>response</span>
+              <span class="dg-key"><i class="is-sealed"></i>base URL, keys, model names</span>
+            </div>
+          </div>
+        </figure>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="rr-stats">
+        <div class="rr-stat"><div class="l">Published models</div><div class="v">6</div><div class="n">Public ids an admin has mapped</div></div>
+        <div class="rr-stat"><div class="l">Requests 24h</div><div class="v">12.4k</div><div class="n">Counted by your own gateway</div></div>
+        <div class="rr-stat"><div class="l">Succeeded</div><div class="v">12.1k</div><div class="n">Read from route_health, not simulated</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================== steps -->
+  <section class="section">
+    <div class="container">
+      <div class="rr-head">
+        <div><span class="eyebrow">how it works</span><h2>Four moving parts, all yours</h2></div>
+        <p>No third-party dashboard and no shared control plane. One Postgres schema, one edge function, and a console you host.</p>
+      </div>
+      <div data-reveal="" class="rr-steps rv-in">
+        <article class="rr-step">
+          <div class="rr-step-top">
+            <span class="rr-step-plate"><svg class="glyph" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="7" y="11" width="34" height="26" rx="5" pathLength="1" class="gl-draw"/><path d="M7 18.5h34" pathLength="1" class="gl-draw gl-d2"/><path d="M11.5 14.8h2.6M17 14.8h2.6" pathLength="1" class="gl-draw gl-d2"/><circle cx="24" cy="26.5" r="4.2" pathLength="1" class="gl-draw gl-d3"/><path d="M24 30.7v3.1" pathLength="1" class="gl-draw gl-d4"/></svg></span>
+            <span class="rr-step-num">01</span>
+          </div>
+          <h3>Store the origin once</h3>
+          <p>Its base URL, auth scheme and keys go into your own Postgres. Nothing upstream is ever sent to a browser.</p>
+        </article>
+        <article class="rr-step">
+          <div class="rr-step-top">
+            <span class="rr-step-plate"><svg class="glyph" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="5" y="9" width="20" height="12" rx="3.4" pathLength="1" class="gl-draw"/><path d="M9 15h12" pathLength="1" class="gl-draw gl-d2"/><path d="M15 21v9.5a3 3 0 0 0 3 3h6.5" pathLength="1" class="gl-draw gl-d3"/><path d="M21.5 30.4 25 33.5l-3.5 3.1" pathLength="1" class="gl-draw gl-d4"/><rect x="27" y="27.5" width="16" height="12" rx="3.4" pathLength="1" class="gl-draw gl-d3"/><circle cx="31.5" cy="33.5" r="1.25" class="gl-fill gl-d5"/><circle cx="35" cy="33.5" r="1.25" class="gl-fill gl-d5"/><circle cx="38.5" cy="33.5" r="1.25" class="gl-fill gl-d5"/></svg></span>
+            <span class="rr-step-num">02</span>
+          </div>
+          <h3>Publish your own ids</h3>
+          <p>Map a public name like rs-core onto the upstream model. Callers only ever learn the left-hand side.</p>
+        </article>
+        <article class="rr-step">
+          <div class="rr-step-top">
+            <span class="rr-step-plate"><svg class="glyph" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="15" cy="24" r="7.5" pathLength="1" class="gl-draw"/><circle cx="15" cy="24" r="2.4" pathLength="1" class="gl-draw gl-d3"/><path d="M22.5 24h18" pathLength="1" class="gl-draw gl-d2"/><path d="M31 24v5.5M36.5 24v4" pathLength="1" class="gl-draw gl-d4"/><path d="M26 14.5h14" pathLength="1" class="gl-draw gl-d3"/><path d="M26 33.5h8" pathLength="1" class="gl-draw gl-d5"/></svg></span>
+            <span class="rr-step-num">03</span>
+          </div>
+          <h3>Issue gateway keys</h3>
+          <p>Customers mint rs_live_ keys, call your endpoint with any OpenAI-compatible SDK, and get metered per request.</p>
+        </article>
+        <article class="rr-step">
+          <div class="rr-step-top">
+            <span class="rr-step-plate"><svg class="glyph" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="16.5" pathLength="1" class="gl-draw"/><path d="M11.5 24.5h5.5l3-6 4.5 12 3.5-7h8" pathLength="1" class="gl-draw gl-d3"/><circle cx="36" cy="12" r="3.4" class="gl-fill gl-live"/></svg></span>
+            <span class="rr-step-num">04</span>
+          </div>
+          <h3>Watch key health</h3>
+          <p>Each upstream key carries a working or failing state, updated from real traffic rather than a guess.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= compare -->
+  <section class="section">
+    <div class="container">
+      <div class="rr-head">
+        <div><span class="eyebrow">visibility</span><h2>One boundary, drawn on purpose</h2></div>
+        <p>Everything on the left is in the response your customer reads. Everything on the right never crosses the gateway.</p>
+      </div>
+      <div data-reveal="" class="rr-compare rv-in">
+        <div class="rr-panel">
+          <div class="rr-panel-top">
+            <svg class="glyph" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="15.5" pathLength="1" class="gl-draw"/><path d="M8.5 24h31" pathLength="1" class="gl-draw gl-d2"/><path d="M24 8.5c4.4 5 6.6 10.2 6.6 15.5S28.4 34.5 24 39.5c-4.4-5-6.6-10.2-6.6-15.5S19.6 13.5 24 8.5Z" pathLength="1" class="gl-draw gl-d3"/></svg>
+            <h3>What every caller sees</h3><span class="tag">public</span>
+          </div>
+          <ul class="rr-rows">
+            <li><span class="k">base_url</span><span class="v">api.yourdomain.com/v1</span></li>
+            <li><span class="k">model</span><span class="v">rs-core</span></li>
+            <li><span class="k">authorization</span><span class="v">rs_live_…</span></li>
+            <li><span class="k">error.type</span><span class="v">upstream_error</span></li>
+          </ul>
+        </div>
+        <div class="rr-panel is-sealed">
+          <div class="rr-panel-top">
+            <svg class="glyph" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="10" y="21" width="28" height="18" rx="5" pathLength="1" class="gl-draw"/><path d="M16.5 21v-5a7.5 7.5 0 0 1 15 0v5" pathLength="1" class="gl-draw gl-d3"/><path d="M24 27.5v5.5" pathLength="1" class="gl-draw gl-d4"/></svg>
+            <h3>What never leaves your project</h3><span class="tag">sealed</span>
+          </div>
+          <ul class="rr-rows">
+            <li><span class="k">origin base URL</span><span class="v"><span class="rr-redact"></span></span></li>
+            <li><span class="k">origin API key</span><span class="v"><span class="rr-redact"></span></span></li>
+            <li><span class="k">origin model name</span><span class="v"><span class="rr-redact"></span></span></li>
+            <li><span class="k">origin error text</span><span class="v"><span class="rr-redact"></span></span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================ code -->
+  <section class="section">
+    <div class="container rr-code-grid">
+      <div>
+        <span class="eyebrow">drop-in</span>
+        <h2>One endpoint, any OpenAI-compatible SDK</h2>
+        <p class="muted mt-4">Swap the base URL and the key. Paths, request bodies and streaming stay exactly as your customers already wrote them.</p>
+        <ul class="rr-facts">
+          <li>Chat completions, streaming and embeddings pass straight through</li>
+          <li>Failover to the next healthy key happens inside the gateway</li>
+          <li>Usage, latency and cost are recorded per request</li>
+        </ul>
+      </div>
+      <div data-reveal="" class="code rv-in">
+        <div class="code-head">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span>terminal</span>
+          <button type="button" class="copy-btn"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11.5" height="11.5" rx="2.6"/><path d="M15 6.2V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v6.5A2.5 2.5 0 0 0 6 15h.2"/></svg></span>copy</button>
+        </div>
+        <pre><code>curl https://api.yourdomain.com/functions/v1/router/v1/chat/completions \
+  -H "Authorization: Bearer rs_live_…" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "rs-core",
+    "messages": [{ "role": "user", "content": "ping" }]
+  }'</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================== catalogue -->
+  <section class="section">
+    <div class="container">
+      <div class="rr-head">
+        <div><span class="eyebrow">catalogue</span><h2>Models you have published</h2></div>
+        <a class="btn btn-ghost btn-sm" href="#/models">Full catalogue</a>
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead><tr><th>Model id</th><th>Description</th><th class="num">Context</th><th class="num">In / 1M</th><th class="num">Out / 1M</th></tr></thead>
+          <tbody>
+            <tr><td><b class="mono">rs-core</b></td><td class="muted">Balanced default for chat and tools</td><td class="num">128k</td><td class="num">$0.50</td><td class="num">$1.50</td></tr>
+            <tr><td><b class="mono">rs-core-mini</b></td><td class="muted">Cheap, fast, good for classification</td><td class="num">128k</td><td class="num">$0.15</td><td class="num">$0.60</td></tr>
+            <tr><td><b class="mono">rr-reason</b></td><td class="muted">Long-context reasoning tier</td><td class="num">200k</td><td class="num">$3.00</td><td class="num">$15.00</td></tr>
+            <tr><td><b class="mono">rr-embed</b></td><td class="muted">Embeddings, 1536 dimensions</td><td class="num">8k</td><td class="num">$0.02</td><td class="num">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================= cta -->
+  <section class="section">
+    <div class="container">
+      <div data-reveal="" class="rr-cta rv-in">
+        <svg class="cta-arcs" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs><linearGradient id="cta-g" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" class="cta-stop-a"/><stop offset="0.55" class="cta-stop-b"/><stop offset="1" class="cta-stop-c"/></linearGradient></defs>
+          <path class="cta-arc" pathLength="1" d="M-40 372C220 372 300 76 620 76s420 236 660 236"/>
+          <path class="cta-arc is-2" pathLength="1" d="M-40 410C240 410 320 150 620 150s400 200 660 200"/>
+          <path class="cta-arc is-3" pathLength="1" d="M-40 330C200 330 280 18 620 18s440 268 660 268"/>
+          <circle class="cta-spark" r="4" style="--cta-path: path('M-40 372C220 372 300 76 620 76s420 236 660 236')"/>
+          <circle class="cta-spark is-late" r="3" style="--cta-path: path('M-40 410C240 410 320 150 620 150s400 200 660 200')"/>
+        </svg>
+        <div class="rr-cta-inner">
+          <span class="eyebrow">your gateway</span>
+          <h2>Point your customers at your own URL</h2>
+          <p>Deploy the schema, add one origin, publish one model id. The rest of the stack — keys, budgets, metering, status — is already wired.</p>
+          <div class="rr-cta-row">
+            <a class="btn btn-primary" href="#/signup"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 2.8 5.4 13.4h5.3L9.9 21.2l8-11h-5.3l.6-7.4Z"/></svg></span><span>Create account</span></a>
+            <a class="rr-quiet-link" href="#/status">See live status <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h14.2M12.8 6.2 18.8 12l-6 5.8"/></svg></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QA - RageStar console (overview)</title>
+    <!-- cascade order mirrors the real bundle (App.jsx sheets first) -->
+    <link rel="stylesheet" href="../src/styles/admin.css" />
+    <link rel="stylesheet" href="../src/styles/console-fix.css" />
+    <link rel="stylesheet" href="../src/styles/console-tabs.css" />
+    <link rel="stylesheet" href="../src/styles/tree.css" />
+    <link rel="stylesheet" href="../src/styles.css" />
+    <link rel="stylesheet" href="../src/styles/background.css" />
+    <link rel="stylesheet" href="../src/styles/string-ui.css" />
+    <link rel="stylesheet" href="../src/styles/auth.css" />
+    <link rel="stylesheet" href="../src/styles/art.css" />
+    <link rel="stylesheet" href="../src/styles/minimal.css" />
+    <link rel="stylesheet" href="../src/styles/interactive.css" />
+    <link rel="stylesheet" href="../src/styles/flim.css" />
+    <link rel="stylesheet" href="../src/styles/console-v10.css" />
+    <link rel="stylesheet" href="../src/styles/motion.css" />
+    <link rel="stylesheet" href="../src/styles/interactions.css" />
+    <link rel="stylesheet" href="../src/styles/admin-panel.css" />
+    <style>
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    </style>
+  </head>
+  <body>
+    <main id="main" class="console-page">
+      <div class="container">
+        <div class="con-topbar">
+          <a class="brand" href="#/"><span class="brand-name">Rage<span class="dim">Star</span></span></a>
+          <div class="console-user">
+            <span class="hdr-avatar">RP</span>
+            <span class="hdr-user-meta"><b>Rajwardhan Pimple</b><small>sdf</small></span>
+            <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-label">Admin panel</span></button>
+            <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-label">Sign out</span></button>
+          </div>
+        </div>
+
+        <nav class="con-tabs" aria-label="Console sections">
+          <div class="con-tabs-track" role="tablist">
+            <button class="con-tab is-on" role="tab" aria-selected="true"><span>Overview</span></button>
+            <button class="con-tab" role="tab"><span>Keys</span><em class="con-tab-count">5</em></button>
+            <button class="con-tab" role="tab"><span>Credits</span><em class="con-tab-count">$-86.57</em></button>
+            <button class="con-tab" role="tab"><span>Referrals</span></button>
+            <button class="con-tab" role="tab"><span>Playground</span></button>
+            <button class="con-tab" role="tab"><span>Models</span></button>
+            <button class="con-tab" role="tab"><span>Status</span></button>
+            <button class="con-tab" role="tab"><span>Logs</span></button>
+            <button class="con-tab" role="tab"><span>Profile</span></button>
+          </div>
+        </nav>
+
+        <div class="con-panel" id="con-panel" role="tabpanel">
+          <div class="adm-head">
+            <div>
+              <h1>Overview</h1>
+              <p>Your last 30 days through the gateway. Every figure comes from your own request log — if there has been no traffic, nothing is claimed.</p>
+            </div>
+            <div class="adm-head-actions">
+              <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-label">Refresh</span></button>
+              <button class="sui-btn sui-btn-primary sui-btn-sm"><span class="sui-btn-label">Send a test call</span></button>
+            </div>
+          </div>
+
+          <div class="adm-stats">
+            <div class="adm-stat" data-tone="warn"><div class="l">Requests</div><div class="v">19</div><div class="s">3 failed</div></div>
+            <div class="adm-stat"><div class="l">Success rate</div><div class="v">84.21%</div><div class="s">16 succeeded</div></div>
+            <div class="adm-stat"><div class="l">Spend</div><div class="v">$117.57</div><div class="s">last 30 days</div></div>
+            <div class="adm-stat"><div class="l">Avg latency</div><div class="v">16761ms</div><div class="s">successful calls only</div></div>
+            <div class="adm-stat"><div class="l">Tokens</div><div class="v">82.9K</div><div class="s">last call 22h ago</div></div>
+          </div>
+
+          <div class="con-split mt-5">
+            <div class="con-stack">
+              <div class="adm-card">
+                <div class="con-card-head">
+                  <div>
+                    <h3>Requests, last 30 days</h3>
+                    <p class="sub">Green = clean day, amber = some failures, red = above 10% failures, grey = no traffic.</p>
+                  </div>
+                  <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-label">Full usage log</span></button>
+                </div>
+                <div class="con-spark">
+                  <svg class="spark-svg" viewBox="0 0 100 100" preserveAspectRatio="none" style="height:74px">
+                    <path d="M0,96 L40,95 L70,90 L85,50 L100,8 L100,100 L0,100 Z" fill="currentColor" opacity="0.12"/>
+                    <path d="M0,96 L40,95 L70,90 L85,50 L100,8" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+                  </svg>
+                </div>
+                <div class="uptime-bars" style="height:62px">
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:4px;background:var(--border-strong);opacity:.5"></span>
+                  <span style="height:18px;background:#37c489"></span>
+                  <span style="height:54px;background:#e5484d"></span>
+                  <span style="height:24px;background:#37c489"></span>
+                </div>
+                <div class="row-between small mt-3"><span class="faint">Sep 01</span><span class="faint">Sep 14</span></div>
+              </div>
+
+              <div class="adm-card">
+                <div class="con-card-head">
+                  <div>
+                    <h3>Latest requests</h3>
+                    <p class="sub">The most recent calls on your account.</p>
+                  </div>
+                  <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-label">See all</span></button>
+                </div>
+                <div class="adm-table-wrap">
+                  <table class="adm-table">
+                    <thead><tr><th>When</th><th>Model</th><th>Status</th><th class="num">Latency</th><th class="num">Tokens</th><th class="num">Cost</th></tr></thead>
+                    <tbody>
+                      <tr><td class="faint xs">22h ago</td><td class="mono">glm-5-3</td><td><span class="st st-working">ok</span></td><td class="num">8328ms</td><td class="num">0</td><td class="num">$0.00</td></tr>
+                      <tr><td class="faint xs">1d ago</td><td class="mono">claude-opus-5</td><td><span class="st st-failing">failed</span></td><td class="num">1361ms</td><td class="num">0</td><td class="num">$0.00</td></tr>
+                      <tr><td class="faint xs">2d ago</td><td class="mono">glm-5-3</td><td><span class="st st-working">ok</span></td><td class="num">5259ms</td><td class="num">0</td><td class="num">$0.00</td></tr>
+                      <tr><td class="faint xs">2d ago</td><td class="mono">glm-5.3-free</td><td><span class="st st-failing">failed</span></td><td class="num">128037ms</td><td class="num">0</td><td class="num">$0.00</td></tr>
+                      <tr><td class="faint xs">2d ago</td><td class="mono">glm-5.3-free</td><td><span class="st st-working">ok</span></td><td class="num">6780ms</td><td class="num">180</td><td class="num">$0.00</td></tr>
+                      <tr><td class="faint xs">2d ago</td><td class="mono">deepseek/deepseek-v4-pro</td><td><span class="st st-working">ok</span></td><td class="num">1916ms</td><td class="num">1,078</td><td class="num">$0.97</td></tr>
+                      <tr><td class="faint xs">2d ago</td><td class="mono">deepseek-v4-1-flash-free</td><td><span class="st st-working">ok</span></td><td class="num">3649ms</td><td class="num">101</td><td class="num">$0.00</td></tr>
+                      <tr><td class="faint xs">2d ago</td><td class="mono">deepseek-v4-1-flash-free</td><td><span class="st st-failing">failed</span></td><td class="num">60567ms</td><td class="num">0</td><td class="num">$0.00</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="con-stack">
+              <div class="adm-card">
+                <h3>Your endpoint</h3>
+                <p class="sub">A drop-in replacement for the OpenAI base URL. Callers authenticate with your rr_ key; the upstream host, model id and key stay server-side.</p>
+                <pre class="con-code con-endpoint"><code>https://gw.ragestar.bond/v1</code></pre>
+                <div class="adm-form-actions">
+                  <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-label">Copy endpoint</span></button>
+                  <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-label">Read the docs</span></button>
+                </div>
+              </div>
+              <div class="adm-card">
+                <h3>Quick actions</h3>
+                <div class="con-quick">
+                  <button type="button"><span><b>2 active keys</b><small>Create, rename, cap or revoke</small></span></button>
+                  <button type="button"><span><b>Send a test request</b><small>A real call through your gateway</small></span></button>
+                  <button type="button"><span><b>0 models available</b><small>Public aliases and pricing</small></span></button>
+                  <button type="button"><span><b>Credits and spend</b><small>Top-ups, balance and budget caps</small></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

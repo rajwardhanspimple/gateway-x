@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QA · Admin → Token compressors</title>
+    <link rel="stylesheet" href="../src/styles.css" />
+    <link rel="stylesheet" href="../src/styles/background.css" />
+    <link rel="stylesheet" href="../src/styles/string-ui.css" />
+    <link rel="stylesheet" href="../src/styles/auth.css" />
+    <link rel="stylesheet" href="../src/styles/art.css" />
+    <link rel="stylesheet" href="../src/styles/minimal.css" />
+    <link rel="stylesheet" href="../src/styles/admin.css" />
+    <link rel="stylesheet" href="../src/styles/interactive.css" />
+    <link rel="stylesheet" href="../src/styles/flim.css" />
+    <style>
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href="#/"><span class="brand-name">Rage<span class="dim">Star</span></span></a>
+        <div class="nav-actions">
+          <span class="hdr-user"><span class="hdr-avatar">RS</span><span class="faint xs mono">admin</span></span>
+          <a class="btn btn-ghost btn-sm" href="#/console">Console</a>
+        </div>
+      </div>
+    </header>
+    <div class="header-spacer"></div>
+
+    <div class="adm">
+      <aside class="adm-rail">
+        <div class="adm-rail-head">Admin</div>
+        <a class="adm-tab" href="#/admin?tab=overview">Overview</a>
+        <a class="adm-tab" href="#/admin?tab=files">Files</a>
+        <a class="adm-tab" href="#/admin?tab=routing">Routing</a>
+        <a class="adm-tab is-on" href="#/admin?tab=compressor" aria-current="page">Token compressors</a>
+        <a class="adm-tab" href="#/admin?tab=upstreams">Upstreams</a>
+        <a class="adm-tab" href="#/admin?tab=keys">Keys</a>
+        <a class="adm-tab" href="#/admin?tab=models">Models</a>
+        <a class="adm-tab" href="#/admin?tab=users">Users</a>
+        <a class="adm-tab" href="#/admin?tab=logs">Logs</a>
+        <a class="adm-tab" href="#/admin?tab=settings">Settings</a>
+      </aside>
+
+      <main>
+        <div class="adm-card">
+          <div class="adm-head">
+            <div>
+              <h2>Token compressors</h2>
+              <p class="muted small">Rewrite prompts before they leave your gateway. Stages run in the order you pick them, compressors run in priority order, and code fences are held back unless you say otherwise.</p>
+            </div>
+            <div class="adm-head-actions">
+              <button class="sui-btn sui-btn-primary sui-btn-sm" type="button">Compression on</button>
+              <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Reload</button>
+              <button class="sui-btn sui-btn-primary sui-btn-sm" type="button">New compressor</button>
+            </div>
+          </div>
+
+          <div class="sui-alert sui-alert-info" role="status">
+            <div>
+              <b>These compressors live in this browser</b>
+              <p>The <code>token_compressors</code> table is not installed yet, so the designs below are kept in local storage and the router is still forwarding prompts unchanged. Run <code>supabase/upgrade-v9.0-token-compressors.sql</code> in the Supabase SQL editor, then reload.</p>
+            </div>
+          </div>
+
+          <div class="adm-stats">
+            <div class="adm-stat"><span class="adm-label">Compressors</span><b>4</b><i>2 enabled</i></div>
+            <div class="adm-stat"><span class="adm-label">Sample prompt</span><b>148</b><i>tokens in</i></div>
+            <div class="adm-stat"><span class="adm-label">Forwarded</span><b>96</b><i>tokens out</i></div>
+            <div class="adm-stat"><span class="adm-label">Saved on the stack</span><b>35%</b><i>52 tokens</i></div>
+          </div>
+
+          <div class="adm-table-wrap">
+            <table class="adm-table">
+              <thead>
+                <tr><th>Prio</th><th>Compressor</th><th>Scope</th><th>Stages</th><th>Floor</th><th>On this sample</th><th>State</th><th></th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono">10</td>
+                  <td><b>Tidy (lossless)</b><div class="faint xs mono">tidy</div></td>
+                  <td class="xs">Every message</td>
+                  <td class="xs">whitespace → markdown → dedupe</td>
+                  <td class="mono xs">—</td>
+                  <td><b class="mono">−14% <span class="faint xs">(8 tok)</span></b></td>
+                  <td><span class="st st-ok">enabled</span></td>
+                  <td class="adm-row-actions">
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Trace</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Edit</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Duplicate</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Disable</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Delete</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="mono">20</td>
+                  <td><b>Prompt diet</b><div class="faint xs mono">prompt-diet</div></td>
+                  <td class="xs">User messages only</td>
+                  <td class="xs">whitespace → markdown → filler → shorthand → dedupe</td>
+                  <td class="mono xs">120 tok</td>
+                  <td><b class="mono">−46% <span class="faint xs">(26 tok)</span></b></td>
+                  <td><span class="st st-ok">enabled</span></td>
+                  <td class="adm-row-actions">
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Hide</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Edit</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Duplicate</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Disable</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Delete</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="8">
+                    <div class="fl-rows">
+                      <div class="fl-row"><span>Collapse whitespace</span><span>−8 tok</span></div>
+                      <div class="fl-row"><span>Strip markdown noise</span><span>−3 tok</span></div>
+                      <div class="fl-row"><span>Remove filler phrases · lossy</span><span>−11 tok</span></div>
+                      <div class="fl-row"><span>Abbreviation dictionary · lossy</span><span>−4 tok</span></div>
+                      <div class="fl-row"><span>Drop repeated lines</span><span>−0 tok</span></div>
+                    </div>
+                    <p class="muted small">Adds filler removal and the abbreviation dictionary. Good default for chat.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="mono">30</td>
+                  <td><b>History squeeze</b><div class="faint xs mono">history-squeeze</div><div class="faint xs">only rs-core, rs-long</div></td>
+                  <td class="xs">Everything except the last message</td>
+                  <td class="xs">whitespace → filler → stopwords → middleout</td>
+                  <td class="mono xs">400 tok</td>
+                  <td><span class="faint xs">skipped: under the 400 token floor</span></td>
+                  <td><span class="st st-off">off</span></td>
+                  <td class="adm-row-actions">
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Trace</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Edit</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Duplicate</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Enable</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Delete</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="mono">40</td>
+                  <td><b>JSON slim</b><div class="faint xs mono">json-slim</div></td>
+                  <td class="xs">Every message</td>
+                  <td class="xs">json → html → whitespace</td>
+                  <td class="mono xs">200 tok</td>
+                  <td><b class="mono">−2% <span class="faint xs">(1 tok)</span></b></td>
+                  <td><span class="st st-off">off</span></td>
+                  <td class="adm-row-actions">
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Trace</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Edit</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Duplicate</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Enable</button>
+                    <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="adm-presets">
+            <span class="adm-label">Add a preset</span>
+            <div class="adm-preset-row">
+              <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Tidy (lossless) (again)</button>
+              <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Prompt diet (again)</button>
+              <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">History squeeze (again)</button>
+              <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">JSON slim (again)</button>
+            </div>
+          </div>
+
+          <div class="adm-card is-nested">
+            <div class="adm-head">
+              <div>
+                <h3>Edit Prompt diet</h3>
+                <p class="muted small">The preview underneath is this compressor run over the bench sample, stage by stage.</p>
+              </div>
+            </div>
+
+            <div class="adm-grid">
+              <label><span class="adm-label">Name</span><input class="adm-input" value="Prompt diet" /></label>
+              <label><span class="adm-label">Slug</span><input class="adm-input mono" value="prompt-diet" /></label>
+              <label><span class="adm-label">Applies to</span><select class="adm-select"><option>User messages only</option></select></label>
+              <label><span class="adm-label">Priority</span><input class="adm-input mono" type="number" value="20" /></label>
+              <label><span class="adm-label">Token floor</span><input class="adm-input mono" type="number" value="120" /><i class="faint xs">Shorter prompts are left alone.</i></label>
+              <label><span class="adm-label">Character budget</span><input class="adm-input mono" type="number" value="8000" /><i class="faint xs">Used by the middle-out stage.</i></label>
+              <label class="adm-grid-wide"><span class="adm-label">Only these model ids</span><input class="adm-input mono" placeholder="blank = every model" /></label>
+              <label class="adm-grid-wide"><span class="adm-label">Note for the team</span><input class="adm-input" value="Adds filler removal and the abbreviation dictionary." /></label>
+            </div>
+
+            <div class="cmp-stages">
+              <span class="adm-label">Stages, in order</span>
+              <div class="cmp-stage-grid">
+                <label class="cmp-stage is-on"><input type="checkbox" checked /><span class="cmp-stage-order">1</span><span class="cmp-stage-body"><b>Collapse whitespace</b><i>Runs of spaces, tabs and blank lines become one.</i></span></label>
+                <label class="cmp-stage is-on"><input type="checkbox" checked /><span class="cmp-stage-order">2</span><span class="cmp-stage-body"><b>Strip markdown noise</b><i>Drops decoration: **, __, ###, ---, table pipes.</i></span></label>
+                <label class="cmp-stage"><input type="checkbox" /><span class="cmp-stage-order">–</span><span class="cmp-stage-body"><b>Strip HTML tags</b><i>Removes tags and comments, keeps the text between them.</i></span></label>
+                <label class="cmp-stage"><input type="checkbox" /><span class="cmp-stage-order">–</span><span class="cmp-stage-body"><b>Minify JSON blocks</b><i>Pretty-printed JSON is re-serialised compactly.</i></span></label>
+                <label class="cmp-stage is-on"><input type="checkbox" checked /><span class="cmp-stage-order">5</span><span class="cmp-stage-body"><b>Drop repeated lines</b><i>Identical non-empty lines are kept once.</i></span></label>
+                <label class="cmp-stage is-on"><input type="checkbox" checked /><span class="cmp-stage-order">3</span><span class="cmp-stage-body"><b>Remove filler phrases</b><i>“please note that”, “in order to”, “basically”.</i></span><span class="badge badge-warn">lossy</span></label>
+                <label class="cmp-stage is-on"><input type="checkbox" checked /><span class="cmp-stage-order">4</span><span class="cmp-stage-body"><b>Abbreviation dictionary</b><i>Fixed substitutions: “documentation” → “docs”.</i></span><span class="badge badge-warn">lossy</span></label>
+                <label class="cmp-stage"><input type="checkbox" /><span class="cmp-stage-order">–</span><span class="cmp-stage-body"><b>Drop stopwords</b><i>Aggressive. Meaning usually survives, grammar does not.</i></span><span class="badge badge-warn">lossy</span></label>
+                <label class="cmp-stage"><input type="checkbox" /><span class="cmp-stage-order">–</span><span class="cmp-stage-body"><b>Squeeze vowels</b><i>Last resort for very long pasted context.</i></span><span class="badge badge-warn">lossy</span></label>
+                <label class="cmp-stage"><input type="checkbox" /><span class="cmp-stage-order">–</span><span class="cmp-stage-body"><b>Middle-out truncation</b><i>Keeps the head and tail, drops the centre past the budget.</i></span><span class="badge badge-warn">lossy</span></label>
+              </div>
+            </div>
+
+            <label class="cmp-check"><input type="checkbox" checked /><span>Hold back fenced code blocks — they are lifted out before the stages run and put back afterwards, so indentation and syntax survive.</span></label>
+            <label class="cmp-check"><input type="checkbox" checked /><span>Enabled — include this compressor in the stack.</span></label>
+
+            <div class="fl-rows">
+              <div class="fl-row"><span>Result on the sample</span><span>57 → 31 tokens (46% off)</span></div>
+              <div class="fl-row"><span>Collapse whitespace</span><span>−8 tok</span></div>
+              <div class="fl-row"><span>Strip markdown noise</span><span>−3 tok</span></div>
+              <div class="fl-row"><span>Remove filler phrases · lossy</span><span>−11 tok</span></div>
+              <div class="fl-row"><span>Abbreviation dictionary · lossy</span><span>−4 tok</span></div>
+              <div class="fl-row"><span>Drop repeated lines</span><span>no change</span></div>
+            </div>
+
+            <div class="adm-form-actions">
+              <button class="sui-btn sui-btn-primary sui-btn-md" type="button">Save changes</button>
+              <button class="sui-btn sui-btn-ghost sui-btn-md" type="button">Cancel</button>
+            </div>
+          </div>
+
+          <div class="adm-card is-nested">
+            <div class="adm-head">
+              <div>
+                <h3>Bench</h3>
+                <p class="muted small">Paste a real prompt. Everything above re-measures as you type, and this is the payload your upstream would actually receive.</p>
+              </div>
+              <div class="adm-head-actions">
+                <button class="sui-btn sui-btn-ghost sui-btn-sm" type="button">Reset sample</button>
+              </div>
+            </div>
+            <textarea class="adm-input cmp-sample" rows="10">You are a helpful assistant.
+
+## Instructions
+
+Please note that I would like you to carefully review the configuration
+documentation provided below and, basically, just summarise the key
+requirements for the application in question.
+
+It is important to note that   the   deployment   must be idempotent.
+It is important to note that   the   deployment   must be idempotent.</textarea>
+            <p class="faint xs mono">148 tokens in the sample</p>
+
+            <div class="fl-rows">
+              <div class="fl-row"><span>Tidy (lossless)</span><span>−18 tok · 130 left</span></div>
+              <div class="fl-row"><span>Prompt diet</span><span>−34 tok · 96 left</span></div>
+            </div>
+
+            <div class="fl-code">
+              <div class="fl-code-top"><span>forwarded messages</span><span class="mono xs">148 → 96 tokens</span></div>
+              <pre>system: You are the support assistant for RageStar.
+
+user: You are a helpful assistant.
+Instructions
+I would like you to carefully review the config docs below and summarise the key requirements for the app in question.
+Note the deployment must be idempotent.</pre>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,89 @@
+project_id = "vxzpiipnsfrnsrrgxdug"
+
+[functions.router]
+# customers authenticate with their own rs_live_ key, not a Supabase JWT
+verify_jwt = false
+
+[functions.admin-check-keys]
+# Must stay false. The function verifies the admin JWT itself; platform-level
+# verification also rejects the browser's CORS preflight (which carries no
+# Authorization header) with a header-less 401, and the browser reports that
+# as the unhelpful "Failed to fetch".
+verify_jwt = false
+
+[functions.admin-account]
+# Same contract as admin-check-keys: the function runs its own admin gate.
+verify_jwt = false
+
+[functions.firebase-auth]
+# The whole point of this endpoint is to mint a session for a caller that does
+# not have one yet, so it cannot require a Supabase JWT to reach it.
+verify_jwt = false
+
+[functions.discord-auth]
+# Same contract as firebase-auth: the sign-in exchange mints a Firebase custom
+# token for a caller that has no session yet, so platform JWT verification
+# would 401 the only request that matters. The function gates itself —
+# HMAC-signed OAuth state with a 10-minute TTL on every action, plus the
+# caller's session bound to state.uid on connect. Deploy with the flag too,
+# in case config.toml is not pushed:
+#     supabase functions deploy discord-auth --no-verify-jwt
+verify_jwt = false
+
+[functions.keywatch]
+# ---------------------------------------------------------------------------
+#  THIS BLOCK IS WHY THE KEY WATCH SAID "stalled - last pass never".
+# ---------------------------------------------------------------------------
+#  keywatch is called by the Cloudflare cron worker, which is a server, not a
+#  browser. It sends `x-keywatch-secret` and no Supabase JWT, because it has
+#  none and must never be given one.
+#
+#  When this block is missing, verify_jwt defaults to TRUE. Supabase's gateway
+#  then answers the worker's POST with 401 *before a single line of
+#  supabase/functions/keywatch/index.ts runs*. The function never claims a
+#  pass, so internal_keywatch_due() never stamps keywatch_last_run_at, so
+#  admin_keywatch_status() keeps returning last_run_at = null, so the admin
+#  card shows "last pass never" and paints itself amber - exactly the symptom
+#  in the screenshot, and exactly why re-running the cron changed nothing.
+#
+#  The worker gets no useful feedback either: scheduled() logs the 401 and
+#  exits successfully, so `wrangler deploy` and the Cloudflare dashboard both
+#  report a perfectly healthy cron that is being turned away at the door.
+#
+#  The real gate is inside the function: it compares x-keywatch-secret against
+#  KEYWATCH_CRON_SECRET (or accepts a service-role bearer) and returns 403
+#  otherwise. Platform JWT verification adds nothing here and breaks the only
+#  caller.
+#
+#  Always deploy it with the flag as well, in case config.toml is not pushed:
+#      supabase functions deploy keywatch --no-verify-jwt
+verify_jwt = false
+
+# ---------------------------------------------------------------------------
+#  Auth rate limits
+# ---------------------------------------------------------------------------
+#  These are the ONLY IP-based limits a browser login can hit. Nothing in this
+#  repository rate-limits sign-in by IP: public.internal_ip_check() runs in the
+#  gateway (supabase/functions/router) after an rs_live_ API key is
+#  authenticated, so it never sees a login request.
+#
+#  This block applies to `supabase start` (local) and to `supabase config push`
+#  on a CLI recent enough to support it. On the hosted project the same knobs
+#  live at Dashboard -> Authentication -> Rate Limits.
+#
+#  email_sent is capped by whoever sends your mail: Supabase's built-in shared
+#  SMTP allows only a couple of auth emails per hour, and raising the number
+#  here changes nothing until custom SMTP is configured
+#  (Dashboard -> Authentication -> Emails -> SMTP Settings). That quota - not
+#  an IP rule - is what returns "email rate limit exceeded" from
+#  /auth/v1/invite. To add a user with no email at all:
+#      node scripts/create-user.mjs someone@gmail.com 'TempPass123!'
+[auth.rate_limit]
+# Sign-in + sign-up attempts per IP per 5 minutes (GoTrue default: 30).
+sign_in_sign_ups = 300
+# Session token refreshes per IP per 5 minutes (GoTrue default: 150).
+token_refresh = 1800
+# OTP / magic-link requests per hour (default: 30).
+email_sent = 100
+# Anonymous sign-ins per hour per IP (unused here, sign-in requires an email).
+anonymous_users = 30

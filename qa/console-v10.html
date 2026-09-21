@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QA - RageStar console (tab strip + playground)</title>
+    <!--
+      Cascade order mirrors the real bundle. main.jsx imports App.jsx *first*,
+      so App.jsx's four sheets land before styles.css - which is exactly why
+      console-tabs.css lost to flim.css in the app and the tab strip collapsed.
+      console-v10.css and motion.css come last, same as main.jsx.
+    -->
+    <link rel="stylesheet" href="../src/styles/admin.css" />
+    <link rel="stylesheet" href="../src/styles/console-fix.css" />
+    <link rel="stylesheet" href="../src/styles/console-tabs.css" />
+    <link rel="stylesheet" href="../src/styles/tree.css" />
+    <link rel="stylesheet" href="../src/styles.css" />
+    <link rel="stylesheet" href="../src/styles/background.css" />
+    <link rel="stylesheet" href="../src/styles/string-ui.css" />
+    <link rel="stylesheet" href="../src/styles/auth.css" />
+    <link rel="stylesheet" href="../src/styles/art.css" />
+    <link rel="stylesheet" href="../src/styles/minimal.css" />
+    <link rel="stylesheet" href="../src/styles/interactive.css" />
+    <link rel="stylesheet" href="../src/styles/flim.css" />
+    <link rel="stylesheet" href="../src/styles/console-v10.css" />
+    <link rel="stylesheet" href="../src/styles/motion.css" />
+    <style>
+      /* Captures must be deterministic: freeze every loop so each arrival
+         lands on its end state. Nothing here changes layout. */
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+      .qa-note {
+        margin: 34px 0 10px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
+    </style>
+  </head>
+  <body>
+    <main id="main" class="console-page">
+      <div class="container">
+        <div class="con-topbar">
+          <a class="brand" href="#/"><span class="brand-name">Rage<span class="dim">Star</span></span></a>
+          <div class="console-user">
+            <span class="hdr-avatar">RS</span>
+            <span class="hdr-user-meta"><b>ragestar</b><small>ragestar@outlook.com</small></span>
+            <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-shine"></span><span class="sui-btn-label">Admin panel</span></button>
+            <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-shine"></span><span class="sui-btn-label">Sign out</span></button>
+          </div>
+        </div>
+
+        <nav class="con-tabs" aria-label="Console sections">
+          <div class="con-tabs-track" role="tablist">
+            <button class="con-tab" role="tab" style="--m-i: 0" title="Overview">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3v18M3 12h18" /></svg>
+              <span>Overview</span>
+            </button>
+            <button class="con-tab" role="tab" style="--m-i: 1" title="API keys">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="12" r="3.4" /><path d="M11.4 12H21M17 12v3" /></svg>
+              <span>Keys</span>
+              <em class="con-tab-count">3</em>
+            </button>
+            <button class="con-tab" role="tab" style="--m-i: 2" title="Credits">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3v18M3 12h18" /></svg>
+              <span>Credits</span>
+              <em class="con-tab-count">$8.20</em>
+            </button>
+            <button class="con-tab" role="tab" style="--m-i: 3" title="Referrals">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="8" r="3.4" /><path d="M5 20c1.6-3.4 4-5 7-5s5.4 1.6 7 5" /></svg>
+              <span>Referrals</span>
+              <em class="con-tab-count">2</em>
+            </button>
+            <button class="con-tab is-on" role="tab" aria-selected="true" style="--m-i: 4" title="Playground">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M13 3 5 14h6l-1 7 8-11h-6z" /></svg>
+              <span>Playground</span>
+            </button>
+            <button class="con-tab" role="tab" style="--m-i: 5" title="Models available">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z" /></svg>
+              <span>Models</span>
+              <em class="con-tab-count">14</em>
+            </button>
+            <button class="con-tab" role="tab" style="--m-i: 6" title="Model status">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z" /></svg>
+              <span>Status</span>
+            </button>
+            <button class="con-tab" role="tab" style="--m-i: 7" title="Usage logs">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M13 3 5 14h6l-1 7 8-11h-6z" /></svg>
+              <span>Logs</span>
+            </button>
+            <button class="con-tab" role="tab" style="--m-i: 8" title="Profile">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="8" r="3.4" /><path d="M5 20c1.6-3.4 4-5 7-5s5.4 1.6 7 5" /></svg>
+              <span>Profile</span>
+            </button>
+          </div>
+        </nav>
+
+        <div class="con-panel" role="tabpanel">
+          <div class="adm-head">
+            <div>
+              <h1>Playground</h1>
+              <p>Sends a real request through your gateway with one of your keys. The response never names the upstream provider.</p>
+            </div>
+            <div class="adm-head-actions"><span class="pg-hint">3 runs this session</span></div>
+          </div>
+
+          <div class="pg">
+            <form class="adm-card pg-card">
+              <div class="pg-head">
+                <b>Request</b>
+                <div class="pg-head-right"><span class="pg-chip">post /chat/completions</span></div>
+              </div>
+
+              <div class="pg-body">
+                <div class="pg-row">
+                  <div class="sui-field">
+                    <div class="sui-field-top"><label for="pg-key">Gateway key</label></div>
+                    <span class="sui-input-wrap"><input class="sui-input" id="pg-key" value="rs_live_8f2c41d9e0b7" /><span class="sui-input-glow"></span></span>
+                    <p class="sui-hint">rs_live_... or rs_test_...</p>
+                  </div>
+                  <div>
+                    <label class="adm-label" for="pg-model">Model</label>
+                    <select class="adm-select" id="pg-model"><option>gpt-4o-mini</option></select>
+                    <div class="pg-metas">
+                      <span class="pg-chip">context <b>128K</b></span>
+                      <span class="pg-chip">in <b>$0.15/M</b></span>
+                      <span class="pg-chip">out <b>$0.60/M</b></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pg-prompt">
+                  <div class="pg-field-top">
+                    <label class="adm-label" for="pg-prompt">Prompt</label>
+                    <span class="pg-hint">57 chars</span>
+                  </div>
+                  <textarea class="adm-textarea pg-textarea" id="pg-prompt">Reply with one short sentence confirming the route works.</textarea>
+                  <div class="pg-presets">
+                    <button type="button" class="pg-preset is-on">route check</button>
+                    <button type="button" class="pg-preset">json only</button>
+                    <button type="button" class="pg-preset">long answer</button>
+                    <button type="button" class="pg-preset">count to 20</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pg-actions">
+                <button class="sui-btn sui-btn-primary sui-btn-sm"><span class="sui-btn-shine"></span><span class="sui-btn-label">Send request</span></button>
+                <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-shine"></span><span class="sui-btn-label">Copy cURL</span></button>
+                <span class="pg-kbd">CMD + ENTER</span>
+                <span class="pg-spacer"></span>
+                <span class="pg-endpoint">https://gateway.ragestar.dev/v1</span>
+              </div>
+            </form>
+
+            <aside class="adm-card pg-card pg-result">
+              <div class="pg-head">
+                <b>Response</b>
+                <div class="pg-head-right"><span class="pg-status is-ok"><i class="pg-led"></i>http 200</span></div>
+              </div>
+
+              <div class="pg-meta-grid">
+                <div class="pg-meta-cell"><span class="l">latency</span><span class="v">842ms</span></div>
+                <div class="pg-meta-cell"><span class="l">model</span><span class="v">gpt-4o-mini</span></div>
+                <div class="pg-meta-cell"><span class="l">failover</span><span class="v">0</span></div>
+                <div class="pg-meta-cell"><span class="l">cost</span><span class="v">$0.0004</span></div>
+                <div class="pg-meta-cell"><span class="l">credits left</span><span class="v">$8.20</span></div>
+                <div class="pg-meta-cell"><span class="l">request</span><span class="v">req_01J9Z0KQ</span></div>
+              </div>
+
+              <div class="pg-out">The route works - this reply came back through your gateway on the first upstream it tried, with no failover hops.</div>
+
+              <div class="pg-foot">
+                <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-shine"></span><span class="sui-btn-label">Copy response</span></button>
+                <button class="sui-btn sui-btn-ghost sui-btn-sm"><span class="sui-btn-shine"></span><span class="sui-btn-label">Clear</span></button>
+              </div>
+
+              <div class="pg-head pg-head-sub"><b>This session</b></div>
+              <ul class="pg-hist">
+                <li><button class="pg-hist-row"><i class="pg-led"></i><span class="pg-hist-model">gpt-4o-mini</span><span class="pg-hist-ms">842ms</span></button></li>
+                <li><button class="pg-hist-row"><i class="pg-led"></i><span class="pg-hist-model">claude-3-5-sonnet</span><span class="pg-hist-ms">1.4s</span></button></li>
+                <li><button class="pg-hist-row is-err"><i class="pg-led"></i><span class="pg-hist-model">llama-3.1-70b</span><span class="pg-hist-ms">220ms</span></button></li>
+              </ul>
+            </aside>
+          </div>
+
+          <p class="qa-note">QA only - response panel, other two states</p>
+          <div class="pg">
+            <aside class="adm-card pg-card">
+              <div class="pg-head">
+                <b>Response</b>
+                <div class="pg-head-right"><span class="pg-status"><i class="pg-led m-pulse"></i>sending 1.2s</span></div>
+              </div>
+              <div class="pg-wait">
+                <span class="m-skel" style="width: 92%"></span>
+                <span class="m-skel" style="width: 78%"></span>
+                <span class="m-skel" style="width: 86%"></span>
+                <span class="m-skel" style="width: 44%"></span>
+              </div>
+            </aside>
+
+            <aside class="adm-card pg-card">
+              <div class="pg-head">
+                <b>Response</b>
+                <div class="pg-head-right"><span class="pg-status">idle</span></div>
+              </div>
+              <div class="pg-idle">
+                <b>Nothing sent yet</b>
+                <span>Paste a gateway key, pick a model, then send. The reply, its latency and the route it took land here.</span>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
