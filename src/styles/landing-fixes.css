@@ -1,0 +1,54 @@
+/* ==========================================================================
+   landing-fixes.css — rules found missing on static review
+   --------------------------------------------------------------------------
+   Loaded after landing.css and landing-sections.css. Small on purpose; each
+   rule is here because the review of Landing.jsx / Switchboard.jsx against
+   the two sheets turned up a class with no home. Fold these into
+   landing-sections.css at the next pass and delete this file.
+   ========================================================================== */
+
+/* The row of actions under a transcript ("Copy the request", "Run it in the
+   playground"). Two .lp-link buttons side by side with breathing room, on a
+   hairline so they read as the tape's footer rather than as more lines. */
+.lp-transcript-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--lp-rule-2);
+}
+
+/* .lp-link is a <button> in the switchboard; the generic button reset zeroes
+   its font size, and the link style does not set one. */
+.lp-link {
+  font-size: var(--lp-t-body);
+}
+
+/* Inline code in a lede: the gateway host in the switchboard heading. */
+.lp-lede code {
+  font-family: inherit;
+  padding: 1px 6px;
+  border: 1px solid var(--lp-rule);
+  color: var(--lp-ink);
+}
+
+/* The footer's link lists are <button>s, not <a>s, because they navigate by
+   hash through ragestarNavigate. Give them the anchor treatment. */
+.lp-footer button {
+  color: var(--lp-ink-2);
+  text-align: left;
+}
+
+.lp-footer button:hover {
+  color: var(--lp-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* The orrery's SVG-era body rules in landing.css (fill:) are superseded by
+   the HTML-era ones in landing-sections.css (background:). They do not
+   conflict because the properties differ, but the hit-area rule there sets
+   `fill: transparent` on what is now a <button>, which is harmless and
+   meaningless. Nothing to override; noted so the leftover is not mistaken
+   for a bug. */
