@@ -1,0 +1,224 @@
+/* ==========================================================================
+   appearance-dark.css — the dark appearance for the RageStar UI kit
+   --------------------------------------------------------------------------
+   WHY THIS FILE EXISTS, AND WHY IT IS NOT A SECOND DESIGN
+
+   src/ragestar/theme.css declares the kit's palette in a Tailwind v4 `@theme`
+   block. Tailwind v4 compiles every colour utility to a `var(--color-...)`
+   reference, so re-declaring those SAME custom property names under a
+   selector swaps the whole interface at runtime. That is all this file does.
+   It restyles no component and invents no new look.
+
+   This is deliberately NOT the v11.1 "vaulto" mistake recorded in
+   DESIGN-NOTES.md. That sheet appended component rules and leaked into
+   fourteen unrelated tabs. This one declares tokens only — with the single
+   category of exception noted at section 4, where theme.css hardcoded a
+   literal instead of reading its own token, and the override has nowhere
+   else to go.
+
+   The kit's token naming is inverted on purpose, and that inversion is what
+   makes a one-file swap possible:
+
+       --color-white    is the INK  (#101814 pine, on light)
+       --color-ink-950  is the PAPER (#e9ece4, on light)
+
+   So `text-white/65` means "ink at 65% on paper", and 361 such occurrences
+   plus every `bg-ink-*` surface inverts correctly from the block below.
+
+   Loaded after theme.css and unlayered, so it outranks the kit's
+   `@layer base` and `@layer utilities` rules without needing !important.
+
+   Full rationale, measured contrast ratios and the delivery order:
+   see APPEARANCE-PLAN.md.
+   ========================================================================== */
+
+/* ------------------------------------------------- 1. browser-level surface */
+
+/* Scroll bars, spellcheck underlines and default form controls read this, and
+   they render outside any element we own. theme.css pins `color-scheme: light`
+   on .ragestar-scope, which is overridden in section 2. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  background: #101814;
+}
+
+/* -------------------------------------------------------- 2. the token swap */
+
+[data-theme="dark"] .ragestar-scope {
+  /* --- surfaces -----------------------------------------------------------
+     The extremes swap: the light appearance's ink becomes the page here. The
+     four middle tints are re-derived rather than inverted, because the paper
+     tints (#e2e6da ... #c5cdba) are far too light to read as dark surfaces.
+     Each step is one level of elevation, same as the light ramp. */
+  --color-ink-950: #101814; /* page canvas */
+  --color-ink-900: #171e1a; /* raised, card */
+  --color-ink-850: #1c241f; /* hover */
+  --color-ink-800: #222b25; /* sunken */
+  --color-ink-700: #2b352e; /* strongest tint */
+
+  /* --- the ink ramp ------------------------------------------------------
+     Every `text-white/N` utility resolves through this. At 15.1:1 on the
+     canvas it matches the light appearance's full-strength ink exactly, so
+     the 65% floor set in APPEARANCE-PLAN.md holds in both appearances with
+     one set of opacities. */
+  --color-white: #e9ece4;
+  --color-paper: #101814;
+
+  /* --- accents, fill values ---------------------------------------------
+     Same four hues as the light appearance, lifted in value until each
+     clears 4.5:1 as text on this canvas. Hue is preserved so a status keeps
+     its meaning across the switch. */
+  --color-brand-ember: #6e9bf5; /* cobalt        — 6.6:1 */
+  --color-brand-coral: #f2705c; /* signal red    — 6.2:1 */
+  --color-brand-gold: #d9ae3a; /* brass         — 8.7:1 */
+  --color-brand-clay: #4a74e8; /* deep cobalt   — fills only */
+  --color-brand-lime: #3db495; /* instrument teal — 7.0:1 */
+
+  /* --- remapped tailwind stops ------------------------------------------
+     In the light appearance these are DARK stops, because they are used as
+     text on paper. Here they must be LIGHT for exactly the same reason.
+     This is the inversion that a naive palette swap gets wrong.
+
+     The 500/600 stops stay mid-saturation: they carry the primary button
+     gradient (`from-orange-600 via-red-500 to-rose-500`) which has
+     `text-white` on it, and --color-white is now the light ink. */
+  --color-orange-600: #1f3fd0;
+  --color-orange-500: #2f55e4;
+  --color-orange-400: #6e9bf5;
+  --color-orange-200: #93b3f8;
+  --color-orange-100: #b3caf9;
+  --color-red-500: #2f55e4;
+  --color-rose-500: #e2503b;
+  --color-rose-400: #ef6b57;
+  --color-rose-300: #f2705c;
+  --color-rose-200: #f08a78;
+  --color-rose-100: #f4a596;
+  --color-amber-500: #c79a1e;
+  --color-amber-400: #d9ae3a;
+  --color-amber-300: #e0bb55;
+  --color-amber-200: #e8cc7a;
+  --color-lime-400: #3db495;
+  --color-lime-300: #5fc4a8;
+  --color-lime-200: #85d3bd;
+
+  /* --- the two properties theme.css set as literals on this selector ----- */
+  color-scheme: dark;
+  color: #e9ece4;
+}
+
+/* ------------------------------------------- 3. scoped reset consequences */
+
+/* theme.css writes these two with literal hex inside @layer base, so the
+   token swap above cannot reach them. */
+[data-theme="dark"] .ragestar-scope ::placeholder {
+  color: color-mix(in oklab, #e9ece4 38%, transparent);
+}
+
+[data-theme="dark"] .ragestar-scope ::selection {
+  background: color-mix(in oklab, #6e9bf5 70%, transparent);
+  color: #101814;
+}
+
+/* ------------------------------------------------ 4. hardcoded kit surfaces */
+
+/* The kit's signature utilities bake their paper values in rather than
+   reading a token, so each needs one override here. Converting them to
+   tokens at source is tracked as the tokenize pass in APPEARANCE-PLAN.md;
+   until that lands, these five rules are the difference between a dark page
+   and a dark page with light cards floating on it. */
+
+[data-theme="dark"] .ragestar-scope .pr-glass {
+  background: #171e1a;
+  border-color: rgba(233, 236, 228, 0.16);
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .ragestar-scope .pr-glass-strong {
+  background: rgba(23, 30, 26, 0.94);
+  border-color: rgba(233, 236, 228, 0.2);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .ragestar-scope .pr-glow-ember {
+  box-shadow:
+    6px 6px 0 0 rgba(0, 0, 0, 0.55),
+    0 22px 55px -22px rgba(110, 155, 245, 0.42);
+}
+
+/* The engineering grid is drawn from pine ink at 5.5% — invisible on a pine
+   canvas. Redrawn from the light ink at a matching weight. */
+[data-theme="dark"] .ragestar-scope .pr-grid-backdrop {
+  background-image:
+    linear-gradient(to right, rgb(233 236 228 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(233 236 228 / 0.05) 1px, transparent 1px);
+}
+
+/* The hard offset ink shadow is the theme's signature press. On a dark
+   canvas an ink-coloured shadow disappears, so it becomes true black. */
+[data-theme="dark"] .ragestar-scope .bg-gradient-to-r.from-orange-600 {
+  box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .ragestar-scope .bg-gradient-to-r.from-orange-600:hover {
+  box-shadow:
+    6px 6px 0 0 rgba(0, 0, 0, 0.6),
+    0 20px 44px -18px rgba(110, 155, 245, 0.4);
+}
+
+/* ------------------------------------------------ 5. out-of-scope chrome */
+
+/* Four layers render at the document root, outside .ragestar-scope: the boot
+   plate (.rl), toasts (.rs-toaster), the command palette (.rs-cmd) and
+   back-to-top (.rs-scrolltop). chrome.css bridges the kit palette onto them
+   using the GATEWAY's token names, and pins those to paper values — including
+   under [data-theme="dark"], which is why the palette used to stay bright
+   over a dark page. Re-bridged here with the dark values.
+
+   Loaded after chrome.css, so these win. */
+
+[data-theme="dark"] .rl,
+[data-theme="dark"] .rs-toaster,
+[data-theme="dark"] .rs-cmd,
+[data-theme="dark"] .rs-modal,
+[data-theme="dark"] .rs-scrolltop {
+  --paper: #101814;
+  --paper-2: #171e1a;
+  --card: #1c241f;
+  --bg: #101814;
+  --hover: #222b25;
+
+  --ink: #e9ece4;
+  --ink-soft: rgba(233, 236, 228, 0.72);
+  --ink-faint: rgba(233, 236, 228, 0.5);
+  --faint: rgba(233, 236, 228, 0.45);
+
+  --rule: rgba(233, 236, 228, 0.16);
+  --rule-soft: rgba(233, 236, 228, 0.1);
+  --border: rgba(233, 236, 228, 0.16);
+  --border-strong: rgba(233, 236, 228, 0.3);
+
+  --primary: #6e9bf5;
+  --citron: #6e9bf5;
+  --live: #3db495;
+  --stop: #f2705c;
+  --flag: #d9ae3a;
+
+  --rs-shadow: 0 18px 44px -28px rgba(0, 0, 0, 0.8);
+  --rs-shadow-lg: 0 40px 90px -40px rgba(0, 0, 0, 0.85);
+}
+
+/* chrome.css pins both of these to a paper value with an explicit
+   [data-theme="dark"] rule of its own, so each needs answering directly. */
+[data-theme="dark"] .rs-modal-scrim,
+[data-theme="dark"] .rs-cmd-scrim {
+  background: rgba(0, 0, 0, 0.62);
+}
+
+[data-theme="dark"] .rs-cmd-item[data-active] {
+  background: #222b25;
+}
+
+[data-theme="dark"] .rs-scrolltop:hover {
+  background: #222b25;
+  border-color: rgba(233, 236, 228, 0.3);
+}
