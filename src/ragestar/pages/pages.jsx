@@ -16,7 +16,7 @@ import {
 import { takeDiscordResult } from "../../lib/discord.js";
 import { ModelCatalog } from "../dashboard/models.jsx";
 import { models } from "../dashboard/data.js";
-import { useCatalog } from "../lib/workspace.js";
+import { useCatalog } from "../lib/useCatalog.js";
 import { Badge, Reveal } from "../components/ui.jsx";
 import { DotmSquare1 } from "../components/dotmatrix.jsx";
 import { cn } from "../lib/cn.js";
@@ -40,7 +40,8 @@ export function PageNav({ navigate, session }) {
           </span>
         </button>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        
+<nav className="hidden items-center gap-1 md:flex">
           {[
             { l: "Models", p: "models" },
             { l: "Pricing", p: "pricing" },
@@ -79,6 +80,7 @@ export function PageNav({ navigate, session }) {
 }
 
 /* --------------------------------------------------------------- login page */
+
 
 export function LoginPage({ mode, navigate }) {
   const [email, setEmail] = useState("");
@@ -129,7 +131,8 @@ export function LoginPage({ mode, navigate }) {
     }
   };
 
-  const continueWithGoogle = async () => {
+  
+const continueWithGoogle = async () => {
     setError(null);
     setNotice(null);
     if (!acceptedPrivacy) {
@@ -164,7 +167,8 @@ export function LoginPage({ mode, navigate }) {
         </button>
 
         <div className="grid flex-1 items-center gap-12 py-10 lg:grid-cols-[1.05fr_1fr]">
-          <div className="hidden lg:block">
+          
+<div className="hidden lg:block">
             <Badge tone="ember">
               <DotmSquare1 size={11} dotSize={2} color="#2447E8" speed={1.2} aria-hidden />
               {models.length} models · 5 regions
@@ -196,7 +200,8 @@ export function LoginPage({ mode, navigate }) {
               </pre>
             </div>
 
-            <div className="mt-7 flex flex-wrap gap-6">
+            
+<div className="mt-7 flex flex-wrap gap-6">
               {[
                 { k: "median ttft", v: "184ms" },
                 { k: "uptime (90d)", v: "99.99%" },
@@ -210,7 +215,8 @@ export function LoginPage({ mode, navigate }) {
             </div>
           </div>
 
-          <div className="mx-auto w-full max-w-md">
+          
+<div className="mx-auto w-full max-w-md">
             <div className="pr-glass-strong rounded-3xl p-6 sm:p-7">
               <div className="flex gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
                 {["signin", "signup"].map((m) => (
@@ -240,7 +246,8 @@ export function LoginPage({ mode, navigate }) {
                   : "Free to start · no card required."}
               </p>
 
-              <form onSubmit={submit} className="mt-6 space-y-4">
+              
+<form onSubmit={submit} className="mt-6 space-y-4">
                 {mode === "signup" && (
                   <label className="block">
                     <span className="font-mono text-[9.5px] tracking-[0.16em] text-white/40 uppercase">full name</span>
@@ -264,7 +271,8 @@ export function LoginPage({ mode, navigate }) {
                   />
                 </label>
 
-                <label className="block">
+                
+<label className="block">
                   <span className="flex items-center justify-between">
                     <span className="font-mono text-[9.5px] tracking-[0.16em] text-white/40 uppercase">password</span>
                     {mode === "signin" && (
@@ -285,7 +293,8 @@ export function LoginPage({ mode, navigate }) {
                   />
                 </label>
 
-                {mode === "signin" && (
+                
+{mode === "signin" && (
                   <button
                     type="button"
                     onClick={() => setApiKeyMode((v) => !v)}
@@ -305,7 +314,8 @@ export function LoginPage({ mode, navigate }) {
                   />
                 )}
 
-                {mode === "signin" && (
+                
+{mode === "signin" && (
                   <button
                     type="button"
                     onClick={() => setRemember((v) => !v)}
@@ -331,7 +341,8 @@ export function LoginPage({ mode, navigate }) {
                 {/* Compulsory privacy consent. Without it the buttons below stay
                     disabled and submit() refuses to run. The link opens the full
                     policy in a new tab so a half-filled form is not lost. */}
-                <label className="flex items-start gap-2.5 text-[12.5px] text-white/55">
+                
+<label className="flex items-start gap-2.5 text-[12.5px] text-white/55">
                   <input
                     type="checkbox"
                     checked={acceptedPrivacy}
@@ -357,7 +368,8 @@ export function LoginPage({ mode, navigate }) {
                   </span>
                 </label>
 
-                {!acceptedPrivacy && consentWarn && (
+                
+{!acceptedPrivacy && consentWarn && (
                   <p className="rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-2.5 text-[12px] text-white/55">
                     You must accept the Privacy Policy before you can continue.
                   </p>
@@ -374,7 +386,8 @@ export function LoginPage({ mode, navigate }) {
                   </p>
                 )}
 
-                <button
+                
+<button
                   type="submit"
                   disabled={busy || !acceptedPrivacy}
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-600 via-red-500 to-rose-500 px-5 py-3.5 text-[13.5px] font-medium text-white transition-all hover:shadow-[0_20px_50px_-18px_rgba(36,71,232,0.3)] disabled:opacity-60"
@@ -398,7 +411,8 @@ export function LoginPage({ mode, navigate }) {
                 <span className="h-px flex-1 bg-white/10" />
               </div>
 
-              <button
+              
+<button
                 onClick={continueWithGoogle}
                 disabled={busy || !acceptedPrivacy}
                 className="flex w-full items-center justify-center gap-2.5 rounded-full border border-white/12 bg-white/5 px-4 py-3 text-[12.5px] text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-60"
@@ -412,7 +426,8 @@ export function LoginPage({ mode, navigate }) {
                 Continue with Google
               </button>
 
-              <p className="mt-6 rounded-xl border border-white/8 bg-white/[0.03] p-3.5 font-mono text-[11px] leading-relaxed text-white/45">
+              
+<p className="mt-6 rounded-xl border border-white/8 bg-white/[0.03] p-3.5 font-mono text-[11px] leading-relaxed text-white/45">
                 {ALLOWED_DOMAINS_LABEL ? (
                   <>sign-in is limited to <span className="text-lime-300">{ALLOWED_DOMAINS_LABEL}</span> addresses</>
                 ) : (
@@ -434,10 +449,21 @@ export function LoginPage({ mode, navigate }) {
 /* ------------------------------------------------------------ models page */
 
 export function ModelsPage({ navigate, session }) {
-  /* Stats are computed from whatever catalog is on screen — the live
-     public_models rows when the gateway answers, the kit fixtures otherwise. */
+  /* Stats are computed from the LIVE catalog only.
+
+     This used to fall back to the kit fixtures (`live ?? models`), which is
+     what put "7 MODELS AVAILABLE" directly above "0 OF 0 MODELS": these tiles
+     counted seven built-in fixtures while the ModelCatalog below deliberately
+     refused to show models that may not exist on this account. The database
+     happening to hold exactly seven published models made the contradiction
+     look like a rendering bug rather than two different sources.
+
+     Now both read the same shared request (lib/useCatalog.js), so the tiles and
+     the list can only ever agree. While the catalog is loading the tiles show a
+     zero count and em dashes, which is true, rather than numbers for a
+     workspace nobody is looking at. */
   const live = useCatalog();
-  const catalogRows = live ?? models;
+  const catalogRows = live ?? [];
   const stats = useMemo(() => {
     const priced = catalogRows.filter((m) => m.priceOut > 0);
     const cheapest = priced.length ? Math.min(...priced.map((m) => m.priceOut)) : null;
@@ -451,7 +477,8 @@ export function ModelsPage({ navigate, session }) {
     ];
   }, [catalogRows]);
 
-  return (
+  
+return (
     <div className="relative min-h-screen text-[#101814]">
       <div className="relative z-10">
         <PageNav navigate={navigate} session={session} />
@@ -480,7 +507,8 @@ export function ModelsPage({ navigate, session }) {
             </p>
           </Reveal>
 
-          <Reveal delay={210}>
+          
+<Reveal delay={210}>
             <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {stats.map((s) => (
                 <div key={s.k} className="pr-glass rounded-2xl px-5 py-4">
@@ -504,7 +532,8 @@ export function ModelsPage({ navigate, session }) {
             <div className="pr-glass-strong relative overflow-hidden rounded-3xl p-8 sm:p-12">
               <div className="pointer-events-none absolute -top-20 -left-10 h-56 w-56 rounded-full bg-brand-ember/25 blur-[90px]" />
               <div className="relative grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
-                <div>
+                
+<div>
                   <h2 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                     Try any model in the browser before you write code.
                   </h2>
@@ -527,7 +556,8 @@ export function ModelsPage({ navigate, session }) {
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                
+<div className="grid grid-cols-2 gap-3">
                   {[
                     { k: "free credits", v: "$25" },
                     { k: "rate limit", v: "60 rpm" },
@@ -545,7 +575,8 @@ export function ModelsPage({ navigate, session }) {
           </div>
         </section>
 
-        <footer className="border-t border-white/8 px-4 py-10 sm:px-6">
+        
+<footer className="border-t border-white/8 px-4 py-10 sm:px-6">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
             <p className="font-mono text-[10.5px] tracking-[0.14em] text-white/35 uppercase">
               © {new Date().getFullYear()} RageStar AI · inference platform
