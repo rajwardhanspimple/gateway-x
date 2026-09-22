@@ -3,8 +3,8 @@
    --------------------------------------------------------------------------
    WHY THIS EXISTS
 
-   useCatalog() in workspace.js returned a bare value with three meanings
-   collapsed into two:
+   The old useCatalog() in workspace.js returned a bare value with three
+   meanings collapsed into two:
 
      null  =  still loading  OR  the read failed
      []    =  loaded, genuinely empty
@@ -15,10 +15,10 @@
    worth an error state". It is, because the alternative is a spinner that never
    resolves.
 
-   Two components on the same page also each called the hook, which meant two
-   identical requests per view and, worse, two independent pending states: the
-   stats tiles fell back to the built-in fixtures while the list below them
-   refused to, so the page showed "7 MODELS AVAILABLE" directly above
+   Four components also each called the hook, which meant four identical
+   requests per page view and, worse, independent pending states: the models
+   page's stat tiles fell back to the built-in fixtures while the list below
+   them refused to, so the page showed "7 MODELS AVAILABLE" directly above
    "0 OF 0 MODELS". Same page, two answers.
 
    This module fixes both:
@@ -27,14 +27,57 @@
        difference and say something true
      · one in-flight promise shared by every subscriber, so N components on a
        page make exactly one request and all agree on the result
+
+   mapPublicModel lives HERE rather than in workspace.js. workspace.js
+   re-exports it and delegates its own useCatalog to this module, so there is
+   one fetch and one mapper; putting the mapper the other way round would make
+   the two modules import each other.
    ========================================================================== */
 
 import { useEffect, useState } from "react";
 import { isConfigured } from "../../lib/supabase.js";
 import { listPublicModels } from "../../lib/db.js";
-import { mapPublicModel } from "./workspace.js";
 
-/* The single shared cache. `status` is the whole point of this module. */
+export const MODALITIES = ["text", "code", "vision", "image", "audio", "embedding", "rerank"];
+
+const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+
+/**
+ * public_models row -> the kit's model object.
+ *
+ * The kit renders `{model.ttft}ms` and sorts by it, but the gateway does not
+ * measure per-model TTFT, so it is null here and the call sites print an em
+ * dash rather than a zero that reads as a measurement. Everything the gateway
+ * does know — context, prices, capabilities, status — is real.
+ */
+export function mapPublicModel(m) {
+  const id = String(m.id ?? m.public_id ?? "");
+  const capabilities = Array.isArray(m.capabilities) ? m.capabilities : [];
+  const modality = capabilities.filter((c) => MODALITIES.includes(String(c).toLowerCase()));
+  const status = String(m.status ?? "").toLowerCase();
+
+  return {
+    id,
+    name: m.name || m.display_name || id,
+    /* "openai/gpt-4o" -> "openai"; a bare id is served by the gateway itself */
+    provider: id.includes("/") ? id.split("/")[0] : "gateway",
+    blurb: m.description || "",
+    context: num(m.context_window),
+    priceIn: num(m.price_in_per_m),
+    priceOut: num(m.price_out_per_m),
+    modality: modality.length ? modality : ["text"],
+    ttft: null,
+    throughput: null,
+    license: "Proprietary",
+    status: status === "beta" ? "beta" : status === "preview" ? "preview" : "ga",
+    tags: capabilities.slice(0, 3).map(String),
+    strengths: [],
+  };
+}
+
+/* ------------------------------------------------------------ shared state */
+
+/* `status` is the whole point of this module. */
 let state = {
   status: isConfigured ? "loading" : "error",
   models: [],
@@ -55,6 +98,7 @@ function publish(next) {
 function load() {
   if (!isConfigured) return Promise.resolve(state);
   if (inFlight) return inFlight;
+  if (state.status === "ready") return Promise.resolve(state);
 
   inFlight = listPublicModels()
     .then((rows) => {
@@ -132,13 +176,20 @@ export function useCatalogState() {
 }
 
 /**
- * Back-compatible shape for callers that only want the rows and treat null as
- * "not answered yet": null while loading or on failure, an array once ready.
+ * Back-compatible shape: null while loading or on failure, an array once ready.
  *
  * Prefer useCatalogState() in anything that renders a loading or empty state,
- * because this signature cannot express the difference between the two.
+ * because this signature cannot express the difference between the two. This
+ * exists so the existing callers share the one fetch without each needing a
+ * rewrite.
  */
 export function useCatalogRows() {
   const { models, status } = useCatalogState();
   return status === "ready" ? models : null;
+}
+
+/** Number of published models, or null until the catalog answers. */
+export function useCatalogCountShared() {
+  const { models, status } = useCatalogState();
+  return status === "ready" ? models.length : null;
 }
