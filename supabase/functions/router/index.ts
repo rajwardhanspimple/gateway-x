@@ -24,6 +24,7 @@ import {
   requestId,
   sha256Hex,
   assertPublicHttpsUrl,
+  resolveClientIp,
   MAX_BODY_BYTES,
   bodyLimitLabel,
   clampStoredPayload,
@@ -43,13 +44,21 @@ const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
 
 /* ---------------------------------------------------------------- client IP
    IP limits are only as good as the address they are fed, so the header we
-   trust matters:
+   trust matters. The resolution order lives in resolveClientIp() in
+   _shared/cors.ts; the short version:
 
-     - behind Cloudflare (gw.ragestar.bond) the real caller sits in
-       `cf-connecting-ip`, which Cloudflare overwrites on every request
-     - a client hitting the raw *.supabase.co URL can invent that header, so
-       it is only trusted when the request also carries the shared secret the
-       Cloudflare Worker injects (RS_EDGE_SECRET)
+     - `x-rs-client-ip`, set by cloudflare/worker.js, is preferred. It has to
+       exist because *.supabase.co is ITSELF behind Cloudflare, so the Worker's
+       call to this function is a Cloudflare -> Cloudflare subrequest and
+       Cloudflare OVERWRITES cf-connecting-ip with the Worker's own address on
+       that hop. Reading cf-connecting-ip first is what logged every user's
+       traffic as one shared address and quietly broke the per-IP rate limit,
+       the key-sharing guard and every per-key IP allowlist.
+     - it is trusted ONLY when the request also carries the shared secret the
+       Worker injects (RS_EDGE_SECRET), so a client hitting the raw
+       *.supabase.co URL cannot invent its own address.
+     - cf-connecting-ip, x-forwarded-for and x-real-ip remain the fallbacks, in
+       that order, for deployments that are not behind our Worker.
      - with RS_REQUIRE_EDGE_SECRET=true the gateway refuses anything that did
        not come through your own domain
 
@@ -64,17 +73,10 @@ function fromEdge(req: Request) {
 }
 
 function clientIpOf(req: Request): string | null {
-  const cf = (req.headers.get("cf-connecting-ip") ?? "").trim()
-  if (cf && (fromEdge(req) || !EDGE_SECRET)) return cf
-
-  const xff = (req.headers.get("x-forwarded-for") ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-  if (xff.length) return xff[0]
-
-  const real = (req.headers.get("x-real-ip") ?? "").trim()
-  return real || null
+  return resolveClientIp(req, {
+    fromEdge: fromEdge(req),
+    hasEdgeSecret: EDGE_SECRET.length > 0,
+  })
 }
 
 import {
