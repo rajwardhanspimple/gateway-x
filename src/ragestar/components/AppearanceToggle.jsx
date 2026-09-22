@@ -6,22 +6,28 @@
    which render no navigation of their own and would otherwise offer no way to
    switch.
 
-   This component does not own the appearance. App.jsx is the writer of
-   `data-theme` and of the stored preference. The contract both sides honour:
+   The visible control is AnimatedThemeToggler (ported from Magic UI), which
+   wipes the new appearance across the page with a View Transition clip-path
+   instead of swapping it instantly. This file owns the CONTRACT that sits under
+   it, and that separation matters:
 
-     write   set data-theme on <html>, persist under "ragestar-theme",
-             then dispatch `ragestar-theme-change` carrying the new value
-     read    subscribe to that event — never read the attribute once on mount,
-             which is what leaves a control stale when the appearance is
-             changed from the command palette or the keyboard shortcut
+     setAppearance()   the single writer. Sets data-theme on <html>, persists
+                       to localStorage["ragestar-theme"], dispatches
+                       ragestar-theme-change. Every switch goes through it —
+                       this control, the command palette, the keyboard
+                       shortcut, the animated toggler.
+     useAppearance()   the reader. Subscribes to the event rather than reading
+                       the attribute once on mount, which is what leaves a
+                       control stale when the appearance changes elsewhere.
 
    Styling lives in src/styles/appearance-control.css and uses the GATEWAY
-   tokens, not the kit's Tailwind utilities. That matters: this renders outside
+   tokens, not the kit's Tailwind utilities: this renders outside
    .ragestar-scope, where `text-white` still resolves to the kit's pine ink, so
    kit utilities would make the button dark-on-dark in the dark appearance.
    ========================================================================== */
 
 import { useCallback, useEffect, useState } from "react";
+import { AnimatedThemeToggler } from "./AnimatedThemeToggler.jsx";
 
 const STORAGE_KEY = "ragestar-theme";
 const EVENT = "ragestar-theme-change";
@@ -38,10 +44,10 @@ function currentAppearance() {
 /**
  * Apply an appearance app-wide.
  *
- * Exported so the command palette and any future caller share one path rather
- * than each writing the attribute themselves. A storage failure (private mode,
- * storage disabled, quota) must not block the switch: the appearance still
- * applies for the rest of the session.
+ * Exported so the command palette, the animated toggler and any future caller
+ * share one path rather than each writing the attribute themselves. A storage
+ * failure (private mode, storage disabled, quota) must not block the switch:
+ * the appearance still applies for the rest of the session.
  */
 export function setAppearance(next) {
   const value = next === DARK ? DARK : LIGHT;
@@ -101,75 +107,28 @@ export function useAppearance() {
   return { appearance, isDark: appearance === DARK, toggle, setAppearance };
 }
 
-/* --- icons ---------------------------------------------------------------
-   Sized explicitly at 18px via .rs-appearance-icon. These viewBox-only SVGs
-   measure 0x0 inside a flex parent otherwise, which is the v7.0 step-icon bug
-   recorded in DESIGN-NOTES.md. Only one is ever rendered, so there is no
-   chance of both showing mid-transition. */
-
-function SunIcon() {
-  return (
-    <svg
-      className="rs-appearance-icon"
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <circle cx="12" cy="12" r="4.2" />
-      <path
-        d="M12 2.6v2.4M12 19v2.4M4.4 12H2M22 12h-2.4M6.1 6.1 4.4 4.4M19.6 19.6l-1.7-1.7M17.9 6.1l1.7-1.7M4.4 19.6l1.7-1.7"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg
-      className="rs-appearance-icon"
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M20.5 14.3A8.6 8.6 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8Z" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 /**
  * The switch.
  *
- * The label names the DESTINATION ("Dark", "Light"), not the current state: a
- * control labelled for what it currently is leaves the reader guessing what
- * pressing it does. `aria-pressed` carries the state instead, announced on the
- * same element the user activated.
+ * A thin wrapper now: AnimatedThemeToggler renders the button, owns the icon
+ * and the View Transition wipe, and calls setAppearance above. The label beside
+ * it names the DESTINATION ("Dark", "Light") rather than the current state,
+ * because a control labelled for what it currently is leaves the reader
+ * guessing what pressing it does. The toggler carries aria-pressed and the
+ * aria-label, so the label span is decorative and hidden from assistive tech to
+ * avoid announcing the word twice.
+ *
+ * `fromCenter` is off, so the wipe opens from the button in the bottom-left
+ * corner — the reveal starts where the reader clicked.
  */
 export default function AppearanceToggle() {
-  const { isDark, toggle } = useAppearance();
-  const target = isDark ? "light" : "dark";
+  const { isDark } = useAppearance();
 
   return (
-    <button
-      type="button"
-      className="rs-appearance"
-      onClick={toggle}
-      title={`Switch to ${target} appearance`}
-      aria-label={`Switch to ${target} appearance`}
-      aria-pressed={isDark}
-    >
-      {isDark ? <SunIcon /> : <MoonIcon />}
-      <span className="rs-appearance-label">{isDark ? "Light" : "Dark"}</span>
-    </button>
+    <AnimatedThemeToggler className="rs-appearance" variant="circle" duration={450}>
+      <span className="rs-appearance-label" aria-hidden="true">
+        {isDark ? "Light" : "Dark"}
+      </span>
+    </AnimatedThemeToggler>
   );
 }
