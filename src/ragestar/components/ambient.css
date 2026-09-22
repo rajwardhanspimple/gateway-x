@@ -1,0 +1,192 @@
+/* ==========================================================================
+   ambient.css — the backdrop behind every RageStar screen
+   --------------------------------------------------------------------------
+   WHAT CHANGED AND WHY
+
+   The previous backdrop ran eight layers: three breathing radial gradient
+   blobs, 26 randomly coloured motes drifting upward, a scanline sweeping the
+   page every 10.5s, grain, a masked grid and a vignette. All of it was
+   decoration, none of it meant anything, and three of those layers are the
+   exact things the design guidance calls out as generated-page tells
+   (gradient washes used as decoration, ambient loops with no purpose).
+
+   This one has four layers and one rule: motion either answers the reader or
+   represents the product. Nothing loops just to look alive.
+
+     1. grid      static. A gateway is infrastructure; ruled paper suits it.
+     2. routes    five wires converging on the centre, with packets running
+                  in along them. This is what the product does — many callers,
+                  one endpoint. Slow, low contrast, capped in number.
+     3. spotlight follows the pointer. Answers the reader's action, which is
+                  the one kind of motion that is always welcome.
+     4. texture   grain + vignette, static, barely there.
+
+   Everything is token-driven, so the backdrop follows the light and dark
+   appearances instead of carrying paper-tuned rgba values that go wrong the
+   moment the page turns dark (which is what the old one did).
+   ========================================================================== */
+
+.amb {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  /* light appearance: ink on drafting paper */
+  --amb-line: rgba(16, 24, 20, 0.055);
+  --amb-wire: rgba(16, 24, 20, 0.1);
+  --amb-packet: #2447e8;
+  --amb-spot: rgba(36, 71, 232, 0.07);
+  --amb-depth: rgba(16, 24, 20, 0.035);
+  --amb-edge: rgba(16, 24, 20, 0.14);
+  --amb-grain: 0.05;
+}
+
+[data-theme="dark"] .amb {
+  /* dark appearance: light lines on the pine canvas. Not an inversion of the
+     alphas — a light line at 5.5% on near-black is invisible, so the ruling
+     and the wires are lifted. */
+  --amb-line: rgba(233, 236, 228, 0.05);
+  --amb-wire: rgba(233, 236, 228, 0.1);
+  --amb-packet: #6e9bf5;
+  --amb-spot: rgba(110, 155, 245, 0.1);
+  --amb-depth: rgba(233, 236, 228, 0.022);
+  --amb-edge: rgba(0, 0, 0, 0.45);
+  --amb-grain: 0.035;
+}
+
+/* ------------------------------------------------------------- 1. the grid */
+
+/* Static, and masked so it fades before the viewport edge rather than ending
+   on a hard line. 64px pitch matches the kit's own spacing rhythm. */
+.amb-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--amb-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--amb-line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 85% 70% at 50% 42%, #000 25%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 70% at 50% 42%, #000 25%, transparent 80%);
+}
+
+/* ----------------------------------------------------------- 2. the routes */
+
+.amb-routes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.amb-wire {
+  fill: none;
+  stroke: var(--amb-wire);
+  stroke-width: 1;
+}
+
+/* The convergence point. A ring, not a filled dot: the page's own content
+   sits over this area and a solid mark would show through the type. */
+.amb-hub {
+  fill: none;
+  stroke: var(--amb-wire);
+  stroke-width: 1.5;
+}
+
+/* A packet running in along its wire. --dx/--dy are set per packet from the
+   wire's start point, in viewBox units, so one keyframe serves all five. */
+.amb-packet {
+  fill: var(--amb-packet);
+  opacity: 0;
+  animation-name: amb-run;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes amb-run {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.55;
+  }
+  82% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate(var(--dx, 0), var(--dy, 0));
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------- 3. the spotlight */
+
+/* Follows the pointer. The only layer that moves in response to the reader,
+   and the only one that is allowed to. --amb-x / --amb-y are written by the
+   component on a rAF, in percentages. */
+.amb-spot {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    520px circle at var(--amb-x, 50%) var(--amb-y, 40%),
+    var(--amb-spot),
+    transparent 70%
+  );
+  transition: opacity 260ms ease;
+}
+
+/* No pointer (touch, or the cursor has left the window): hide it rather than
+   parking a glow in the middle of the page. */
+.amb[data-pointer="false"] .amb-spot {
+  opacity: 0;
+}
+
+/* ------------------------------------------------------------ 4. the texture */
+
+/* One static wash for depth. Replaces the three animated blobs: a page does
+   not need three breathing gradients to have dimension. */
+.amb-depth {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 100%, var(--amb-depth), transparent 72%);
+}
+
+.amb-grain {
+  position: absolute;
+  inset: 0;
+  opacity: var(--amb-grain);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.amb-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 92% at 50% 38%, transparent 48%, var(--amb-edge));
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+/* The packets stop and the spotlight stops tracking. The grid, wires, hub and
+   texture are all static anyway, so the backdrop is complete without either. */
+@media (prefers-reduced-motion: reduce) {
+  .amb-packet {
+    animation: none;
+    opacity: 0;
+  }
+  .amb-spot {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------- forced colours */
+
+/* A decorative backdrop has no business fighting a reader who has asked the
+   operating system for a specific palette. */
+@media (forced-colors: active) {
+  .amb {
+    display: none;
+  }
+}
