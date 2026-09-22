@@ -1,12 +1,13 @@
 /* ==========================================================================
-   Render test — mounts the two rebuilt tabs for real
+   Render test — mounts the rebuilt tabs for real
    --------------------------------------------------------------------------
    The static checks prove the files parse, the hooks are legal, the imports
    resolve and the classes exist. None of that catches the failure that
    actually reaches a user: a component that throws while rendering because
    a field is missing, a list is undefined, or a helper got the wrong shape.
 
-   So this renders both tabs with react-dom/server against two data sets:
+   So this renders the admin Dashboard tab with react-dom/server against two
+   data sets:
 
      · populated — the shape the real queries return
      · empty     — null summary, no rows, no handlers at all
@@ -45,6 +46,7 @@ const MODELS = ["gpt-4o-mini", "gpt-4o", "claude-3-5-sonnet", "llama-3.1-70b", "
 
 /* 60 calls spread across the last 14 hours, with a believable failure rate
    and a couple of slow outliers so the p95 figure has something to find. */
+
 const logs = Array.from({ length: 60 }, (_, i) => {
   const broken = i % 9 === 0
   return {
@@ -79,6 +81,7 @@ const upKeys = [
   { id: "k-8", upstream_id: "up-3", status: "disabled", is_active: false, last_checked_at: iso(5 * DAY) },
   { id: "k-9", upstream_id: "up-9-missing", status: "working", is_active: true, last_checked_at: iso(90 * 60_000) },
 ]
+
 
 const series = Array.from({ length: 30 }, (_, i) => {
   const quiet = i < 4
@@ -133,40 +136,20 @@ const dashboardProps = {
   },
 }
 
-const overviewProps = {
-  full: {
-    summary: {
-      requests: 4120,
-      ok: 4061,
-      failed: 59,
-      tokens_in: 812_344,
-      tokens_out: 442_110,
-      cost_usd: 38.22,
-      avg_latency_ms: 734,
-      last_request_at: iso(3 * 60_000),
-    },
-    series,
-    keys: [
-      { id: "rr-1", status: "active" },
-      { id: "rr-2", status: "revoked" },
-    ],
-    logs: logs.slice(0, 12),
-    models: Array.from({ length: 14 }, (_, i) => ({ id: `m-${i}` })),
-    gatewayUrl: "https://render-test.example.com/v1",
-    onRefresh: () => {},
-    onGo: () => {},
-  },
-  empty: {
-    summary: null,
-    series: [],
-    keys: [],
-    logs: [],
-    models: [],
-    gatewayUrl: "",
-  },
-}
-
 /* ---------------------------------------------------------------- cases */
+
+/* The two `console Overview` cases that used to live here are gone.
+   src/pages/console/OverviewTab.jsx moved to recycle-bin/ on 2026-09-21 — the
+   console shell had been unrouted since v12.8, so nothing rendered that tab and
+   nothing imported it. scripts/check-ui.mjs was updated for the move at the
+   time (see the comment in its `cases` list) but this file was not, so
+   `npm test` failed at test:render with "Cannot find module OverviewTab.jsx"
+   on every run since.
+
+   The live dashboard has its own Overview view in
+   src/ragestar/dashboard/Dashboard.jsx. To bring the pair back, restore the
+   files from recycle-bin/ and re-add the cases along with the overviewProps
+   fixture. */
 
 const cases = [
   {
@@ -197,31 +180,6 @@ const cases = [
       "kw-",
     ],
   },
-  {
-    name: "console Overview · populated",
-    module: "../../src/pages/console/OverviewTab.jsx",
-    props: overviewProps.full,
-    expect: [
-      "Overview",
-      "Success rate",
-      "Your endpoint",
-      "Latest requests",
-      "Quick actions",
-      "https://render-test.example.com/v1",
-      "adm-stats",
-    ],
-  },
-  {
-    name: "console Overview · empty account",
-    module: "../../src/pages/console/OverviewTab.jsx",
-    props: overviewProps.empty,
-    expect: [
-      "You have no active API key yet",
-      "No traffic in this window",
-      "No requests logged yet",
-      "set VITE_GATEWAY_URL",
-    ],
-  },
 ]
 
 /* The removed layer must not reappear in the output of either tab. */
@@ -241,6 +199,7 @@ console.warn = (...args) => captured.push(args.map(String).join(" "))
 const lines = []
 lines.push(paint.bold("check-render"))
 lines.push("")
+
 
 for (const c of cases) {
   captured = []
@@ -305,6 +264,7 @@ if (notices.length) {
   console.log()
 }
 
+
 if (failures.length) {
   console.log(paint.red(paint.bold(`${failures.length} problem(s):`)))
   for (const f of failures) console.log(`  ${f}`)
@@ -312,5 +272,5 @@ if (failures.length) {
   process.exit(1)
 }
 
-console.log(paint.green(paint.bold("both tabs render, populated and empty")))
+console.log(paint.green(paint.bold("the admin dashboard renders, populated and empty")))
 process.exit(0)
