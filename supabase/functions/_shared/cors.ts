@@ -30,6 +30,11 @@ const ALLOWED_HEADERS = [
   /* injected by the Cloudflare Worker in front of gw.ragestar.bond so the
      gateway can tell edge traffic from someone calling *.supabase.co direct */
   "x-rs-edge-secret",
+  /* the real caller address, also injected by that Worker. Needs its own
+     header because Cloudflare OVERWRITES cf-connecting-ip on a
+     Cloudflare -> Cloudflare subrequest, and *.supabase.co is behind
+     Cloudflare. See clientIpOf() below. */
+  "x-rs-client-ip",
 ].join(", ")
 
 const EXPOSED_HEADERS = [
@@ -66,6 +71,7 @@ const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
   .map((o) => o.trim())
   .filter(Boolean)
 
+
 export function corsHeaders(req?: Request): Record<string, string> {
   const origin = (req?.headers.get("origin") ?? "").trim()
 
@@ -89,6 +95,75 @@ export function corsHeaders(req?: Request): Record<string, string> {
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
   }
+}
+
+/* ---------------------------------------------------------------- client IP */
+
+/**
+ * The address of the caller, for the per-IP rate limit, the key-sharing guard,
+ * the abuse report and the auto-ban list.
+ *
+ * THE BUG THIS EXISTS TO FIX. Every request from every user was being logged
+ * with ONE identical address (2a06:98c0:3600::103): 2,452 requests, 37 distinct
+ * keys, 20 distinct users, one client_ip. Because the origin is *.supabase.co,
+ * which is itself behind Cloudflare, the hop from the Worker to the function is
+ * a Cloudflare -> Cloudflare subrequest, and on that hop Cloudflare OVERWRITES
+ * cf-connecting-ip with the Worker's own address. The Worker set the correct
+ * value and Cloudflare discarded it. Reading cf-connecting-ip first therefore
+ * returned Cloudflare's address every time.
+ *
+ * That was not cosmetic. It silently broke four things: the per-IP rate limit
+ * counted all users in one bucket, so one busy caller throttled everyone; the
+ * auto-ban list would have banned the shared address and locked out the whole
+ * gateway at once; the key-sharing guard always saw exactly 1 distinct IP per
+ * key and so could never fire; and every per-key IP allowlist became
+ * meaningless.
+ *
+ * ORDER OF TRUST, most to least:
+ *
+ *   1. x-rs-client-ip   set by cloudflare/worker.js under a name Cloudflare has
+ *                       no opinion about, so it survives the hop. Trusted ONLY
+ *                       when x-rs-edge-secret matches, which proves the header
+ *                       came from our Worker and not from a client hitting
+ *                       *.supabase.co directly and inventing its own address.
+ *   2. cf-connecting-ip correct when the origin is NOT behind Cloudflare, and
+ *                       the only option when no edge secret is configured.
+ *   3. x-forwarded-for  first hop, for any other reverse proxy.
+ *   4. x-real-ip        nginx and friends.
+ *
+ * `fromEdge` is passed in rather than read here so this module stays free of
+ * the RS_EDGE_SECRET environment variable and each function keeps ownership of
+ * its own trust decision.
+ *
+ * Returns a bare address string for the request_logs.client_ip inet column, or
+ * null when nothing trustworthy is present.
+ */
+export function resolveClientIp(
+  req: Request,
+  opts: { fromEdge: boolean; hasEdgeSecret: boolean },
+): string | null {
+  /* 1. our own Worker, proven by the shared secret */
+  if (opts.fromEdge) {
+    const edge = (req.headers.get("x-rs-client-ip") ?? "").trim()
+    if (edge) return edge
+  }
+
+  /* 2. Cloudflare's own header. Only trustworthy when the request came through
+        our edge, or when no secret is configured at all and there is nothing
+        better to go on. */
+  const cf = (req.headers.get("cf-connecting-ip") ?? "").trim()
+  if (cf && (opts.fromEdge || !opts.hasEdgeSecret)) return cf
+
+  /* 3. any other reverse proxy: the client is the first entry */
+  const xff = (req.headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+  if (xff.length) return xff[0]
+
+  /* 4. nginx-style */
+  const real = (req.headers.get("x-real-ip") ?? "").trim()
+  return real || null
 }
 
 /* ---------------------------------------------------------------- SSRF guard */
@@ -122,6 +197,7 @@ export function assertPublicHttpsUrl(raw: string, label = "base_url"): URL {
   }
   return url
 }
+
 
 /** JSON.parse that cannot throw and cannot pollute Object.prototype. */
 export function safeJsonParse<T>(text: unknown, fallback: T): T {
@@ -166,6 +242,7 @@ export function bodyLimitLabel(): string {
   if (mb >= 1) return `${Number.isInteger(mb) ? mb : mb.toFixed(1)} MB`;
   return `${Math.round(MAX_BODY_BYTES / 1024)} KB`;
 }
+
 
 /** How much of ONE side of a call (the request body, or the response text) the
  *  gateway is willing to store in public.request_payloads.
@@ -218,6 +295,7 @@ export function clampStoredPayload(text: string | null | undefined): StoredPaylo
   const cut = encoded.slice(0, MAX_STORED_PAYLOAD_BYTES);
   return { text: new TextDecoder().decode(cut), bytes: encoded.length, truncated: true };
 }
+
 
 /**
  * Answer for an OPTIONS preflight. Must be 2xx with the CORS headers.
