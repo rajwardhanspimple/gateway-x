@@ -1,88 +1,149 @@
-import { useMemo } from "react";
+/* ==========================================================================
+   Ambient — the backdrop behind every RageStar screen
+   --------------------------------------------------------------------------
+   Four layers, on one rule: motion either answers the reader or represents the
+   product. See ambient.css for what this replaced and why.
 
-const COLORS = ["#2447E8", "#1630B8", "#E23D28", "#101814", "#0D7A66", "#C79A1E"];
+     grid       static ruled paper
+     routes     five wires converging on one hub, packets running inward —
+                the shape of a gateway: many callers, one endpoint
+     spotlight  follows the pointer
+     texture    static depth wash, grain, vignette
 
-/**
- * Layered ambient backdrop: breathing cobalt/teal glows on drafting paper,
- * engineering grid, rising ink-and-cobalt motes, a slow scanner sweep,
- * vignette and grain. Pure CSS — cheap and seamless.
- */
+   Same export, same `intensity` prop and same call sites as the version it
+   replaces, so site.jsx and RageStarApp.jsx need no edit. `intensity` now
+   scales the number of packets in flight (capped at 6) rather than spawning up
+   to 26 drifting motes.
+
+   Performance. The pointer handler writes two CSS custom properties inside a
+   single rAF and never touches React state, so moving the mouse does not
+   re-render the tree. The packets are pure CSS animation on `transform` and
+   `opacity`, both compositor properties, so they never trigger layout.
+   ========================================================================== */
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import "./ambient.css";
+
+/* The viewBox the wires are drawn in. Fixed and unitless: the SVG scales with
+   preserveAspectRatio="none", so these are proportions, not pixels. */
+const VB = 1000;
+const HUB = VB / 2;
+
+/* Five callers on the edges, each with its own wire into the hub. Positions
+   are deliberately uneven — a symmetrical fan reads as a decoration, an
+   uneven one reads as a diagram. */
+const ROUTES = [
+  { x: 60, y: 180, bend: -70 },
+  { x: 930, y: 120, bend: 60 },
+  { x: 120, y: 820, bend: 80 },
+  { x: 880, y: 760, bend: -60 },
+  { x: 500, y: 40, bend: 0 },
+];
+
+/** A quadratic from a caller to the hub, bent so the wires do not all read as spokes. */
+function wirePath({ x, y, bend }) {
+  const mx = (x + HUB) / 2 + bend;
+  const my = (y + HUB) / 2 - bend * 0.4;
+  return `M ${x} ${y} Q ${mx} ${my} ${HUB} ${HUB}`;
+}
+
 export default function Ambient({ intensity = 26 }) {
-  const sparks = useMemo(
+  const root = useRef(null);
+  const [hasPointer, setHasPointer] = useState(false);
+
+  /* intensity is the old prop and the old call sites still pass 12 or 26.
+     Map it onto a packet count instead of a mote count: 12 -> 3, 26 -> 6. */
+  const packetCount = Math.max(2, Math.min(6, Math.round(intensity / 4.5)));
+
+  /* One packet per wire, cycling if there are more packets than wires. Timings
+     are staggered and irregular so the five do not pulse in unison. */
+  const packets = useMemo(
     () =>
-      Array.from({ length: intensity }, (_, i) => ({
-        left: Math.random() * 100,
-        size: 1.5 + Math.random() * 2.4,
-        dur: 12 + Math.random() * 18,
-        delay: -Math.random() * 26,
-        o: 0.2 + Math.random() * 0.45,
-        x: (Math.random() - 0.5) * 160,
-        color: COLORS[i % COLORS.length],
-        soft: Math.random() > 0.5,
-      })),
-    [intensity],
+      Array.from({ length: packetCount }, (_, i) => {
+        const route = ROUTES[i % ROUTES.length];
+        return {
+          key: i,
+          x: route.x,
+          y: route.y,
+          dx: HUB - route.x,
+          dy: HUB - route.y,
+          /* 7-11s: slow enough to read as traffic, not as a screensaver */
+          dur: 7 + ((i * 1.7) % 4),
+          delay: -(i * 2.3) % 9,
+          r: 2.5,
+        };
+      }),
+    [packetCount],
   );
 
+  /* The spotlight. Writes custom properties in a rAF; no React state, so
+     pointer movement never re-renders. */
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return undefined;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+
+    let frame = 0;
+    let pending = null;
+
+    const write = () => {
+      frame = 0;
+      if (!pending || !root.current) return;
+      root.current.style.setProperty("--amb-x", `${pending.x}%`);
+      root.current.style.setProperty("--amb-y", `${pending.y}%`);
+    };
+
+    const onMove = (e) => {
+      pending = {
+        x: ((e.clientX / window.innerWidth) * 100).toFixed(2),
+        y: ((e.clientY / window.innerHeight) * 100).toFixed(2),
+      };
+      if (!hasPointer) setHasPointer(true);
+      if (!frame) frame = window.requestAnimationFrame(write);
+    };
+
+    const onLeave = () => setHasPointer(false);
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    document.addEventListener("pointerleave", onLeave);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerleave", onLeave);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [hasPointer]);
+
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
-      {/* breathing cobalt wash, top */}
-      <div
-        className="pr-glow-breathe absolute -top-[22%] left-1/2 h-[75vh] w-[130vw] -translate-x-1/2"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(36,71,232,0.12), rgba(22,48,184,0.05) 45%, transparent 70%)",
-        }}
-      />
-      {/* counter-wash, bottom right: instrument teal */}
-      <div
-        className="pr-glow-breathe absolute -right-[12%] -bottom-[28%] h-[75vh] w-[75vw]"
-        style={{
-          animationDelay: "-5.5s",
-          background:
-            "radial-gradient(ellipse at center, rgba(13,122,102,0.1), rgba(199,154,30,0.04) 50%, transparent 70%)",
-        }}
-      />
-      {/* faint signal-red corner */}
-      <div
-        className="absolute -left-[14%] top-[30%] h-[50vh] w-[44vw]"
-        style={{ background: "radial-gradient(ellipse at center, rgba(226,61,40,0.06), transparent 68%)" }}
-      />
-      {/* engineering grid */}
-      <div className="pr-grid-backdrop absolute inset-0 opacity-70" />
+    <div className="amb" ref={root} data-pointer={hasPointer} aria-hidden="true">
+      <div className="amb-grid" />
 
-      {/* rising motes */}
-      {sparks.map((s, i) => (
-        <span
-          key={i}
-          className="pr-spark"
-          style={{
-            left: `${s.left}%`,
-            width: s.size,
-            height: s.size,
-            background: s.color,
-            boxShadow: s.soft ? `0 0 ${s.size * 2.4}px ${s.color}66` : undefined,
-            animationDuration: `${s.dur}s`,
-            animationDelay: `${s.delay}s`,
-            filter: s.soft ? "blur(0.5px)" : undefined,
-            ["--spark-o"]: s.o,
-            ["--spark-x"]: `${s.x}px`,
-          }}
-        />
-      ))}
+      <svg className="amb-routes" viewBox={`0 0 ${VB} ${VB}`} preserveAspectRatio="none" focusable="false">
+        {ROUTES.map((r) => (
+          <path key={`${r.x}-${r.y}`} className="amb-wire" d={wirePath(r)} />
+        ))}
+        <circle className="amb-hub" cx={HUB} cy={HUB} r={30} />
+        <circle className="amb-hub" cx={HUB} cy={HUB} r={54} />
+        {packets.map((p) => (
+          <circle
+            key={p.key}
+            className="amb-packet"
+            cx={p.x}
+            cy={p.y}
+            r={p.r}
+            style={{
+              "--dx": p.dx,
+              "--dy": p.dy,
+              animationDuration: `${p.dur}s`,
+              animationDelay: `${p.delay}s`,
+            }}
+          />
+        ))}
+      </svg>
 
-      {/* slow scanner sweep */}
-      <div className="pr-scanline" />
-
-      {/* vignette — ink at the frame edges */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 120% 92% at 50% 38%, transparent 46%, rgba(16,24,20,0.07) 80%, rgba(16,24,20,0.16))",
-        }}
-      />
-      {/* grain */}
-      <div className="pr-noise absolute inset-0 opacity-[0.055]" />
+      <div className="amb-depth" />
+      <div className="amb-spot" />
+      <div className="amb-grain" />
+      <div className="amb-vignette" />
     </div>
   );
 }
