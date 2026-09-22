@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { contextLabel, modelFilters, priceLabel } from "./data.js";
 import { cn } from "../lib/cn.js";
-import { useCatalog } from "../lib/workspace.js";
+import { useCatalog } from "../lib/useCatalog.js";
 import { API_BASE } from "../lib/gateway.js";
 
 export function CopyButton({ text, label = "Copy" }) {
@@ -26,6 +26,7 @@ export function CopyButton({ text, label = "Copy" }) {
     </button>
   );
 }
+
 
 export function CodeTabs({ modelId }) {
   const [tab, setTab] = useState("curl");
@@ -74,7 +75,8 @@ for await (const chunk of stream) {
 }`,
   };
 
-  return (
+  
+return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-ink-950/80">
       <div className="flex items-center justify-between gap-3 border-b border-white/8 px-3 py-2">
         <div className="flex gap-1">
@@ -99,6 +101,7 @@ for await (const chunk of stream) {
     </div>
   );
 }
+
 
 const statusTone = {
   ga: "text-lime-300 border-lime-400/25 bg-lime-500/10",
@@ -130,6 +133,7 @@ function PriceCell({ model }) {
     </div>
   );
 }
+
 
 function ModelCard({ model, onSelect, onTry }) {
   return (
@@ -163,7 +167,8 @@ function ModelCard({ model, onSelect, onTry }) {
         )}
       </div>
 
-      <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-white/8 pt-4">
+      
+<dl className="mt-4 grid grid-cols-2 gap-3 border-t border-white/8 pt-4">
         <div>
           <dt className="font-mono text-[9.5px] tracking-[0.16em] text-white/40 uppercase">context</dt>
           <dd className="mt-1 font-mono text-[12.5px] text-white/85">
@@ -202,6 +207,7 @@ function ModelCard({ model, onSelect, onTry }) {
   );
 }
 
+
 function ModelDetail({ model, onClose, onTry }) {
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -233,7 +239,8 @@ function ModelDetail({ model, onClose, onTry }) {
 
         <p className="mt-4 text-[13.5px] leading-relaxed text-white/60">{model.blurb}</p>
 
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        
+<div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {[
             { k: "context window", v: model.context ? `${model.context.toLocaleString()} tok` : "n/a" },
             { k: "median ttft", v: model.ttft ? `${model.ttft} ms` : "—" },
@@ -252,7 +259,8 @@ function ModelDetail({ model, onClose, onTry }) {
         <h3 className="mt-7 font-display text-[13px] font-semibold tracking-wide text-white uppercase">
           Best for
         </h3>
-        <ul className="mt-3 space-y-2">
+        
+<ul className="mt-3 space-y-2">
           {model.strengths.length === 0 ? (
             <li className="text-[13px] text-white/45">No curated notes for this model yet.</li>
           ) : null}
@@ -284,7 +292,8 @@ function ModelDetail({ model, onClose, onTry }) {
           <CodeTabs modelId={model.id} />
         </div>
 
-        <div className="sticky bottom-0 mt-8 flex gap-2 border-t border-white/8 bg-ink-900/95 pt-4">
+        
+<div className="sticky bottom-0 mt-8 flex gap-2 border-t border-white/8 bg-ink-900/95 pt-4">
           <button
             onClick={() => onTry(model.id)}
             className="flex-1 rounded-full bg-gradient-to-r from-orange-600 via-red-500 to-rose-500 px-5 py-3 text-[13px] font-medium text-white transition-all hover:shadow-[0_16px_40px_-16px_rgba(36,71,232,0.28)]"
@@ -303,6 +312,7 @@ function ModelDetail({ model, onClose, onTry }) {
   );
 }
 
+
 export function ModelCatalog({ variant = "dashboard", onTry, models: modelsProp }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
@@ -317,7 +327,12 @@ export function ModelCatalog({ variant = "dashboard", onTry, models: modelsProp 
      models and then swap them for the real catalog a moment later — the
      "shows one thing, then changes" flash. While the list is still loading the
      count is 0 and the grid says so, rather than showing models that may not
-     exist on this account. */
+     exist on this account.
+
+     The hook comes from lib/useCatalog.js rather than lib/workspace.js: that
+     one shares a single in-flight request across every component on the page,
+     so the stat tiles above this list can no longer report a different number
+     from the list itself. Same signature, so nothing below changes. */
   const loaded = useCatalog();
   const models = modelsProp ?? loaded ?? [];
   const pending = modelsProp ? false : loaded === null;
@@ -349,7 +364,8 @@ export function ModelCatalog({ variant = "dashboard", onTry, models: modelsProp 
     onTry?.(id);
   };
 
-  const grid = (
+  
+const grid = (
     <div className={cn("grid gap-4", variant === "public" ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4")}>
       {list.map((m) => (
         <ModelCard key={m.id} model={m} onSelect={() => setSelected(m)} onTry={() => handleTry(m.id)} />
@@ -362,7 +378,8 @@ export function ModelCatalog({ variant = "dashboard", onTry, models: modelsProp 
     </div>
   );
 
-  const controls = (
+  
+const controls = (
     <div className="flex flex-wrap items-center gap-3">
       <div className="relative min-w-[220px] flex-1">
         <svg
@@ -398,7 +415,8 @@ export function ModelCatalog({ variant = "dashboard", onTry, models: modelsProp 
     </div>
   );
 
-  return (
+  
+return (
     <div>
       <div className="flex flex-wrap gap-2">
         {modelFilters.map((f) => (
@@ -434,7 +452,8 @@ export function ModelCatalog({ variant = "dashboard", onTry, models: modelsProp 
         </div>
       ) : null}
 
-      {list.length === 0 && !pending && (
+      
+{list.length === 0 && !pending && (
         <div className="rounded-2xl border border-white/8 bg-white/[0.02] py-16 text-center">
           <p className="text-[13.5px] text-white/50">
             {query || filter !== "all" ? (
