@@ -74,7 +74,8 @@
   outline-offset: 2px;
 }
 
-.rs-appearance-icon {
+.rs-appearance-icon,
+.rs-appearance > svg {
   display: block;
   width: 18px;
   height: 18px;
@@ -139,5 +140,50 @@ body.is-auth-route .rs-appearance {
     border: 1px solid ButtonBorder;
     background: ButtonFace;
     color: ButtonText;
+  }
+}
+
+/* ==========================================================================
+   View Transition support for AnimatedThemeToggler
+   --------------------------------------------------------------------------
+   Required by the Magic UI component (its registry entry ships this same CSS
+   under a "css" key, which only the shadcn CLI would have applied). Without it
+   the browser cross-fades the two snapshots and the clip-path reveal is lost
+   underneath that fade.
+
+   Both pseudo-elements get animation: none so the only thing moving is the
+   clip-path the component animates, and mix-blend-mode: normal so the old and
+   new snapshots do not blend into a grey wash mid-wipe.
+   ========================================================================== */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* The component pins the collapsed clip-path here before the transition starts,
+   so Firefox cannot paint the new appearance unclipped in the frame between the
+   snapshot and the JS animation taking over. */
+[data-magicui-theme-vt="active"]::view-transition-new(root) {
+  clip-path: var(--magicui-theme-vt-clip-from);
+}
+
+/* The new snapshot sits above the old one, so the wipe reads as the new
+   appearance opening over the previous page rather than the reverse. */
+::view-transition-old(root) {
+  z-index: 0;
+}
+
+::view-transition-new(root) {
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The component already returns early and skips the transition, but a
+     transition started by anything else must not sweep the page either. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 }
